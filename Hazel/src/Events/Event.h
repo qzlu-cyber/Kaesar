@@ -2,9 +2,6 @@
 
 #include "Hazel/Core.h"
 
-#include <string>
-#include <functional>
-
 /// <summary>
 /// 由 Application 创建自己的窗口 Window，对应的 Window 不应该知道任何 Application 的信息，
 /// 所以还要同时创建一个 callback，用来在 Window 和 Application 传递数据时调用
