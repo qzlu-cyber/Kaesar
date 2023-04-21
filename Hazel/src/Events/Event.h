@@ -85,7 +85,7 @@ namespace Hazel {
         {
             if (m_Event.GetEventType() == T::GetStaticType())
             {
-                m_Event.Handled = func(*(T*)&m_Event);
+                m_Event.m_Handled = func(*(static_cast<T*>(&m_Event))); // 对 m_Event 取地址，转成一个 T 的指针，然后解引用
                 return true;
             }
             return false;

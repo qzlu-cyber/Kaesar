@@ -27,6 +27,7 @@ namespace Hazel {
     private:
         GLFWwindow* m_Window;
 
+        // 将数据传递给 GLFW
         struct WindowData
         {
             std::string Title;
