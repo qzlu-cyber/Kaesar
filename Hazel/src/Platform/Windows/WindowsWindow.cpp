@@ -9,7 +9,6 @@
 #include <glad/glad.h>
 
 namespace Hazel {
-
     static bool s_GLFWInitialized = false; // 用来确定 GLFW 调用的时候被初始化过了，否则会报错
 
     static void GLFWErrorCallback(int error, const char* description) {
@@ -47,20 +46,20 @@ namespace Hazel {
         m_Window = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_Data.Title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_Window);
 
-        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress); // gladLoadGLLoader 会根据不同的平台，调用不同的函数去加载 OpenGL 函数指针
         HZ_CORE_ASSERT(status, "Could not intialize Glad!");
 
         // 这里本质上是绑定了一个用户自定义的指针到 window，签名里是个 void*，根据文档，这就是
         // 一个用户自己爱干嘛干嘛的入口，glfw 本身不会对这个指针做任何操作，我们可以把对应的信息传进去
         glfwSetWindowUserPointer(m_Window, &m_Data);
-        SetVSync(true);
+        SetVSync(true); // 默认开启垂直同步
 
         /// 设置 GLFW 回调
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
             {
                 // 在 lambda 中调用 Application 绑定的回调函数
                 WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window))); // 先转成正确的指针类型再解引用
-                
+
                 // 更新窗口大小
                 data.Width = width;
                 data.Height = height;
@@ -71,7 +70,7 @@ namespace Hazel {
             }
         );
 
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
             {
                 WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
 
@@ -110,24 +109,33 @@ namespace Hazel {
             }
         );
 
+        glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
+            {
+                WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
+
+                KeyTypedEvent event(keycode);
+                data.EventCallback(event);
+            }
+        );
+
         glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
             {
                 WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
 
                 switch (action)
                 {
-                    case GLFW_PRESS:
-                    {
-                        MouseButtonPressedEvent event(button);
-                        data.EventCallback(event);
-                        break;
-                    }
-                    case GLFW_RELEASE:
-                    {
-                        MouseButtonReleasedEvent event(button);
-                        data.EventCallback(event);
-                        break;
-                    }
+                case GLFW_PRESS:
+                {
+                    MouseButtonPressedEvent event(button);
+                    data.EventCallback(event);
+                    break;
+                }
+                case GLFW_RELEASE:
+                {
+                    MouseButtonReleasedEvent event(button);
+                    data.EventCallback(event);
+                    break;
+                }
                 }
             }
         );
@@ -151,8 +159,8 @@ namespace Hazel {
         );
     }
 
-
-    void WindowsWindow::Shutdown() {
+    void WindowsWindow::Shutdown()
+    {
         glfwDestroyWindow(m_Window);
     }
 
@@ -160,7 +168,7 @@ namespace Hazel {
     {
         // 每次 update 时，处理当前在队列中的事件
         glfwPollEvents();
-        // 刷新下一帧 (严格来说是把 Framebuffe r后台帧换到前台，把 Framebuffer 当前帧换到后台，所以是 Swap)
+        // 刷新下一帧 (严格来说是把 Framebuffer 后台帧换到前台，把 Framebuffer 当前帧换到后台，所以是 Swap)
         glfwSwapBuffers(m_Window);
     }
 

@@ -10,10 +10,11 @@
 namespace Hazel {
 
     struct WindowProps {
-        std::string Title;
-        unsigned int Width;
-        unsigned int Height;
+        std::string Title; // 窗口名
+        unsigned int Width; // 窗口宽度
+        unsigned int Height; // 窗口高度
 
+        // 初始化窗口
         WindowProps(const std::string& title = "Hazel Engine",
             unsigned int width = 1280,
             unsigned int height = 720)
@@ -24,7 +25,7 @@ namespace Hazel {
 
     class HAZEL_API Window {
     public:
-        using EventCallbackFn = std::function<void(Event&)>;
+        using EventCallbackFn = std::function<void(Event&)>; // 事件回调函数。返回值为 void，参数为 Event&
 
         virtual ~Window() {};
 

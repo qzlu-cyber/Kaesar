@@ -7,26 +7,37 @@
 #include <glad/glad.h>
 
 namespace Hazel {
-
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
-    Application::Application() {
+    Application* Application::s_Instance = nullptr;
+
+    Application::Application() 
+    {
+        HZ_CORE_ASSERT(!s_Instance, "Application already exists!");
+        s_Instance = this;
+
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent)); // 设置回调函数
     }
 
-    Application::~Application() {
+    Application::~Application() 
+    {
     }
 
-    void Application::PushLayer(Layer* layer) {
+    void Application::PushLayer(Layer* layer) 
+    {
         m_LayerStack.PushLayer(layer);
+        layer->OnAttach();
     }
 
-    void Application::PushOverlay(Layer* overlay) {
+    void Application::PushOverlay(Layer* overlay) 
+    {
         m_LayerStack.PushOverlay(overlay);
+        overlay->OnAttach();
     }
 
-    void Application::OnEvent(Event& e) {
+    void Application::OnEvent(Event& e) 
+    {
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose)); // 检查事件 e 的 EventType 是否是 WindowClose，如果是就执行 OnWindowClose 函数
 
@@ -40,8 +51,8 @@ namespace Hazel {
         }
     }
 
-    void Application::Run() {
-
+    void Application::Run() 
+    {
         while (m_Running) {
             glClearColor(1, 0, 1, 1);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -53,9 +64,9 @@ namespace Hazel {
         }
     }
 
-    bool Application::OnWindowClose(WindowCloseEvent& e) {
+    bool Application::OnWindowClose(WindowCloseEvent& e) 
+    {
         m_Running = false;
         return true;
     }
-
 }

@@ -20,7 +20,7 @@ namespace Hazel {
         None = 0,
         WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
         AppTick, AppUpdate, AppRender,
-        KeyPressed, KeyReleased,
+        KeyPressed, KeyReleased, KeyTyped,
         MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
     };
 
@@ -72,7 +72,7 @@ namespace Hazel {
     class EventDispatcher
     {
         template<typename T>
-        using EventFn = std::function<bool(T&)>;
+        using EventFn = std::function<bool(T&)>; // 函数指针，接受一个 T 类型的引用，返回 bool
     public:
         EventDispatcher(Event& event)
             : m_Event(event)
@@ -94,7 +94,7 @@ namespace Hazel {
         Event& m_Event;
 
         // 输出事件的字符串表示
-        friend std::ostream& operator<<(std::ostream& os, const Event& e)
+        friend std::ostream& operator<<(std::ostream& os, const Event& e) 
         {
             return os << e.ToString();
         }
