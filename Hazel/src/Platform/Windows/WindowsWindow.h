@@ -20,6 +20,8 @@ namespace Hazel {
         void SetVSync(bool enabled) override;
         bool IsVSync() const override;
 
+        inline virtual void* GetNativeWindow() const { return m_Window; } // 为了在外部使用 GLFWwindow* m_Window; 的成员变量，所以要获取到这个成员变量。
+
     private:
         virtual void Init(const WindowProps& props);
         virtual void Shutdown();

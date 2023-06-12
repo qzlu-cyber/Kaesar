@@ -38,6 +38,8 @@ namespace Hazel {
         virtual void SetVSync(bool enabled) = 0;
         virtual bool IsVSync() const = 0;
 
+        virtual void* GetNativeWindow() const = 0; // 为了在外部使用 GLFWwindow* m_Window; 的成员变量，所以要获取到这个成员变量。
+
         // 在每个平台上被实现
         static Window* Create(const WindowProps& props = WindowProps());
     };

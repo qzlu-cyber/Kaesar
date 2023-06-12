@@ -7,12 +7,19 @@ public:
 
     void OnUpdate() override 
     {
-        HZ_INFO("ExampleLayer::Update");
+        if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT_ALT))
+            HZ_TRACE("Alt key is pressed (poll)!");
     }
 
-    void OnEvent(Hazel::Event& e) 
+    void OnEvent(Hazel::Event& event) 
     {
-        HZ_TRACE("{0}", e);
+        if (event.GetEventType() == Hazel::EventType::KeyPressed)
+        {
+            Hazel::KeyPressedEvent& e = static_cast<Hazel::KeyPressedEvent&>(event);
+            if (e.GetKeyCode() == HZ_KEY_LEFT_ALT)
+                HZ_TRACE("Alt key is pressed (event)!");
+            HZ_TRACE("{0}", static_cast<char>(e.GetKeyCode()));
+        }
     }
 };
 
