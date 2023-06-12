@@ -14,20 +14,12 @@ namespace Hazel {
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		void OnAttach();
-		void OnDetach();
-		void OnUpdate();
-		void OnEvent(Event& event);
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
+		virtual void OnImGuiRender() override;
 
-	private:
-		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& event); // 处理鼠标按下事件
-		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& event); // 处理鼠标松开事件
-		bool OnMouseMovedEvent(MouseMovedEvent& event); // 处理鼠标移动事件
-		bool OnMouseScrolledEvent(MouseScrolledEvent& event); // 处理鼠标滚轮事件
-		bool OnKeyPressedEvent(KeyPressedEvent& event); // 处理键盘按下事件
-		bool OnKeyReleasedEvent(KeyReleasedEvent& event); // 处理键盘松开事件
-		bool OnKeyTypedEvent(KeyTypedEvent& event); // 处理键盘输入事件
-		bool OnWindowResizeEvent(WindowResizeEvent& event); // 处理窗口大小改变事件
+		void Begin();
+		void End();
 
 	private:
 		float m_Time = 0.0f;

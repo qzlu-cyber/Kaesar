@@ -1,17 +1,26 @@
-#include <Hazel.h>
+ï»¿#include <Hazel.h>
+
+#include "imgui/imgui.h"
 
 class ExampleLayer : public Hazel::Layer {
 public:
     ExampleLayer()
         : Layer("Example") {}
 
-    void OnUpdate() override 
+    void OnUpdate() override
     {
         if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT_ALT))
             HZ_TRACE("Alt key is pressed (poll)!");
     }
 
-    void OnEvent(Hazel::Event& event) 
+    virtual void OnImGuiRender() override
+    {
+        ImGui::Begin("Test");
+        ImGui::Text("Hello World");
+        ImGui::End();
+    }
+
+    virtual void OnEvent(Hazel::Event& event) override
     {
         if (event.GetEventType() == Hazel::EventType::KeyPressed)
         {
@@ -32,18 +41,17 @@ public:
 private:
 };
 
-Sandbox::Sandbox() 
+Sandbox::Sandbox()
 {
-    PushLayer(new ExampleLayer());
-    PushOverlay(new Hazel::ImGuiLayer());
+    Application::PushLayer(new ExampleLayer());
 }
 
-Sandbox::~Sandbox() 
+Sandbox::~Sandbox()
 {
 }
 
-// ½«ÒıÇæµÄÈë¿ÚµãÒÆ¶¯µ½ÒıÇæµÄ´úÂëÖĞ£¬Sandbox Ö»¾Û½¹Êµ¼ÊÓ¦ÓÃ
-Hazel::Application* Hazel::CreateApplication() 
+// å°†å¼•æ“çš„å…¥å£ç‚¹ç§»åŠ¨åˆ°å¼•æ“çš„ä»£ç ä¸­ï¼ŒSandbox åªèšç„¦å®é™…åº”ç”¨
+Hazel::Application* Hazel::CreateApplication()
 {
     return new Sandbox();
 }

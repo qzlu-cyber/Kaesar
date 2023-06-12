@@ -23,7 +23,7 @@ namespace Hazel {
 		std::vector<Layer*>::iterator end() { return m_Layers.end(); }
 	private:
 		std::vector<Layer*> m_Layers; // 保存所有 layer 的栈
-		std::vector<Layer*>::iterator m_LayerInsert; // 当前的栈针
+		unsigned int m_LayerInsertIndex = 0; // 当前的栈针
     };
 }
 

@@ -24,7 +24,7 @@ include "Hazel/vendor/imgui"
 
 project "Hazel"
 	location "Hazel"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
 	staticruntime "off"
 
@@ -110,6 +110,7 @@ project "Sandbox"
 	{
 		"Hazel/vendor/spdlog/include",
 		"Hazel/src",
+		"Hazel/vendor",
 		"%{IncludeDir.glm}"
 	}
 
