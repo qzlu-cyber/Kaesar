@@ -6,6 +6,8 @@
 #include "Events/MouseEvent.h"
 #include "Events/KeyEvent.h"
 
+#include "Platform/OpenGL/OpenGLContext.h"
+
 #include <glad/glad.h>
 
 namespace Hazel {
@@ -44,10 +46,9 @@ namespace Hazel {
         }
 
         m_Window = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_Data.Title.c_str(), nullptr, nullptr);
-        glfwMakeContextCurrent(m_Window);
 
-        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress); // gladLoadGLLoader 会根据不同的平台，调用不同的函数去加载 OpenGL 函数指针
-        HZ_CORE_ASSERT(status, "Could not intialize Glad!");
+        m_Context = new OpenGLContext(m_Window);
+        m_Context->Init(); // 初始化 OpenGLContext
 
         // 这里本质上是绑定了一个用户自定义的指针到 window，签名里是个 void*，根据文档，这就是
         // 一个用户自己爱干嘛干嘛的入口，glfw 本身不会对这个指针做任何操作，我们可以把对应的信息传进去
@@ -169,7 +170,7 @@ namespace Hazel {
         // 每次 update 时，处理当前在队列中的事件
         glfwPollEvents();
         // 刷新下一帧 (严格来说是把 Framebuffer 后台帧换到前台，把 Framebuffer 当前帧换到后台，所以是 Swap)
-        glfwSwapBuffers(m_Window);
+        m_Context->SwapBuffers();
     }
 
     void WindowsWindow::SetVSync(bool enabled)

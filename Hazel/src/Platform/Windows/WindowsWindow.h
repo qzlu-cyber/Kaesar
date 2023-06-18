@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Hazel/Window.h"
+#include "Hazel/Renderer/GraphicsContext.h"
 
 namespace Hazel {
 
@@ -27,6 +28,7 @@ namespace Hazel {
         virtual void Shutdown();
 
     private:
+        GraphicsContext* m_Context;
         GLFWwindow* m_Window;
 
         // 将数据传递给 GLFW
