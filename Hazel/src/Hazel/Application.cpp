@@ -28,27 +28,46 @@ namespace Hazel {
              0.0f,  0.5f, 0.0f
         };
 
-        unsigned int indices[] = { 0, 1, 2 };
+        uint32_t indices[] = { 0, 1, 2 };
 
         // OpenGL 核心模式强制使用 VAO (顶点数组对象) 
         glGenVertexArrays(1, &m_VertexArray);
         glBindVertexArray(m_VertexArray);
 
         // 将顶点数组复制到一个顶点缓冲中
-        glGenBuffers(1, &m_VertexBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
         // 将索引数组到一个索引缓冲中
-        glGenBuffers(1, &m_IndexBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
-
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
         // 设定顶点属性指针
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
         glEnableVertexAttribArray(0);
+
+        std::string vertexSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) in vec3 a_Position;
+			out vec3 v_Position;
+			void main()
+			{
+				v_Position = a_Position;
+				gl_Position = vec4(a_Position, 1.0);	
+			}
+		)";
+
+        std::string fragmentSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) out vec4 color;
+			in vec3 v_Position;
+			void main()
+			{
+				color = vec4(v_Position * 0.5 + 0.5, 1.0);
+			}
+		)";
+
+        m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
     }
 
     Application::~Application() 
@@ -89,7 +108,8 @@ namespace Hazel {
             glClear(GL_COLOR_BUFFER_BIT);
 
             glBindVertexArray(m_VertexArray);
-            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+            m_Shader->Bind();
+            glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
 
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
