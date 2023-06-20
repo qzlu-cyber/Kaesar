@@ -6,7 +6,6 @@
 #include "Hazel/Renderer/GraphicsContext.h"
 
 namespace Hazel {
-
     class HAZEL_API WindowsWindow : public Window {
     public:
         WindowsWindow(const WindowProps& props);

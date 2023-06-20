@@ -8,7 +8,6 @@
 #include "Events/Event.h"
 
 namespace Hazel {
-
     struct WindowProps {
         std::string Title; // 窗口名
         unsigned int Width; // 窗口宽度

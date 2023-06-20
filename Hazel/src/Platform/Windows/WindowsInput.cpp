@@ -11,7 +11,7 @@ namespace Hazel {
     {
         auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         auto state = glfwGetKey(window, keycode); // 两个参数，(GLFWwindow* window, int key) 在哪个窗口按下了哪个键，所以要获取到窗口。WindowsWindow 中有一个 private 的 GLFWwindow* m_Window; 的成员变量，所以要获取到这个成员变量。
-        
+
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
 
@@ -28,7 +28,7 @@ namespace Hazel {
         auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        
+
         return std::pair<float, float>(static_cast<float>(xpos), static_cast<float>(ypos));
     }
 

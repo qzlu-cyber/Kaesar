@@ -94,10 +94,9 @@ namespace Hazel {
         Event& m_Event;
 
         // 输出事件的字符串表示
-        friend std::ostream& operator<<(std::ostream& os, const Event& e) 
+        friend std::ostream& operator<<(std::ostream& os, const Event& e)
         {
             return os << e.ToString();
         }
     };
-
 }
