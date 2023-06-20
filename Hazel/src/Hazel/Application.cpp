@@ -11,27 +11,6 @@ namespace Hazel {
 
     Application* Application::s_Instance = nullptr;
 
-    static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-    {
-        switch (type)
-        {
-            case Hazel::ShaderDataType::Float:    return GL_FLOAT;
-            case Hazel::ShaderDataType::Float2:   return GL_FLOAT;
-            case Hazel::ShaderDataType::Float3:   return GL_FLOAT;
-            case Hazel::ShaderDataType::Float4:   return GL_FLOAT;
-            case Hazel::ShaderDataType::Mat3:     return GL_FLOAT;
-            case Hazel::ShaderDataType::Mat4:     return GL_FLOAT;
-            case Hazel::ShaderDataType::Int:      return GL_INT;
-            case Hazel::ShaderDataType::Int2:     return GL_INT;
-            case Hazel::ShaderDataType::Int3:     return GL_INT;
-            case Hazel::ShaderDataType::Int4:     return GL_INT;
-            case Hazel::ShaderDataType::Bool:     return GL_BOOL;
-        }
-
-        HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
-        return 0;
-    }
-
     Application::Application()
     {
         HZ_CORE_ASSERT(!s_Instance, "Application already exists!");
@@ -51,74 +30,52 @@ namespace Hazel {
 
         uint32_t indices[] = { 0, 1, 2 };
 
-        // OpenGL 核心模式强制使用 VAO (顶点数组对象)
-        glGenVertexArrays(1, &m_VertexArray);
-        glBindVertexArray(m_VertexArray);
-
+        m_VertexArray.reset(VertexArray::Create());
+        std::shared_ptr<VertexBuffer> vertexBuffer;
         // 将顶点数组复制到一个顶点缓冲中
-        m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+        vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
+        std::shared_ptr<IndexBuffer> indexBuffer;
         // 将索引数组到一个索引缓冲中
-        m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+        indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
-        {
-            BufferLayout layout = {
-                { ShaderDataType::Float3, "a_Position" },
-                { ShaderDataType::Float4, "a_Color" }
-            };
+        BufferLayout layout = {
+            { ShaderDataType::Float3, "a_Position" },
+            { ShaderDataType::Float4, "a_Color" }
+        };
 
-            m_VertexBuffer->SetLayout(layout);
-        }
+        vertexBuffer->SetLayout(layout);
 
-        uint32_t index = 0;
-        const BufferLayout& layout = m_VertexBuffer->GetLayout();
-        for (const auto& element : layout) {
-            // 设定顶点属性指针
-            glEnableVertexAttribArray(index);
-            glVertexAttribPointer(
-                index, 
-                element.GetComponentCount(), 
-                ShaderDataTypeToOpenGLBaseType(element.Type), 
-                element.Normalized ? GL_TRUE : GL_FALSE, 
-                layout.GetStride(), 
-                (const void*)(element.Offset)
-            );
-            index++;
-        }
+        m_VertexArray->AddVertexBuffer(vertexBuffer);
+        m_VertexArray->SetIndexBuffer(indexBuffer);
 
-        std::string vertexSrc = R"(
-			#version 330 core
+        const std::string basicFilePath = "D:\\CPP\\Hazel\\Hazel\\src\\res\\shaders\\basic.shader";
+        m_Shader.reset(new Shader(basicFilePath));
 
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
+        float squareVertices[3 * 4] = {
+            -0.75f, -0.75f, 0.0f,
+             0.75f, -0.75f, 0.0f,
+             0.75f,  0.75f, 0.0f,
+            -0.75f,  0.75f, 0.0f
+        };
 
-			out vec3 v_Position;
-            out vec4 v_Color;
+        uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
-			void main()
-			{
-				v_Position = a_Position;
-                v_Color = a_Color;
-				gl_Position = vec4(a_Position, 1.0);
-			}
-		)";
+        m_SquareVA.reset(VertexArray::Create());
 
-        std::string fragmentSrc = R"(
-			#version 330 core
+        std::shared_ptr<VertexBuffer> squareVB;
+        squareVB.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        squareVB->SetLayout({
+            { ShaderDataType::Float3, "a_Position" }
+        });
+        m_SquareVA->AddVertexBuffer(squareVB);
 
-			layout(location = 0) out vec4 color;
+        std::shared_ptr<IndexBuffer> squareIB;
+        squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+        m_SquareVA->SetIndexBuffer(squareIB);
 
-			in vec3 v_Position;
-            in vec4 v_Color;
-
-			void main()
-			{
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-                color = v_Color;
-			}
-		)";
-
-        m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
+        const std::string blueFilePath = "D:\\CPP\\Hazel\\Hazel\\src\\res\\shaders\\blue.shader";
+        m_BlueShader.reset(new Shader(blueFilePath));
     }
 
     Application::~Application()
@@ -158,9 +115,13 @@ namespace Hazel {
             glClearColor(0.2f, 0.2f, 0.2f, 1);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glBindVertexArray(m_VertexArray);
+            m_SquareVA->Bind();
+            m_BlueShader->Bind();
+            glDrawElements(GL_TRIANGLES, m_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+
+            m_VertexArray->Bind();
             m_Shader->Bind();
-            glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
