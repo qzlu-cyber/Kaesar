@@ -100,6 +100,11 @@ namespace Hazel {
         glDetachShader(shaderProgram, fragmentShader);
     }
 
+    void Shader::SetMatrix(const std::string& name, const glm::mat4& matrix)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(m_RendererID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+    }
+
     Shader::Shader(const std::string& filePath)
     {
         // 创建着色器对象

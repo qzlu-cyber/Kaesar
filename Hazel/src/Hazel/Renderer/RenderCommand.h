@@ -16,6 +16,10 @@ namespace Hazel {
             s_RendererAPI->Clear();
         }
 
+        inline static void DepthTest() {
+            s_RendererAPI->DepthTest();
+        }
+
         inline static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
         {
             s_RendererAPI->DrawIndexed(vertexArray);
