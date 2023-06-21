@@ -3,6 +3,8 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyEvent.h"
 #include "Log.h"
+#include "Renderer/RenderCommand.h"
+#include "Renderer/Renderer.h"
 
 #include <glad/glad.h>
 
@@ -31,12 +33,13 @@ namespace Hazel {
         uint32_t indices[] = { 0, 1, 2 };
 
         m_VertexArray.reset(VertexArray::Create());
-        std::shared_ptr<VertexBuffer> vertexBuffer;
+
         // 将顶点数组复制到一个顶点缓冲中
+        std::shared_ptr<VertexBuffer> vertexBuffer;
         vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
-        std::shared_ptr<IndexBuffer> indexBuffer;
         // 将索引数组到一个索引缓冲中
+        std::shared_ptr<IndexBuffer> indexBuffer;
         indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
         BufferLayout layout = {
@@ -49,8 +52,8 @@ namespace Hazel {
         m_VertexArray->AddVertexBuffer(vertexBuffer);
         m_VertexArray->SetIndexBuffer(indexBuffer);
 
-        const std::string basicFilePath = "D:\\CPP\\Hazel\\Hazel\\src\\res\\shaders\\basic.shader";
-        m_Shader.reset(new Shader(basicFilePath));
+        const std::string basicShaderPath = "D:\\CPP\\Hazel\\Hazel\\src\\res\\shaders\\basic.shader";
+        m_Shader.reset(new Shader(basicShaderPath));
 
         float squareVertices[3 * 4] = {
             -0.75f, -0.75f, 0.0f,
@@ -67,15 +70,15 @@ namespace Hazel {
         squareVB.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
         squareVB->SetLayout({
             { ShaderDataType::Float3, "a_Position" }
-            });
+        });
         m_SquareVA->AddVertexBuffer(squareVB);
 
         std::shared_ptr<IndexBuffer> squareIB;
         squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
         m_SquareVA->SetIndexBuffer(squareIB);
 
-        const std::string blueFilePath = "D:\\CPP\\Hazel\\Hazel\\src\\res\\shaders\\blue.shader";
-        m_BlueShader.reset(new Shader(blueFilePath));
+        const std::string blueShaderPath = "D:\\CPP\\Hazel\\Hazel\\src\\res\\shaders\\blue.shader";
+        m_BlueShader.reset(new Shader(blueShaderPath));
     }
 
     Application::~Application()
@@ -112,16 +115,18 @@ namespace Hazel {
     void Application::Run()
     {
         while (m_Running) {
-            glClearColor(0.2f, 0.2f, 0.2f, 1);
-            glClear(GL_COLOR_BUFFER_BIT);
+            RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+            RenderCommand::Clear();
 
-            m_SquareVA->Bind();
+            Renderer::BeginScene();
+
             m_BlueShader->Bind();
-            glDrawElements(GL_TRIANGLES, m_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+            Renderer::Submit(m_SquareVA);
 
-            m_VertexArray->Bind();
             m_Shader->Bind();
-            glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+            Renderer::Submit(m_VertexArray);
+
+            Renderer::EndScene();
 
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
