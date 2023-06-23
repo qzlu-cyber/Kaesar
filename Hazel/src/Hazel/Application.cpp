@@ -138,6 +138,12 @@ namespace Hazel {
     {
         m_Camera = std::make_shared<OrthographicCamera>();
 
+        float deltaTime = 0.0f; // 当前帧与上一帧的时间差
+        float lastFrame = 0.0f; // 上一帧的时间
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         while (m_Running) {
             RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
             RenderCommand::Clear();
@@ -145,7 +151,7 @@ namespace Hazel {
 
             Renderer::BeginScene();
 
-            m_Camera->CameraFreeMove();
+            m_Camera->CameraFreeMove(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow()), deltaTime);
 
             glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
             glm::mat4 view = glm::mat4(1.0f);

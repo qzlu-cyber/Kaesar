@@ -4,62 +4,38 @@
 #include "Hazel/KeyCodes.h"
 #include "Hazel/MouseButtonCodes.h"
 #include "Platform/Windows/WindowsInput.h"
-#include "Hazel/Application.h"
-
-#include <GLFW/glfw3.h>
 
 namespace Hazel {
-    bool OrthographicCamera::firstMouse = true;
-    float OrthographicCamera::yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-    float OrthographicCamera::pitch = 0.0f;
-    float OrthographicCamera::lastX = 1280.0f / 2.0;
-    float OrthographicCamera::lastY = 720.0 / 2.0;
     float OrthographicCamera::fov = 90.0f;
 
-    glm::vec3 OrthographicCamera::cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-
-    OrthographicCamera::OrthographicCamera()
+    OrthographicCamera::OrthographicCamera(const glm::vec3& position, float yaw, float pitch, float lastX, float lastY, bool firstMouse)
+        : m_CameraPosition(position), yaw(yaw), pitch(pitch), lastX(lastX), lastY(lastY),firstMouse(firstMouse)
     {
-        m_CameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
-        m_CameraDirection = glm::normalize(m_CameraPosition - glm::vec3(0.0f, 0.0f, 0.0f));
-        m_CameraRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), m_CameraDirection));
-        m_CameraUp = glm::cross(m_CameraDirection, m_CameraRight);
-
-        m_ViewMatrix = glm::lookAt(m_CameraPosition, m_CameraPosition + cameraFront, cameraUp);
+        m_CameraDirection = glm::normalize(m_CameraPosition);
+        m_CameraRight     = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), m_CameraDirection));
+        m_CameraUp        = glm::cross(m_CameraPosition, m_CameraRight);
+        m_ViewMatrix      = glm::mat4(1.0f);
     }
 
-    void OrthographicCamera::SetViewMatrix(const glm::vec3& eye, const glm::vec3& center, const glm::vec3& up)
+    void OrthographicCamera::CameraFreeMove(GLFWwindow* window, float deltaTime)
     {
-        m_ViewMatrix = glm::lookAt(eye, center, up);
-    }
-
-    void OrthographicCamera::CameraFreeMove()
-    {
-        float deltaTime = 0.0f; // 当前帧与上一帧的时间差
-        float lastFrame = 0.0f; // 上一帧的时间
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-
         float cameraSpeed = 0.01f * deltaTime;
 
         if (WindowsInput::IsKeyPressed(HZ_KEY_W))
         {
-            m_CameraPosition += cameraSpeed * cameraFront;
+            m_CameraPosition += cameraSpeed * (-m_CameraDirection);
         }
         if (WindowsInput::IsKeyPressed(HZ_KEY_S))
         {
-            m_CameraPosition -= cameraSpeed * cameraFront;
+            m_CameraPosition -= cameraSpeed * (-m_CameraDirection);
         }
         if (WindowsInput::IsKeyPressed(HZ_KEY_A))
         {
-            m_CameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            m_CameraPosition -= glm::normalize(glm::cross((-m_CameraDirection), m_CameraUp)) * cameraSpeed;
         }
         if (WindowsInput::IsKeyPressed(HZ_KEY_D))
         {
-            m_CameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            m_CameraPosition += glm::normalize(glm::cross((-m_CameraDirection), m_CameraUp)) * cameraSpeed;
         }
 
         if (WindowsInput::IsMouseButtonPressed(HZ_MOUSE_BUTTON_RIGHT))
@@ -69,8 +45,6 @@ namespace Hazel {
         }
 
         glfwSetScrollCallback(window, OrthographicCamera::CameraScale);
-
-        OrthographicCamera::SetViewMatrix(m_CameraPosition, m_CameraPosition + cameraFront, cameraUp);
     }
 
     void OrthographicCamera::CameraMovement(float xPos, float yPos)
@@ -82,17 +56,17 @@ namespace Hazel {
             firstMouse = false;
         }
 
-        float xoffset = xPos - lastX;
-        float yoffset = lastY - yPos; // reversed since y-coordinates go from bottom to top
+        float xOffset = xPos - lastX;
+        float yOffset = lastY - yPos; // reversed since y-coordinates go from bottom to top
         lastX = xPos;
         lastY = yPos;
 
         float sensitivity = 0.1f; // change this value to your liking
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
+        xOffset *= sensitivity;
+        yOffset *= sensitivity;
 
-        yaw += xoffset;
-        pitch += yoffset;
+        yaw += xOffset;
+        pitch += yOffset;
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
         if (pitch > 89.0f)
@@ -104,15 +78,15 @@ namespace Hazel {
         front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         front.y = sin(glm::radians(pitch));
         front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        cameraFront = glm::normalize(front);
+        m_CameraDirection = -glm::normalize(front);
     }
 
     void OrthographicCamera::CameraScale(GLFWwindow* window, double xOffset, double yOffset)
     {
         fov -= static_cast<float>(yOffset);
+        if (fov >= 1.0f && fov <= 45.0f)
+            fov -= yOffset;
         if (fov < 1.0f)
             fov = 1.0f;
-        if (fov > 45.0f)
-            fov = 45.0f;
     }
 }
