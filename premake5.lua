@@ -1,4 +1,4 @@
-workspace "Hazel"
+workspace "Kaesar"
 	architecture "x64"
 	startproject "Sandbox"
 
@@ -13,17 +13,17 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
-IncludeDir["GLFW"] = "Hazel/vendor/GLFW/include"
-IncludeDir["Glad"] = "Hazel/vendor/Glad/include"
-IncludeDir["ImGui"] = "Hazel/vendor/imgui"
-IncludeDir["glm"] = "Hazel/vendor/glm"
+IncludeDir["GLFW"] = "Kaesar/vendor/GLFW/include"
+IncludeDir["Glad"] = "Kaesar/vendor/Glad/include"
+IncludeDir["ImGui"] = "Kaesar/vendor/imgui"
+IncludeDir["glm"] = "Kaesar/vendor/glm"
 
-include "Hazel/vendor/GLFW"
-include "Hazel/vendor/Glad"
-include "Hazel/vendor/imgui"
+include "Kaesar/vendor/GLFW"
+include "Kaesar/vendor/Glad"
+include "Kaesar/vendor/imgui"
 
-project "Hazel"
-	location "Hazel"
+project "Kaesar"
+	location "Kaesar"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
@@ -32,8 +32,8 @@ project "Hazel"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	pchheader "hzpch.h"
-	pchsource "Hazel/src/hzpch.cpp"
+	pchheader "krpch.h"
+	pchsource "Kaesar/src/krpch.cpp"
 
 	files
 	{
@@ -71,23 +71,23 @@ project "Hazel"
 
 		defines
 		{
-			"HZ_PLATFORM_WINDOWS",
-			"HZ_BUILD_DLL",
+			"KR_PLATFORM_WINDOWS",
+			"KR_BUILD_DLL",
 			"GLFW_INCLUDE_NONE"
 		}
 
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "KR_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "HZ_RELEASE"
+		defines "KR_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "HZ_DIST"
+		defines "KR_DIST"
 		runtime "Release"
 		optimize "on"
 
@@ -109,15 +109,15 @@ project "Sandbox"
 
 	includedirs
 	{
-		"Hazel/vendor/spdlog/include",
-		"Hazel/src",
-		"Hazel/vendor",
+		"Kaesar/vendor/spdlog/include",
+		"Kaesar/src",
+		"Kaesar/vendor",
 		"%{IncludeDir.glm}"
 	}
 
 	links
 	{
-		"Hazel"
+		"Kaesar"
 	}
 
 	filter "system:windows"
@@ -125,20 +125,20 @@ project "Sandbox"
 
 		defines
 		{
-			"HZ_PLATFORM_WINDOWS"
+			"KR_PLATFORM_WINDOWS"
 		}
 
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "KR_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "HZ_RELEASE"
+		defines "KR_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "HZ_DIST"
+		defines "KR_DIST"
 		runtime "Release"
 		optimize "on"

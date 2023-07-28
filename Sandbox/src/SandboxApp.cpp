@@ -1,16 +1,16 @@
-﻿#include <Hazel.h>
+﻿#include <Kaesar.h>
 
 #include "imgui/imgui.h"
 
-class ExampleLayer : public Hazel::Layer {
+class ExampleLayer : public Kaesar::Layer {
 public:
     ExampleLayer()
         : Layer("Example") {}
 
     void OnUpdate() override
     {
-        if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT_ALT))
-            HZ_TRACE("Alt key is pressed (poll)!");
+        if (Kaesar::Input::IsKeyPressed(KR_KEY_LEFT_ALT))
+            KR_TRACE("Alt key is pressed (poll)!");
     }
 
     virtual void OnImGuiRender() override
@@ -20,19 +20,19 @@ public:
         ImGui::End();
     }
 
-    virtual void OnEvent(Hazel::Event& event) override
+    virtual void OnEvent(Kaesar::Event& event) override
     {
-        if (event.GetEventType() == Hazel::EventType::KeyPressed)
+        if (event.GetEventType() == Kaesar::EventType::KeyPressed)
         {
-            Hazel::KeyPressedEvent& e = static_cast<Hazel::KeyPressedEvent&>(event);
-            if (e.GetKeyCode() == HZ_KEY_LEFT_ALT)
-                HZ_TRACE("Alt key is pressed (event)!");
-            HZ_TRACE("{0}", static_cast<char>(e.GetKeyCode()));
+            Kaesar::KeyPressedEvent& e = static_cast<Kaesar::KeyPressedEvent&>(event);
+            if (e.GetKeyCode() == KR_KEY_LEFT_ALT)
+                KR_TRACE("Alt key is pressed (event)!");
+            KR_TRACE("{0}", static_cast<char>(e.GetKeyCode()));
         }
     }
 };
 
-class Sandbox : public Hazel::Application
+class Sandbox : public Kaesar::Application
 {
 public:
     Sandbox();
@@ -51,7 +51,7 @@ Sandbox::~Sandbox()
 }
 
 // 将引擎的入口点移动到引擎的代码中，Sandbox 只聚焦实际应用
-Hazel::Application* Hazel::CreateApplication()
+Kaesar::Application* Kaesar::CreateApplication()
 {
     return new Sandbox();
 }
