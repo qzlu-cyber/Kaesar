@@ -1399,6 +1399,7 @@
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
+    <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1465,5 +1466,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
+    <ClCompile Include="vendor\stb_image\stb_image.cpp" />
   </ItemGroup>
 </Project>

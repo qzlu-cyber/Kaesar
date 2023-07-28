@@ -17,6 +17,7 @@ IncludeDir["GLFW"] = "Kaesar/vendor/GLFW/include"
 IncludeDir["Glad"] = "Kaesar/vendor/Glad/include"
 IncludeDir["ImGui"] = "Kaesar/vendor/imgui"
 IncludeDir["glm"] = "Kaesar/vendor/glm"
+IncludeDir["stb_image"] = "Kaesar/vendor/stb_image"
 
 include "Kaesar/vendor/GLFW"
 include "Kaesar/vendor/Glad"
@@ -40,7 +41,9 @@ project "Kaesar"
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl"
+		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp"
 	}
 
 	includedirs
@@ -50,7 +53,8 @@ project "Kaesar"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}"
 	}
 
 	links 
