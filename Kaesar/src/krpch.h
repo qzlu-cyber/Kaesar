@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Kaesar/Log.h"
+#include "Kaesar/Core/Log.h"
 
 #ifdef KR_PLATFORM_WINDOWS
 #include <Windows.h>

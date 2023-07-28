@@ -1,16 +1,16 @@
 #pragma once
 
+#include "Events/ApplicationEvent.h"
+#include "Kaesar/ImGui/ImGuiLayer.h"
+#include "Kaesar/Renderer/Shader.h"
+#include "Kaesar/Renderer/Buffer.h"
+#include "Kaesar/Renderer/VertexArray.h"
+#include "Kaesar/Renderer/OrthographicCamera.h"
+
 #include "Core.h"
 #include "Events/Event.h"
 #include "Window.h"
 #include "LayerStack.h"
-#include "Kaesar/ImGui/ImGuiLayer.h"
-#include "Events/ApplicationEvent.h"
-
-#include "Renderer/Shader.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/OrthographicCamera.h"
 
 namespace Kaesar {
     class Kaesar_API Application
@@ -30,16 +30,18 @@ namespace Kaesar {
         inline static Application& Get() { return *s_Instance; }
     private:
         bool OnWindowClose(WindowCloseEvent& e);
+        bool onWindowResize(WindowResizeEvent& e);
+
+    private:
+        static Application* s_Instance; // 单例模式
 
         std::unique_ptr<Window> m_Window;
         ImGuiLayer* m_ImGuiLayer;
 
-        bool m_Running = true;
+        bool m_Running = true; // 程序是否运行
+        bool m_Minimized = false; // 窗口是否最小化
 
         LayerStack m_LayerStack;
-
-    private:
-        static Application* s_Instance;
 
         std::shared_ptr<Shader> m_Shader;
         std::shared_ptr<VertexArray> m_VertexArray;

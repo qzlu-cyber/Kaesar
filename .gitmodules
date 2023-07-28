@@ -1,12 +1,12 @@
 [submodule "Kaesar/vendor/spdlog"]
 	path = Kaesar/vendor/spdlog
-	url = https://github.com/gabime/spdlog
+	url = https://github.com/gabime/spdlog.git
 [submodule "Kaesar/vendor/GLFW"]
 	path = Kaesar/vendor/GLFW
-	url = https://github.com/TheCherno/glfw
+	url = https://github.com/ErfanMo77/glfw.git
 [submodule "Kaesar/vendor/imgui"]
 	path = Kaesar/vendor/imgui
-	url = https://github.com/ocornut/imgui
+	url = https://github.com/ErfanMo77/imgui.git
 [submodule "Kaesar/vendor/glm"]
 	path = Kaesar/vendor/glm
-	url = https://github.com/g-truc/glm
+	url = https://github.com/g-truc/glm.git

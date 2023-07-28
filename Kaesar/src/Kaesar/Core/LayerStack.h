@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kaesar/Core.h"
+#include "Core.h"
 #include "Layer.h"
 
 namespace Kaesar {

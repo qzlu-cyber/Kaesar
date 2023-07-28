@@ -95,7 +95,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>hzpch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>krpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;KR_PLATFORM_WINDOWS;KR_BUILD_DLL;GLFW_INCLUDE_NONE;KR_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -120,7 +120,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>hzpch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>krpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;KR_PLATFORM_WINDOWS;KR_BUILD_DLL;GLFW_INCLUDE_NONE;KR_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -148,15 +148,20 @@
     <ClInclude Include="src\Events\KeyEvent.h" />
     <ClInclude Include="src\Events\MouseEvent.h" />
     <ClInclude Include="src\Kaesar.h" />
-    <ClInclude Include="src\Kaesar\Application.h" />
-    <ClInclude Include="src\Kaesar\Core.h" />
-    <ClInclude Include="src\Kaesar\EntryPoint.h" />
+    <ClInclude Include="src\Kaesar\Core\Application.h" />
+    <ClInclude Include="src\Kaesar\Core\Core.h" />
+    <ClInclude Include="src\Kaesar\Core\EntryPoint.h" />
+    <ClInclude Include="src\Kaesar\Core\Input.h" />
+    <ClInclude Include="src\Kaesar\Core\KeyCodes.h" />
+    <ClInclude Include="src\Kaesar\Core\Layer.h" />
+    <ClInclude Include="src\Kaesar\Core\LayerStack.h" />
+    <ClInclude Include="src\Kaesar\Core\Log.h" />
+    <ClInclude Include="src\Kaesar\Core\MouseButtonCodes.h" />
+    <ClInclude Include="src\Kaesar\Core\Window.h" />
     <ClInclude Include="src\Kaesar\ImGui\ImGuiLayer.h" />
-    <ClInclude Include="src\Kaesar\Input.h" />
-    <ClInclude Include="src\Kaesar\KeyCodes.h" />
-    <ClInclude Include="src\Kaesar\Log.h" />
-    <ClInclude Include="src\Kaesar\MouseButtonCodes.h" />
     <ClInclude Include="src\Kaesar\Renderer\Buffer.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Camera\Camera.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Kaesar\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h" />
@@ -164,9 +169,6 @@
     <ClInclude Include="src\Kaesar\Renderer\RendererAPI.h" />
     <ClInclude Include="src\Kaesar\Renderer\Shader.h" />
     <ClInclude Include="src\Kaesar\Renderer\VertexArray.h" />
-    <ClInclude Include="src\Kaesar\Window.h" />
-    <ClInclude Include="src\Layer.h" />
-    <ClInclude Include="src\LayerStack.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
@@ -592,20 +594,21 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Kaesar\Application.cpp" />
+    <ClCompile Include="src\Kaesar\Core\Application.cpp" />
+    <ClCompile Include="src\Kaesar\Core\Input.cpp" />
+    <ClCompile Include="src\Kaesar\Core\Layer.cpp" />
+    <ClCompile Include="src\Kaesar\Core\LayerStack.cpp" />
+    <ClCompile Include="src\Kaesar\Core\Log.cpp" />
     <ClCompile Include="src\Kaesar\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Kaesar\ImGui\ImGuiLayer.cpp" />
-    <ClCompile Include="src\Kaesar\Input.cpp" />
-    <ClCompile Include="src\Kaesar\Log.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Shader.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp" />
-    <ClCompile Include="src\Layer.cpp" />
-    <ClCompile Include="src\LayerStack.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />

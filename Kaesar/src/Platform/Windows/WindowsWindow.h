@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Kaesar/Window.h"
+#include "Kaesar/Core/Window.h"
 #include "Kaesar/Renderer/GraphicsContext.h"
 
 namespace Kaesar {

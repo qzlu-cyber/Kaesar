@@ -1,6 +1,6 @@
 #include "krpch.h"
 #include "WindowsInput.h"
-#include "Kaesar/Application.h"
+#include "Kaesar/Core/Application.h"
 
 #include <GLFW/glfw3.h>
 

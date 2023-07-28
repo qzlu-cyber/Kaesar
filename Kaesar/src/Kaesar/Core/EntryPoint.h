@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Application.h"
+
 #ifdef KR_PLATFORM_WINDOWS
 
 extern Kaesar::Application* Kaesar::CreateApplication();
@@ -13,4 +15,4 @@ int main(int argc, char** argv) {
     delete app;
 }
 
-#endif // HZ_PLATFORM_WINDOWS
+#endif // KR_PLATFORM_WINDOWS

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "krpch.h"
-#include "Kaesar/Core.h"
+#include "Kaesar/Core/Core.h"
 
 /// <summary>
 /// 由 Application 创建自己的窗口 Window，对应的 Window 不应该知道任何 Application 的信息，

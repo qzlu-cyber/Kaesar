@@ -1,13 +1,15 @@
 #include "krpch.h"
-#include "Application.h"
-#include "Events/ApplicationEvent.h"
-#include "Events/KeyEvent.h"
-#include "Log.h"
-#include "Renderer/RenderCommand.h"
-#include "Renderer/Renderer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "Events/ApplicationEvent.h"
+#include "Events/KeyEvent.h"
+#include "Kaesar/Renderer/RenderCommand.h"
+#include "Kaesar/Renderer/Renderer.h"
+
+#include "Log.h"
+#include "Application.h"
 
 namespace Kaesar {
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
@@ -188,6 +190,19 @@ namespace Kaesar {
 
             m_Window->OnUpdate();
         }
+    }
+
+    bool Application::onWindowResize(WindowResizeEvent& e)
+    {
+        if (e.GetWidth() == 0 && e.GetHeight() == 0)
+        {
+            m_Minimized = true;
+            return false;
+        }
+
+        m_Minimized = false;
+        Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+        return false;
     }
 
     bool Application::OnWindowClose(WindowCloseEvent& e)

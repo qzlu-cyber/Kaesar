@@ -14,11 +14,13 @@ namespace Kaesar {
         };
 
     public:
-        virtual void SetClearColor(const glm::vec4& color) = 0;
-        virtual void Clear() = 0;
-        virtual void DepthTest() = 0;
+        virtual void SetClearColor(const glm::vec4& color) = 0; // 设置清屏颜色
+        virtual void Clear() = 0; // 清屏
+        virtual void DepthTest() = 0; // 深度测试
 
-        virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
+        virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0; // 绘制索引顶点数组
+
+        virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0; // 设置视口
 
         inline static API GetAPI() { return s_API; }
 

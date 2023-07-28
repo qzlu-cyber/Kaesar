@@ -1,8 +1,8 @@
 #include "krpch.h"
 #include "OrthographicCamera.h"
 
-#include "Kaesar/KeyCodes.h"
-#include "Kaesar/MouseButtonCodes.h"
+#include "Kaesar/Core/KeyCodes.h"
+#include "Kaesar/Core/MouseButtonCodes.h"
 #include "Platform/Windows/WindowsInput.h"
 
 namespace Kaesar {

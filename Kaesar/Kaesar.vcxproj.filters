@@ -10,14 +10,17 @@
     <Filter Include="src\Kaesar">
       <UniqueIdentifier>{7366451B-5F1E-8768-C825-60C4B4FC2159}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Kaesar\Camera">
-      <UniqueIdentifier>{8BDB5C3D-F7F1-5AD3-4069-E6F4ACBE2B5B}</UniqueIdentifier>
+    <Filter Include="src\Kaesar\Core">
+      <UniqueIdentifier>{AB8A4FEC-1716-BDB0-2027-40A58C3119B1}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Kaesar\ImGui">
       <UniqueIdentifier>{DDA5AB76-C99E-CAC8-F2D0-AF4DDE28AAD4}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Kaesar\Renderer">
       <UniqueIdentifier>{799B0216-E5FC-DF23-6E6A-26D6DACA16E3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Kaesar\Renderer\Camera">
+      <UniqueIdentifier>{D16D174C-BD7D-C31C-2637-283B1266B2B5}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
@@ -66,34 +69,52 @@
     <ClInclude Include="src\Kaesar.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Application.h">
-      <Filter>src\Kaesar</Filter>
+    <ClInclude Include="src\Kaesar\Core\Application.h">
+      <Filter>src\Kaesar\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Core.h">
-      <Filter>src\Kaesar</Filter>
+    <ClInclude Include="src\Kaesar\Core\Core.h">
+      <Filter>src\Kaesar\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\EntryPoint.h">
-      <Filter>src\Kaesar</Filter>
+    <ClInclude Include="src\Kaesar\Core\EntryPoint.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\Input.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\KeyCodes.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\Layer.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\LayerStack.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\Log.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\MouseButtonCodes.h">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Core\Window.h">
+      <Filter>src\Kaesar\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\ImGui\ImGuiLayer.h">
       <Filter>src\Kaesar\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Input.h">
-      <Filter>src\Kaesar</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Kaesar\KeyCodes.h">
-      <Filter>src\Kaesar</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Kaesar\Log.h">
-      <Filter>src\Kaesar</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Kaesar\MouseButtonCodes.h">
-      <Filter>src\Kaesar</Filter>
-    </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Buffer.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\Camera\Camera.h">
+      <Filter>src\Kaesar\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h">
+      <Filter>src\Kaesar\Renderer\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\OrthographicCamera.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h">
@@ -110,15 +131,6 @@
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\VertexArray.h">
       <Filter>src\Kaesar\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Kaesar\Window.h">
-      <Filter>src\Kaesar</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Layer.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LayerStack.h">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
@@ -1389,11 +1401,22 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Renderer\OrthographicCamera.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Kaesar\Application.cpp">
-      <Filter>src\Kaesar</Filter>
+    <ClCompile Include="src\Kaesar\Core\Application.cpp">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Core\Input.cpp">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Core\Layer.cpp">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Core\LayerStack.cpp">
+      <Filter>src\Kaesar\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Core\Log.cpp">
+      <Filter>src\Kaesar\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\ImGui\ImGuiBuild.cpp">
       <Filter>src\Kaesar\ImGui</Filter>
@@ -1401,13 +1424,13 @@
     <ClCompile Include="src\Kaesar\ImGui\ImGuiLayer.cpp">
       <Filter>src\Kaesar\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="src\Kaesar\Input.cpp">
-      <Filter>src\Kaesar</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Kaesar\Log.cpp">
-      <Filter>src\Kaesar</Filter>
-    </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Buffer.cpp">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp">
+      <Filter>src\Kaesar\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\OrthographicCamera.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp">
@@ -1424,12 +1447,6 @@
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Layer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LayerStack.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
@@ -1452,6 +1469,5 @@
     <ClCompile Include="src\krpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Kaesar\Renderer\OrthographicCamera.cpp" />
   </ItemGroup>
 </Project>

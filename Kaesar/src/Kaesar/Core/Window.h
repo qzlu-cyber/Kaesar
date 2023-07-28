@@ -4,7 +4,7 @@
 /// 不同平台的 Window 不同，抽象一层接口后在不同平台分别单独实现
 
 #include "krpch.h"
-#include "Kaesar/Core.h"
+#include "Core.h"
 #include "Events/Event.h"
 
 namespace Kaesar {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kaesar/Input.h"
+#include "Kaesar/Core/Input.h"
 
 namespace Kaesar {
     class WindowsInput : public Input

@@ -110,6 +110,7 @@ project "Sandbox"
 	includedirs
 	{
 		"Kaesar/vendor/spdlog/include",
+		"Kaesar/vendor/GLFW/include",
 		"Kaesar/src",
 		"Kaesar/vendor",
 		"%{IncludeDir.glm}"
