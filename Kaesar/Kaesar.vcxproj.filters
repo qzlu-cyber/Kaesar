@@ -114,9 +114,6 @@
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Renderer\OrthographicCamera.h">
-      <Filter>src\Kaesar\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
@@ -1401,6 +1398,7 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1429,9 +1427,6 @@
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp">
       <Filter>src\Kaesar\Renderer\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Kaesar\Renderer\OrthographicCamera.cpp">
-      <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
@@ -1469,5 +1464,6 @@
     <ClCompile Include="src\krpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
   </ItemGroup>
 </Project>

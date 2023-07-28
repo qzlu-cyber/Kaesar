@@ -14,6 +14,8 @@ namespace Kaesar {
         };
 
     public:
+        virtual void Init() = 0; // 初始化
+
         virtual void SetClearColor(const glm::vec4& color) = 0; // 设置清屏颜色
         virtual void Clear() = 0; // 清屏
         virtual void DepthTest() = 0; // 深度测试

@@ -143,6 +143,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="src\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Events\Event.h" />
     <ClInclude Include="src\Events\KeyEvent.h" />
@@ -163,7 +164,6 @@
     <ClInclude Include="src\Kaesar\Renderer\Camera\Camera.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h" />
-    <ClInclude Include="src\Kaesar\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Kaesar\Renderer\Renderer.h" />
     <ClInclude Include="src\Kaesar\Renderer\RendererAPI.h" />
@@ -594,6 +594,7 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Core\Application.cpp" />
     <ClCompile Include="src\Kaesar\Core\Input.cpp" />
     <ClCompile Include="src\Kaesar\Core\Layer.cpp" />
@@ -603,7 +604,6 @@
     <ClCompile Include="src\Kaesar\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp" />
-    <ClCompile Include="src\Kaesar\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RendererAPI.cpp" />

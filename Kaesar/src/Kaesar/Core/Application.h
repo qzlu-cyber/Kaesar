@@ -5,7 +5,7 @@
 #include "Kaesar/Renderer/Shader.h"
 #include "Kaesar/Renderer/Buffer.h"
 #include "Kaesar/Renderer/VertexArray.h"
-#include "Kaesar/Renderer/OrthographicCamera.h"
+#include "Kaesar/Renderer/Camera/PerspectiveCamera.h"
 
 #include "Core.h"
 #include "Events/Event.h"
@@ -49,7 +49,7 @@ namespace Kaesar {
         std::shared_ptr<Shader> m_BlueShader;
         std::shared_ptr<VertexArray> m_SquareVA;
 
-        std::shared_ptr<OrthographicCamera> m_Camera;
+        std::shared_ptr<PerspectiveCamera> m_Camera;
     };
 
     Application* CreateApplication();

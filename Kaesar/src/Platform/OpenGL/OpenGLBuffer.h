@@ -33,6 +33,6 @@ namespace Kaesar {
 
     private:
         uint32_t m_RendererID;
-        uint32_t m_Count;
+        uint32_t m_Count; // 索引的数量
     };
 }
