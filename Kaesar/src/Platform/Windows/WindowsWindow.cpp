@@ -65,7 +65,7 @@ namespace Kaesar {
                 data.Width = width;
                 data.Height = height;
 
-                // 设置事件
+                // 调用事件
                 WindowResizeEvent event(width, height);
                 data.EventCallback(event);
             }

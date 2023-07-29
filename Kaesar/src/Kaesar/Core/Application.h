@@ -1,16 +1,16 @@
 #pragma once
 
+#include "Core.h"
+#include "Window.h"
+#include "LayerStack.h"
+
+#include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 #include "Kaesar/ImGui/ImGuiLayer.h"
 #include "Kaesar/Renderer/Shader.h"
 #include "Kaesar/Renderer/Buffer.h"
 #include "Kaesar/Renderer/VertexArray.h"
 #include "Kaesar/Renderer/Camera/PerspectiveCamera.h"
-
-#include "Core.h"
-#include "Events/Event.h"
-#include "Window.h"
-#include "LayerStack.h"
 
 namespace Kaesar {
     class Kaesar_API Application

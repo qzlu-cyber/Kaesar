@@ -14,6 +14,7 @@ namespace Kaesar {
         ~LayerStack();
 
         // layer 代表普通的 layer, Overlay 代表离屏幕最远的 layer
+        // 覆盖层 overlay 最后被渲染，最先接收到事件
         void PushLayer(Layer* layer);
         void PushOverlay(Layer* overlay);
         void PopLayer(Layer* layer);

@@ -128,6 +128,7 @@ namespace Kaesar {
     {
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose)); // 检查事件 e 的 EventType 是否是 WindowClose，如果是就执行 OnWindowClose 函数
+        dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(onWindowResize));
 
         // 当函数触发时，反向遍历整个 LayerStack，依次查看事件是否被这个 Layer 所响应，
         // 如果在这个过程中，事件被 handle 了，那么就停止往下层 layer 传递，否则继续遍历。
