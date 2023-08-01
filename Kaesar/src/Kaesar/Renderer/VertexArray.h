@@ -19,6 +19,6 @@ namespace Kaesar {
         virtual std::vector<std::shared_ptr<VertexBuffer>> GetVertexBuffers() const = 0;
         virtual std::shared_ptr<IndexBuffer> GetIndexBuffer() const = 0;
 
-        static VertexArray* Create();
+        static std::shared_ptr<VertexArray> Create();
     };
 }

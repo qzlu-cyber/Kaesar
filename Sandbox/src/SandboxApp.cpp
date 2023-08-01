@@ -36,15 +36,15 @@ public:
 
         uint32_t indices[] = { 0, 1, 2 };
         
-        m_VertexArray.reset(Kaesar::VertexArray::Create());
+        m_VertexArray = Kaesar::VertexArray::Create();
 
         // 将顶点数组复制到一个顶点缓冲中
         std::shared_ptr<Kaesar::VertexBuffer> vertexBuffer;
-        vertexBuffer.reset(Kaesar::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices)));
+        vertexBuffer = Kaesar::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
 
         // 将索引数组到一个索引缓冲中
         std::shared_ptr<Kaesar::IndexBuffer> indexBuffer;
-        indexBuffer.reset(Kaesar::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(uint32_t)));
+        indexBuffer = Kaesar::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(uint32_t));
 
         Kaesar::BufferLayout layout = {
             { Kaesar::ShaderDataType::Float3, "a_Position" },
@@ -68,17 +68,17 @@ public:
 
         uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
-        m_SquareVA.reset(Kaesar::VertexArray::Create());
+        m_SquareVA = Kaesar::VertexArray::Create();
 
         std::shared_ptr<Kaesar::VertexBuffer> squareVB;
-        squareVB.reset(Kaesar::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        squareVB = Kaesar::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
         squareVB->SetLayout({
             { Kaesar::ShaderDataType::Float3, "a_Position" }
             });
         m_SquareVA->AddVertexBuffer(squareVB);
 
         std::shared_ptr<Kaesar::IndexBuffer> squareIB;
-        squareIB.reset(Kaesar::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+        squareIB = Kaesar::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
         m_SquareVA->SetIndexBuffer(squareIB);
 
         const std::string blueShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\blue.shader";
