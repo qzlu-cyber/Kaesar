@@ -113,8 +113,8 @@ namespace Kaesar {
     }
 
     bool PerspectiveCamera::OnResize(WindowResizeEvent& e) {
-        m_ViewportWidth = e.GetWidth();
-        m_ViewportHeight = e.GetHeight();
+        m_ViewportWidth  = static_cast<float>(e.GetWidth());
+        m_ViewportHeight = static_cast<float>(e.GetHeight());
         //UpdateProjection();
         return false;
     }

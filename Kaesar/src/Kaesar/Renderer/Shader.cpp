@@ -13,6 +13,9 @@ namespace Kaesar {
             case RendererAPI::API::OpenGL: return std::make_shared<OpenGLShader>(filepath);
             default: break;
         }
+
+        KR_CORE_ASSERT(false, "Unknown RendererAPI!");
+        return nullptr;
     }
 
     std::shared_ptr<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
@@ -23,5 +26,8 @@ namespace Kaesar {
             case RendererAPI::API::OpenGL: return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
             default: break;
         }
+
+        KR_CORE_ASSERT(false, "Unknown RendererAPI!");
+        return nullptr;
     }
 }
