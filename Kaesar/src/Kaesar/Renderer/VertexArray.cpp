@@ -1,8 +1,8 @@
-#include "Platform/OpenGL/OpenGLVertexArray.h"
-
 #include "krpch.h"
 #include "VertexArray.h"
 #include "Renderer.h"
+
+#include "Platform/OpenGL/OpenGLVertexArray.h"
 
 namespace Kaesar {
     VertexArray* VertexArray::Create()

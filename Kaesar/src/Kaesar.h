@@ -6,6 +6,17 @@
 #include "Kaesar/Core/Application.h"
 #include "Kaesar/Core/MouseButtonCodes.h"
 
+// -------------------Renderer----------------------
+#include "Kaesar/Renderer/Renderer.h"
+#include "Kaesar/Renderer/RenderCommand.h"
+
+#include "Kaesar/Renderer/Buffer.h"
+#include "Kaesar/Renderer/VertexArray.h"
+#include "Kaesar/Renderer/Shader.h"
+
+#include "Kaesar/Renderer/Camera/PerspectiveCamera.h"
+// -------------------------------------------------
+
 #include "Kaesar/ImGui/ImGuiLayer.h"
 // ------------------Entry Point--------------------
 #include "Kaesar/Core/EntryPoint.h"

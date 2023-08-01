@@ -7,10 +7,6 @@
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 #include "Kaesar/ImGui/ImGuiLayer.h"
-#include "Kaesar/Renderer/Shader.h"
-#include "Kaesar/Renderer/Buffer.h"
-#include "Kaesar/Renderer/VertexArray.h"
-#include "Kaesar/Renderer/Camera/PerspectiveCamera.h"
 
 namespace Kaesar {
     class Kaesar_API Application
@@ -42,14 +38,6 @@ namespace Kaesar {
         bool m_Minimized = false; // 窗口是否最小化
 
         LayerStack m_LayerStack;
-
-        std::shared_ptr<Shader> m_Shader;
-        std::shared_ptr<VertexArray> m_VertexArray;
-
-        std::shared_ptr<Shader> m_BlueShader;
-        std::shared_ptr<VertexArray> m_SquareVA;
-
-        std::shared_ptr<PerspectiveCamera> m_Camera;
     };
 
     Application* CreateApplication();
