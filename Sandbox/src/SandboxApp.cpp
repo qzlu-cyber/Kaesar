@@ -57,7 +57,7 @@ public:
         m_VertexArray->SetIndexBuffer(indexBuffer);
 
         const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.shader";
-        m_Shader.reset(new Kaesar::Shader(basicShaderPath));
+        m_Shader = Kaesar::Shader::Create(basicShaderPath);
 
         float squareVertices[3 * 4] = {
             -0.75f, -0.75f, 0.0f,
@@ -82,7 +82,7 @@ public:
         m_SquareVA->SetIndexBuffer(squareIB);
 
         const std::string blueShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\blue.shader";
-        m_BlueShader.reset(new Kaesar::Shader(blueShaderPath));
+        m_BlueShader = Kaesar::Shader::Create(blueShaderPath);
 
         m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.66f, 0.1f, 100.0f);
         m_Camera->SetViewportSize(1600, 900);
@@ -108,17 +108,17 @@ public:
 
         m_BlueShader->Bind();
 
-        m_BlueShader->SetMatrix("model", model);
-        m_BlueShader->SetMatrix("view", view);
-        m_BlueShader->SetMatrix("projection", projection);
+        m_BlueShader->SetMat4("model", model);
+        m_BlueShader->SetMat4("view", view);
+        m_BlueShader->SetMat4("projection", projection);
 
         Kaesar::Renderer::Submit(m_SquareVA);
 
         m_Shader->Bind();
 
-        m_Shader->SetMatrix("model", model);
-        m_Shader->SetMatrix("view", view);
-        m_Shader->SetMatrix("projection", projection);
+        m_Shader->SetMat4("model", model);
+        m_Shader->SetMat4("view", view);
+        m_Shader->SetMat4("projection", projection);
 
         Kaesar::Renderer::Submit(m_VertexArray);
 

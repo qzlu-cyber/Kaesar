@@ -1,11 +1,10 @@
 #include "krpch.h"
-#include "Kaesar/Core/Log.h"
 #include "WindowsWindow.h"
 
-#include "Events/ApplicationEvent.h"
-#include "Events/MouseEvent.h"
+#include "Kaesar/Core/Log.h"
 #include "Events/KeyEvent.h"
-
+#include "Events/MouseEvent.h"
+#include "Events/ApplicationEvent.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
 #include <glad/glad.h>

@@ -1,8 +1,8 @@
 #include "krpch.h"
 #include "Buffer.h"
+#include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
-#include "Renderer.h"
 
 namespace Kaesar {
     VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size)

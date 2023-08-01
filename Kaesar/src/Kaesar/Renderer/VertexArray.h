@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include "Buffer.h"
+
+#include <memory>
 
 namespace Kaesar {
     class VertexArray

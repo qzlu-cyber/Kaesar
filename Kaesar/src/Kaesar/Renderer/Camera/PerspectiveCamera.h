@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Camera.h"
+
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/ApplicationEvent.h"
 #include "Kaesar/Core/Timestep.h"
-
-#include "Camera.h"
 
 namespace Kaesar {
     class PerspectiveCamera : public Camera

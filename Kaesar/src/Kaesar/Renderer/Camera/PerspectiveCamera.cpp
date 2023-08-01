@@ -1,12 +1,12 @@
 #include "krpch.h"
 
-#include <glm/gtx/quaternion.hpp>
+#include "PerspectiveCamera.h"
 
 #include "Kaesar/Core/KeyCodes.h"
 #include "Kaesar/Core/MouseButtonCodes.h"
 #include "Kaesar/Core/Input.h"
 
-#include "PerspectiveCamera.h"
+#include <glm/gtx/quaternion.hpp>
 
 namespace Kaesar {
     PerspectiveCamera::PerspectiveCamera(float fov, float aspectRatio, float nearClip, float farClip)

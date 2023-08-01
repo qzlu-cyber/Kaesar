@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-
 #include "Kaesar/Core/Window.h"
 #include "Kaesar/Renderer/GraphicsContext.h"
+
+#include <GLFW/glfw3.h>
 
 namespace Kaesar {
     class Kaesar_API WindowsWindow : public Window {

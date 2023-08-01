@@ -1,6 +1,5 @@
 #include "krpch.h"
 #include "Renderer.h"
-
 #include "RenderCommand.h"
 
 namespace Kaesar {

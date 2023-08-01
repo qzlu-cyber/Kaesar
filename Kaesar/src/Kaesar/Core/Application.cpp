@@ -1,15 +1,14 @@
 #include "krpch.h"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "Log.h"
+#include "Application.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyEvent.h"
 #include "Kaesar/Renderer/Renderer.h"
 #include "Kaesar/Core/Timestep.h"
 
-#include "Log.h"
-#include "Application.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 namespace Kaesar {
     #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)

@@ -1401,6 +1401,7 @@
     <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="src\Kaesar\Core\Timestep.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1468,5 +1469,6 @@
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
   </ItemGroup>
 </Project>
