@@ -18,10 +18,13 @@ IncludeDir["Glad"] = "Kaesar/vendor/Glad/include"
 IncludeDir["ImGui"] = "Kaesar/vendor/imgui"
 IncludeDir["glm"] = "Kaesar/vendor/glm"
 IncludeDir["stb_image"] = "Kaesar/vendor/stb_image"
+IncludeDir["assimp"] = "Kaesar/vendor/assimp/include"
 
-include "Kaesar/vendor/GLFW"
-include "Kaesar/vendor/Glad"
-include "Kaesar/vendor/imgui"
+group "Dependencies"
+	include "Kaesar/vendor/GLFW"
+	include "Kaesar/vendor/Glad"
+	include "Kaesar/vendor/imgui"
+group ""
 
 project "Kaesar"
 	location "Kaesar"
@@ -54,7 +57,12 @@ project "Kaesar"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.assimp}"
+	}
+
+	libdirs {
+		"Syndra/vendor/assimp/lib"
 	}
 
 	links 
@@ -62,7 +70,8 @@ project "Kaesar"
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"opengl32.lib"
+		"opengl32.lib",
+		"assimp-vc143-mtd.lib"
 	}
 
 	defines
