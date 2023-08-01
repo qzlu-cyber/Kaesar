@@ -6,6 +6,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyEvent.h"
 #include "Kaesar/Renderer/Renderer.h"
+#include "Kaesar/Core/Timestep.h"
 
 #include "Log.h"
 #include "Application.h"
@@ -61,16 +62,13 @@ namespace Kaesar {
 
     void Application::Run()
     {
-
-        float deltaTime = 0.0f; // 当前帧与上一帧的时间差
-        float lastFrame = 0.0f; // 上一帧的时间
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
         while (m_Running) {
+            float time = (float)glfwGetTime();
+            Timestep timestep = time - m_LastFrameTime;
+            m_LastFrameTime = time;
+
             for (Layer* layer : m_LayerStack)
-                layer->OnUpdate();
+                layer->OnUpdate(timestep);
 
             m_ImGuiLayer->Begin();
             for (Layer* layer : m_LayerStack)

@@ -37,6 +37,8 @@ namespace Kaesar {
         bool m_Running = true; // 程序是否运行
         bool m_Minimized = false; // 窗口是否最小化
 
+        float m_LastFrameTime = 0.0f; // 渲染最后一帧的时间
+
         LayerStack m_LayerStack;
     };
 

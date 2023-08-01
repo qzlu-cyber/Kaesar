@@ -143,6 +143,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Kaesar\Core\Timestep.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="src\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Events\Event.h" />

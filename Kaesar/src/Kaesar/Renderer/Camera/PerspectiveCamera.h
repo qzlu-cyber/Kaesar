@@ -3,6 +3,7 @@
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/ApplicationEvent.h"
+#include "Kaesar/Core/Timestep.h"
 
 #include "Camera.h"
 
@@ -13,7 +14,7 @@ namespace Kaesar {
         PerspectiveCamera() = default;
         PerspectiveCamera(float fov, float aspectRatio, float near, float far);
 
-        void OnUpdate();
+        void OnUpdate(const Timestep& timestep);
         void OnEvent(Event& e);
         
         inline float GetDistance() const { return m_Distance; }

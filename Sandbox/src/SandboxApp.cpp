@@ -88,7 +88,7 @@ public:
         m_Camera->SetViewportSize(1600, 900);
     }
 
-    void OnUpdate() override
+    virtual void OnUpdate(const Kaesar::Timestep& timestep) override
     {
         if (Kaesar::Input::IsKeyPressed(KR_KEY_LEFT_ALT))
             KR_TRACE("Alt key is pressed (poll)!");
@@ -97,7 +97,7 @@ public:
         Kaesar::RenderCommand::Clear();
         Kaesar::RenderCommand::DepthTest();
 
-        m_Camera->OnUpdate();
+        m_Camera->OnUpdate(timestep);
 
         Kaesar::Renderer::BeginScene();
 

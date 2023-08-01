@@ -1400,6 +1400,7 @@
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
+    <ClInclude Include="src\Kaesar\Core\Timestep.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">

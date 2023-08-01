@@ -6,6 +6,8 @@
 #include "Kaesar/Core/Application.h"
 #include "Kaesar/Core/MouseButtonCodes.h"
 
+#include "Kaesar/Core/Timestep.h"
+
 // -------------------Renderer----------------------
 #include "Kaesar/Renderer/Renderer.h"
 #include "Kaesar/Renderer/RenderCommand.h"

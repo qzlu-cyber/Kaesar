@@ -60,48 +60,39 @@ namespace Kaesar {
         return speed;
     }
 
-    void PerspectiveCamera::OnUpdate()
+    void PerspectiveCamera::OnUpdate(const Timestep& timestep)
     {
         if (Input::IsKeyPressed(KR_KEY_LEFT_ALT))
         {
             const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
-            glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
+            glm::vec2 delta = (mouse - m_InitialMousePosition) * 2.0f; // delta 为鼠标移动的距离
             m_InitialMousePosition = mouse;
 
             if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_MIDDLE))
-                MousePan(delta);
+                MousePan(delta * timestep.GetSeconds());
             else if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_LEFT))
-                MouseRotate(delta);
+                MouseRotate(delta * timestep.GetSeconds());
             else if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_RIGHT))
-                MouseZoom(delta.y);
-            UpdateView();
+                MouseZoom(delta.y * timestep.GetSeconds());
         }
 
-        else if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_RIGHT)) {
+        if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_RIGHT))
+        {
+            // 使用 timestep 来调整平移的速度
+            float panSpeedX = PanSpeed().first * 20.0f * timestep.GetSeconds();
+            float panSpeedY = PanSpeed().second * 20.0f * timestep.GetSeconds();
 
-            const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
-            glm::vec2 delta = (mouse - m_InitialMousePosition) * 0.003f;
-            m_InitialMousePosition = mouse;
-
-            MouseRotate(delta);
-
-            if (Input::IsKeyPressed(KR_KEY_W))
-                m_Position += GetForwardDirection() * PanSpeed().first;
-            if (Input::IsKeyPressed(KR_KEY_S))
-                m_Position -= GetForwardDirection() * PanSpeed().first;
             if (Input::IsKeyPressed(KR_KEY_A))
-                m_Position -= GetRightDirection() * PanSpeed().second;
-            if (Input::IsKeyPressed(KR_KEY_D))
-                m_Position += GetRightDirection() * PanSpeed().second;
-
-            glm::quat orientation = GetOrientation();
-            m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
-            m_ViewMatrix = glm::inverse(m_ViewMatrix);
+                m_FocalPoint -= GetRightDirection() * panSpeedX;
+            else if (Input::IsKeyPressed(KR_KEY_D))
+                m_FocalPoint += GetRightDirection() * panSpeedX;
+            else if (Input::IsKeyPressed(KR_KEY_W))
+                m_FocalPoint += GetForwardDirection() * panSpeedY;
+            else if (Input::IsKeyPressed(KR_KEY_S))
+                m_FocalPoint -= GetForwardDirection() * panSpeedY;
         }
 
-        else {
-            UpdateView();
-        }
+        UpdateView();
     }
 
     void PerspectiveCamera::OnEvent(Event& e)
