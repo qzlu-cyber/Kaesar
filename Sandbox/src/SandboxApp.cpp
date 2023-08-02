@@ -126,6 +126,8 @@ public:
         fspc.Width = app.GetWindow().GetWidth();
         fspc.Height = app.GetWindow().GetHeight();
 
+        m_ViewportSize = { fspc.Width, fspc.Height };
+
         m_FrameBuffer = Kaesar::FrameBuffer::Create(fspc);
 
         const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
@@ -139,11 +141,19 @@ public:
         m_Texture = Kaesar::Texture2D::Create("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot_texture.png", 0);
 
         m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
-        m_Camera->SetViewportSize(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
+        m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
     }
 
     virtual void OnUpdate(const Kaesar::Timestep& timestep) override
     {
+        Kaesar::FramebufferSpecification spec = m_FrameBuffer->GetSpecification();
+        if ( m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
+            (spec.Width != (uint32_t)m_ViewportSize.x || spec.Height != (uint32_t)m_ViewportSize.y))
+        {
+            m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+            m_Camera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+        }
+
         if (Kaesar::Input::IsKeyPressed(KR_KEY_LEFT_ALT))
             KR_TRACE("Alt key is pressed (poll)!");
 
@@ -191,7 +201,7 @@ public:
     virtual void OnImGuiRender() override
     {
         ImGui::Begin("Test");
-        ImGui::Text("Hello World");
+        ImGui::Text("Hello World!");
         ImGui::End();
     }
 
@@ -203,6 +213,12 @@ public:
             if (e.GetKeyCode() == KR_KEY_LEFT_ALT)
                 KR_TRACE("Alt key is pressed (event)!");
             KR_TRACE("{0}", static_cast<char>(e.GetKeyCode()));
+        }
+
+        if (event.GetEventType() == Kaesar::EventType::WindowResize)
+        {
+            Kaesar::WindowResizeEvent& e = static_cast<Kaesar::WindowResizeEvent&>(event);
+            m_ViewportSize = { e.GetWidth(), e.GetHeight() };
         }
     }
 
@@ -219,6 +235,9 @@ private:
     std::shared_ptr<Kaesar::Shader> m_Shader, m_QuadShader;
 
     std::shared_ptr<Kaesar::PerspectiveCamera> m_Camera;
+
+    glm::vec2 m_ViewportSize = { 200.0f, 200.0f };
+    glm::vec3 m_CubeColor = { 1.0f, 1.0f, 1.0f };
 };
 
 class Sandbox : public Kaesar::Application
