@@ -34,6 +34,9 @@ namespace Kaesar {
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
+        io.Fonts->AddFontFromFileTTF("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\fonts\\msyh.ttc", 16.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\fonts\\msyh.ttc", 16.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsClassic();
@@ -91,5 +94,9 @@ namespace Kaesar {
     {
         static bool show = true;
         ImGui::ShowDemoWindow(&show);
+
+        ImGui::Begin(u8"Êä³ö");
+        ImGui::Text("Hello World!");
+        ImGui::End();
     }
 }

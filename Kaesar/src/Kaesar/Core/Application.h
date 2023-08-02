@@ -18,6 +18,8 @@ namespace Kaesar {
 
         void OnEvent(Event& e);
 
+        void CloseApp();
+
         void PushLayer(Layer* layer);
         void PushOverlay(Layer* overlay);
 

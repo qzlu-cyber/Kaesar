@@ -29,6 +29,7 @@ namespace Kaesar {
 
     Application::~Application()
     {
+        delete m_ImGuiLayer;
     }
 
     void Application::PushLayer(Layer* layer)
@@ -98,5 +99,10 @@ namespace Kaesar {
     {
         m_Running = false;
         return true;
+    }
+
+    void Application::CloseApp()
+    {
+        m_Running = false;
     }
 }
