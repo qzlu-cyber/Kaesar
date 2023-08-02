@@ -8,7 +8,9 @@ namespace Kaesar {
         virtual void Init() override;
         virtual void SetClearColor(const glm::vec4& color) override;
         virtual void Clear() override;
-        virtual void DepthTest() override;
+        virtual void ClearColor() override;
+        virtual void EnableDepthTest() override;
+        virtual void DisableDepthTest() override;
 
         virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
 

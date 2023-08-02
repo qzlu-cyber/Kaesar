@@ -1,0 +1,28 @@
+#pragma once
+
+#include <memory>
+
+namespace Kaesar {
+    struct FramebufferSpecification
+    {
+        uint32_t Width = 0, Height = 0;
+        uint32_t Samples = 1;
+        bool SwapChainTarget = false;
+    };
+
+    class FrameBuffer
+    {
+    public:
+        ~FrameBuffer() = default;
+
+        virtual void Bind() const = 0;
+        virtual void Unbind() const = 0;
+
+        virtual uint32_t GetColorAttachmentRendererID() const = 0;
+
+        virtual const FramebufferSpecification& GetSpecification() const = 0;
+
+    public:
+        static std::shared_ptr<FrameBuffer> Create(const FramebufferSpecification& fspc);
+    };
+}

@@ -18,7 +18,9 @@ namespace Kaesar {
 
         virtual void SetClearColor(const glm::vec4& color) = 0; // 设置清屏颜色
         virtual void Clear() = 0; // 清屏
-        virtual void DepthTest() = 0; // 深度测试
+        virtual void ClearColor() = 0;
+        virtual void EnableDepthTest() = 0; // 深度测试
+        virtual void DisableDepthTest() = 0;
 
         virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0; // 绘制索引顶点数组
 

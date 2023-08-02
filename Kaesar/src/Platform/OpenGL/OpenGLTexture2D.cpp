@@ -59,6 +59,11 @@ namespace Kaesar {
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
 
+    void OpenGLTexture2D::Bind(unsigned int id) const
+    {
+        glBindTexture(GL_TEXTURE_2D, id);
+    }
+
     bool OpenGLTexture2D::operator==(const Texture& other) const
     {
         // 使用 dynamic_cast 确保转换的正确性

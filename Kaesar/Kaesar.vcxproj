@@ -167,6 +167,7 @@
     <ClInclude Include="src\Kaesar\Renderer\Camera\Camera.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h" />
+    <ClInclude Include="src\Kaesar\Renderer\FrameBuffer.h" />
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Kaesar\Renderer\Mesh.h" />
     <ClInclude Include="src\Kaesar\Renderer\Model.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="src\Kaesar\Renderer\VertexArray.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture2D.h" />
@@ -614,6 +616,7 @@
     <ClCompile Include="src\Kaesar\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Mesh.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Model.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp" />
@@ -624,6 +627,7 @@
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture2D.cpp" />
@@ -651,6 +655,7 @@
     <None Include="src\res\shaders\basic.glsl" />
     <None Include="src\res\shaders\mouse.glsl" />
     <None Include="src\res\shaders\outline.glsl" />
+    <None Include="src\res\shaders\quad.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

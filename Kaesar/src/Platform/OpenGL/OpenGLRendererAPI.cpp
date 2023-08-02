@@ -25,9 +25,19 @@ namespace Kaesar {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void OpenGLRendererAPI::DepthTest()
+    void OpenGLRendererAPI::ClearColor()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void OpenGLRendererAPI::EnableDepthTest()
     {
         glEnable(GL_DEPTH_TEST);
+    }
+
+    void OpenGLRendererAPI::DisableDepthTest()
+    {
+        glDisable(GL_DEPTH_TEST);
     }
 
     void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)

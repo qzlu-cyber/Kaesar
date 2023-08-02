@@ -55,11 +55,14 @@ public:
         };
 
         float quad[] = {
-            // positions        // texture coords
-             1.0f,  1.0f, 0.0f,    1.0f, 1.0f,   // top right
-             1.0f, -1.0f, 0.0f,    1.0f, 0.0f,   // bottom right
-            -1.0f, -1.0f, 0.0f,    0.0f, 0.0f,   // bottom left
-            -1.0f,  1.0f, 0.0f,    0.0f, 1.0f    // top left 
+            // positions   // texture coords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f
         };
 
         uint32_t indices[] = { 
@@ -84,8 +87,8 @@ public:
         };
 
         unsigned int quadIndices[] = {
-            0, 1, 3, // first triangle
-            1, 2, 3  // second triangle
+            0, 1, 2, // first triangle
+            3, 4, 5  // second triangle
         };
         
         m_VertexArray = Kaesar::VertexArray::Create();
@@ -102,12 +105,12 @@ public:
         Kaesar::BufferLayout layout = {
             { Kaesar::ShaderDataType::Float3, "a_Position" },
             { Kaesar::ShaderDataType::Float3, "a_Normal" },
-            { Kaesar::ShaderDataType::Float2, "a_UV" }
+            { Kaesar::ShaderDataType::Float2, "a_TexCoords" }
         };
 
         Kaesar::BufferLayout quadLayout = {
-            { Kaesar::ShaderDataType::Float3, "a_Position" },
-            { Kaesar::ShaderDataType::Float2, "a_UV" }
+            { Kaesar::ShaderDataType::Float2, "a_Position" },
+            { Kaesar::ShaderDataType::Float2, "a_TexCoords" }
         };
 
         m_VertexBuffer->SetLayout(layout);
@@ -119,17 +122,23 @@ public:
         m_QuadVA->AddVertexBuffer(m_QuadVB);
         m_QuadVA->SetIndexBuffer(m_QuadIB);
 
+        Kaesar::FramebufferSpecification fspc;
+        fspc.Width = app.GetWindow().GetWidth();
+        fspc.Height = app.GetWindow().GetHeight();
+
+        m_FrameBuffer = Kaesar::FrameBuffer::Create(fspc);
+
         const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
         m_Shader = Kaesar::Shader::Create(basicShaderPath);
 
-        const std::string blueShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
-        m_QuadShader = Kaesar::Shader::Create(blueShaderPath);
+        const std::string quadShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\quad.glsl";
+        m_QuadShader = Kaesar::Shader::Create(quadShaderPath);
 
         m_Model = std::make_shared<Kaesar::Model>("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot.obj");
 
         m_Texture = Kaesar::Texture2D::Create("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot_texture.png", 0);
 
-        m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.66f, 0.1f, 100.0f);
+        m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
         m_Camera->SetViewportSize(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
     }
 
@@ -138,9 +147,11 @@ public:
         if (Kaesar::Input::IsKeyPressed(KR_KEY_LEFT_ALT))
             KR_TRACE("Alt key is pressed (poll)!");
 
-        Kaesar::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+        m_FrameBuffer->Bind();
+
+        Kaesar::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
         Kaesar::RenderCommand::Clear();
-        Kaesar::RenderCommand::DepthTest();
+        Kaesar::RenderCommand::EnableDepthTest();
 
         m_Camera->OnUpdate(timestep);
 
@@ -158,6 +169,21 @@ public:
 
         Kaesar::Renderer::Submit(m_Model);
         /// ====================== spot end =====================
+
+        /// ====================== quad =========================
+        m_FrameBuffer->Unbind();
+
+        Kaesar::RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+        Kaesar::RenderCommand::ClearColor();
+
+        m_Texture->Bind(m_FrameBuffer->GetColorAttachmentRendererID());
+
+        m_QuadShader->Bind();
+
+        Kaesar::RenderCommand::DisableDepthTest();
+
+        Kaesar::Renderer::Submit(m_QuadVA);
+        /// ====================== quad end =====================
 
         Kaesar::Renderer::EndScene();
     }
@@ -184,6 +210,8 @@ private:
     std::shared_ptr<Kaesar::VertexArray> m_VertexArray, m_QuadVA;
     std::shared_ptr<Kaesar::VertexBuffer> m_VertexBuffer, m_QuadVB;
     std::shared_ptr<Kaesar::IndexBuffer> m_IndexBuffer, m_QuadIB;
+    std::shared_ptr<Kaesar::FrameBuffer> m_FrameBuffer;
+
     std::shared_ptr<Kaesar::Texture2D> m_Texture;
 
     std::shared_ptr<Kaesar::Model> m_Model;
@@ -191,7 +219,6 @@ private:
     std::shared_ptr<Kaesar::Shader> m_Shader, m_QuadShader;
 
     std::shared_ptr<Kaesar::PerspectiveCamera> m_Camera;
-
 };
 
 class Sandbox : public Kaesar::Application

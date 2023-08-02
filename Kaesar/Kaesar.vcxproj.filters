@@ -1423,6 +1423,8 @@
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Model.h" />
+    <ClInclude Include="src\Kaesar\Renderer\FrameBuffer.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1507,11 +1509,14 @@
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Model.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\FrameBuffer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\res\shaders\aa.glsl" />
     <None Include="src\res\shaders\basic.glsl" />
     <None Include="src\res\shaders\mouse.glsl" />
     <None Include="src\res\shaders\outline.glsl" />
+    <None Include="src\res\shaders\quad.glsl" />
   </ItemGroup>
 </Project>

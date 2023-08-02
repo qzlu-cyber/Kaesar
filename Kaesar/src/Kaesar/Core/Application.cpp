@@ -66,13 +66,16 @@ namespace Kaesar {
             Timestep timestep = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
-            for (Layer* layer : m_LayerStack)
-                layer->OnUpdate(timestep);
+            if (!m_Minimized)
+            {
+                for (Layer* layer : m_LayerStack)
+                    layer->OnUpdate(timestep);
 
-            m_ImGuiLayer->Begin();
-            for (Layer* layer : m_LayerStack)
-                layer->OnImGuiRender();
-            m_ImGuiLayer->End();
+                m_ImGuiLayer->Begin();
+                for (Layer* layer : m_LayerStack)
+                    layer->OnImGuiRender();
+                m_ImGuiLayer->End();
+            }
 
             m_Window->OnUpdate();
         }

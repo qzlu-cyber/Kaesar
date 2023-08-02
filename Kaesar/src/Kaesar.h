@@ -14,6 +14,7 @@
 
 #include "Kaesar/Renderer/Buffer.h"
 #include "Kaesar/Renderer/VertexArray.h"
+#include "Kaesar/Renderer/FrameBuffer.h"
 #include "Kaesar/Renderer/Shader.h"
 #include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Renderer/Texture.h"
