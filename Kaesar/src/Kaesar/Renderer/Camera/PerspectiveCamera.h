@@ -23,27 +23,27 @@ namespace Kaesar {
         void SetFocalPoint(glm::vec3 position) { m_FocalPoint = position; UpdateView(); }
         inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
 
-        const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
-        glm::mat4 GetViewProjection() const { return m_Projection * m_ViewMatrix; }
+        inline const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
+        inline glm::mat4 GetViewProjection() const { return m_Projection * m_ViewMatrix; }
 
         glm::vec3 GetUpDirection() const; // 摄像机上方向
         glm::vec3 GetRightDirection() const; // 摄像机右方向
         glm::vec3 GetForwardDirection() const; // 摄像机前方向
-        const glm::vec3& GetPosition() const { return m_Position; }
+        inline const glm::vec3& GetPosition() const { return m_Position; }
         glm::quat GetOrientation() const; // 获取摄像机方向
 
-        float GetPitch() const { return m_Pitch; }
-        float GetYaw() const { return m_Yaw; }
+        inline float GetPitch() const { return m_Pitch; }
+        inline float GetYaw() const { return m_Yaw; }
 
         void SetYawPitch(float yaw, float pitch);
 
-        float GetFOV() { return m_FOV; }
+        inline float GetFOV() { return m_FOV; }
         void SetFov(float fov) { m_FOV = fov; UpdateProjection(); }
 
-        float GetNear() { return m_NearClip; }
+        inline float GetNear() { return m_NearClip; }
         void SetNearClip(float nearClip) { m_NearClip = nearClip; UpdateProjection(); }
 
-        float GetFar() { return m_FarClip; }
+        inline float GetFar() { return m_FarClip; }
         void SetFarClip(float farClip) { m_FarClip = farClip; UpdateProjection(); }
 
         ~PerspectiveCamera() = default;

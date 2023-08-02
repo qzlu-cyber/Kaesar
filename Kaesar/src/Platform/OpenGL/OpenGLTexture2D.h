@@ -8,7 +8,7 @@ namespace Kaesar {
     class OpenGLTexture2D : public Texture2D
     {
     public:
-        OpenGLTexture2D(const std::string& filepath);
+        OpenGLTexture2D(const std::string& filepath, bool vertical);
 
         virtual ~OpenGLTexture2D();
 
@@ -17,7 +17,7 @@ namespace Kaesar {
         virtual inline uint32_t GetRendererID() const override { return m_RendererID; };
 
         virtual void Active(int index) const override;
-        virtual void Bind(uint32_t slot = 0) const override;
+        virtual void Bind() const override;
 
         virtual bool operator==(const Texture& other) const override;
 

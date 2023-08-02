@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>krpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;KR_PLATFORM_WINDOWS;KR_BUILD_DLL;GLFW_INCLUDE_NONE;KR_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -89,7 +89,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Syndra\vendor\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -98,7 +99,7 @@
       <PrecompiledHeaderFile>krpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;KR_PLATFORM_WINDOWS;KR_BUILD_DLL;GLFW_INCLUDE_NONE;KR_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -114,7 +115,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Syndra\vendor\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -123,7 +125,7 @@
       <PrecompiledHeaderFile>krpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;KR_PLATFORM_WINDOWS;KR_BUILD_DLL;GLFW_INCLUDE_NONE;KR_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -139,12 +141,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Syndra\vendor\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Kaesar\Core\Timestep.h" />
-    <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="src\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Events\Event.h" />
     <ClInclude Include="src\Events\KeyEvent.h" />
@@ -159,13 +160,16 @@
     <ClInclude Include="src\Kaesar\Core\LayerStack.h" />
     <ClInclude Include="src\Kaesar\Core\Log.h" />
     <ClInclude Include="src\Kaesar\Core\MouseButtonCodes.h" />
+    <ClInclude Include="src\Kaesar\Core\Timestep.h" />
     <ClInclude Include="src\Kaesar\Core\Window.h" />
     <ClInclude Include="src\Kaesar\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Kaesar\Renderer\Buffer.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\Camera.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Kaesar\Renderer\Mesh.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Model.h" />
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Kaesar\Renderer\Renderer.h" />
     <ClInclude Include="src\Kaesar\Renderer\RendererAPI.h" />
@@ -600,7 +604,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Core\Application.cpp" />
     <ClCompile Include="src\Kaesar\Core\Input.cpp" />
     <ClCompile Include="src\Kaesar\Core\Layer.cpp" />
@@ -609,8 +612,10 @@
     <ClCompile Include="src\Kaesar\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Kaesar\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Mesh.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\Model.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RendererAPI.cpp" />
@@ -640,6 +645,12 @@
     <ProjectReference Include="vendor\imgui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\res\shaders\aa.glsl" />
+    <None Include="src\res\shaders\basic.glsl" />
+    <None Include="src\res\shaders\mouse.glsl" />
+    <None Include="src\res\shaders\outline.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

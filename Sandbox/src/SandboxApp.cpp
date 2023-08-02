@@ -8,81 +8,124 @@ public:
         : Layer("Example") 
     {
         float vertices[] = {
-            -0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-             0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-             0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
+            // back face
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-right    
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f, // top-right              
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f, // top-right
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f,-1.0f, // top-left
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left                
+            // front face
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-right        
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-left        
+            // left face
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f, 0.0f,0.0f, // top-left       
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f, 0.0f,0.0f, // bottom-right
+            // right face
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f, 0.0f,0.0f,  // top-right      
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right          
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.0f,0.0f,  // bottom-left
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
+             // bottom face          
+             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
+              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
+              0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-left        
+              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
+             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
+             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-right
+             // top face										     
+             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-left
+              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-right
+              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right                 
+              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right
+             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-left  
+             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f   // top-left 
         };
 
-        float cubeVertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.2f, 0.8f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.3f, 0.8f, 1.0f,
-             0.5f,  0.5f, -0.5f,  0.8f, 0.2f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.3f, 0.8f, 1.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.2f, 0.8f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.3f, 0.8f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.8f, 0.2f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.3f, 0.8f, 1.0f,
+        float quad[] = {
+            // positions        // texture coords
+             1.0f,  1.0f, 0.0f,    1.0f, 1.0f,   // top right
+             1.0f, -1.0f, 0.0f,    1.0f, 0.0f,   // bottom right
+            -1.0f, -1.0f, 0.0f,    0.0f, 0.0f,   // bottom left
+            -1.0f,  1.0f, 0.0f,    0.0f, 1.0f    // top left 
         };
 
-        uint32_t cubeIndices[] = {
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 4, 7,
-            7, 3, 0, 0, 4, 7,
-            6, 2, 1, 1, 5, 6,
-            0, 1, 5, 5, 4, 0,
-            3, 2, 6, 6, 7, 3
+        uint32_t indices[] = { 
+            // front
+            0, 1, 2,
+            2, 3, 0,
+            // right
+            1, 5, 6,
+            6, 2, 1,
+            // back
+            7, 6, 5,
+            5, 4, 7,
+            // left
+            4, 0, 3,
+            3, 7, 4,
+            // bottom
+            4, 5, 1,
+            1, 0, 4,
+            // top
+            3, 2, 6,
+            6, 7, 3
         };
 
-        uint32_t indices[] = { 0, 1, 2 };
+        unsigned int quadIndices[] = {
+            0, 1, 3, // first triangle
+            1, 2, 3  // second triangle
+        };
         
         m_VertexArray = Kaesar::VertexArray::Create();
+        m_QuadVA = Kaesar::VertexArray::Create();
 
         // 将顶点数组复制到一个顶点缓冲中
-        std::shared_ptr<Kaesar::VertexBuffer> vertexBuffer;
-        vertexBuffer = Kaesar::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
+        m_VertexBuffer = Kaesar::VertexBuffer::Create(&vertices[0], sizeof(vertices));
+        m_QuadVB = Kaesar::VertexBuffer::Create(&quad[0], sizeof(quad));
 
         // 将索引数组到一个索引缓冲中
-        std::shared_ptr<Kaesar::IndexBuffer> indexBuffer;
-        indexBuffer = Kaesar::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(uint32_t));
+        m_IndexBuffer = Kaesar::IndexBuffer::Create(&indices[0], sizeof(indices) / sizeof(uint32_t));
+        m_QuadIB = Kaesar::IndexBuffer::Create(&quadIndices[0], sizeof(quadIndices) / sizeof(uint32_t));
 
         Kaesar::BufferLayout layout = {
             { Kaesar::ShaderDataType::Float3, "a_Position" },
-            { Kaesar::ShaderDataType::Float3, "a_Color" }
+            { Kaesar::ShaderDataType::Float3, "a_Normal" },
+            { Kaesar::ShaderDataType::Float2, "a_UV" }
         };
 
-        vertexBuffer->SetLayout(layout);
+        Kaesar::BufferLayout quadLayout = {
+            { Kaesar::ShaderDataType::Float3, "a_Position" },
+            { Kaesar::ShaderDataType::Float2, "a_UV" }
+        };
 
-        m_VertexArray->AddVertexBuffer(vertexBuffer);
-        m_VertexArray->SetIndexBuffer(indexBuffer);
+        m_VertexBuffer->SetLayout(layout);
+        m_QuadVB->SetLayout(quadLayout);
 
-        const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.shader";
+        m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+        m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+
+        m_QuadVA->AddVertexBuffer(m_QuadVB);
+        m_QuadVA->SetIndexBuffer(m_QuadIB);
+
+        const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
         m_Shader = Kaesar::Shader::Create(basicShaderPath);
 
-        float squareVertices[3 * 4] = {
-            -0.75f, -0.75f, 0.0f,
-             0.75f, -0.75f, 0.0f,
-             0.75f,  0.75f, 0.0f,
-            -0.75f,  0.75f, 0.0f
-        };
+        const std::string blueShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
+        m_QuadShader = Kaesar::Shader::Create(blueShaderPath);
 
-        uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
+        m_Model = std::make_shared<Kaesar::Model>("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot.obj");
 
-        m_SquareVA = Kaesar::VertexArray::Create();
-
-        std::shared_ptr<Kaesar::VertexBuffer> squareVB;
-        squareVB = Kaesar::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
-        squareVB->SetLayout({
-            { Kaesar::ShaderDataType::Float3, "a_Position" }
-            });
-        m_SquareVA->AddVertexBuffer(squareVB);
-
-        std::shared_ptr<Kaesar::IndexBuffer> squareIB;
-        squareIB = Kaesar::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
-        m_SquareVA->SetIndexBuffer(squareIB);
-
-        const std::string blueShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\blue.shader";
-        m_BlueShader = Kaesar::Shader::Create(blueShaderPath);
+        m_Texture = Kaesar::Texture2D::Create("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot_texture.png", 0);
 
         m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.66f, 0.1f, 100.0f);
         m_Camera->SetViewportSize(1600, 900);
@@ -102,25 +145,17 @@ public:
         Kaesar::Renderer::BeginScene();
 
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = m_Camera->GetViewMatrix();
-        glm::mat4 projection = m_Camera->GetProjection();
-        model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 
-        m_BlueShader->Bind();
+        /// ====================== spot ========================
+        m_Texture->Active(0);
+        m_Texture->Bind();
 
-        m_BlueShader->SetMat4("model", model);
-        m_BlueShader->SetMat4("view", view);
-        m_BlueShader->SetMat4("projection", projection);
+        m_Shader->Bind(); // glUseProgram
+        m_Shader->SetMat4("u_Model", model);
+        m_Shader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
 
-        Kaesar::Renderer::Submit(m_SquareVA);
-
-        m_Shader->Bind();
-
-        m_Shader->SetMat4("model", model);
-        m_Shader->SetMat4("view", view);
-        m_Shader->SetMat4("projection", projection);
-
-        Kaesar::Renderer::Submit(m_VertexArray);
+        Kaesar::Renderer::Submit(m_Model);
+        /// ====================== spot end =====================
 
         Kaesar::Renderer::EndScene();
     }
@@ -144,13 +179,17 @@ public:
     }
 
 private:
-    std::shared_ptr<Kaesar::Shader> m_Shader;
-    std::shared_ptr<Kaesar::VertexArray> m_VertexArray;
+    std::shared_ptr<Kaesar::VertexArray> m_VertexArray, m_QuadVA;
+    std::shared_ptr<Kaesar::VertexBuffer> m_VertexBuffer, m_QuadVB;
+    std::shared_ptr<Kaesar::IndexBuffer> m_IndexBuffer, m_QuadIB;
+    std::shared_ptr<Kaesar::Texture2D> m_Texture;
 
-    std::shared_ptr<Kaesar::Shader> m_BlueShader;
-    std::shared_ptr<Kaesar::VertexArray> m_SquareVA;
+    std::shared_ptr<Kaesar::Model> m_Model;
+
+    std::shared_ptr<Kaesar::Shader> m_Shader, m_QuadShader;
 
     std::shared_ptr<Kaesar::PerspectiveCamera> m_Camera;
+
 };
 
 class Sandbox : public Kaesar::Application

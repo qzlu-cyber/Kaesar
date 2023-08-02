@@ -20,15 +20,15 @@ namespace Kaesar {
     void Mesh::SetupMesh()
     {
         m_VertexArray = VertexArray::Create();
-        auto vertexBuffer = VertexBuffer::Create((float*)(&vertices[0]), sizeof(vertices));
-        auto indexBuffer = IndexBuffer::Create(&indices[0], sizeof(indices) / sizeof(uint32_t));
+        auto vertexBuffer = VertexBuffer::Create((float*)(&vertices[0]), vertices.size() * sizeof(Vertex));
+        auto indexBuffer = IndexBuffer::Create(&indices[0], indices.size());
     
         m_VertexArray->Bind();
 
         BufferLayout layout = {
             { ShaderDataType::Float3, "a_Position"},
             { ShaderDataType::Float3, "a_Normal"},
-            { ShaderDataType::Float3, "a_TexCoords"}
+            { ShaderDataType::Float2, "a_TexCoords"}
         };
 
         vertexBuffer->SetLayout(layout);

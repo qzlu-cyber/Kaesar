@@ -14,7 +14,7 @@ namespace Kaesar {
 		virtual uint32_t GetRendererID() const = 0;
 
 		virtual void Active(int index) const = 0;
-		virtual void Bind(uint32_t slot = 0) const = 0;
+		virtual void Bind() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
 	};
@@ -22,6 +22,6 @@ namespace Kaesar {
 	class Texture2D : public Texture
 	{
 	public:
-		static std::shared_ptr<Texture2D> Create(const std::string& filepath);
+		static std::shared_ptr<Texture2D> Create(const std::string& filepath, bool vertical);
 	};
 }

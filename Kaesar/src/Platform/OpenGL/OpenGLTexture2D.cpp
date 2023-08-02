@@ -4,13 +4,13 @@
 #include "stb_image.h"
 
 namespace Kaesar {
-    OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath)
+    OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath, bool vertical)
     {
         glGenTextures(1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
         int width, height, channels;
-        stbi_set_flip_vertically_on_load(1);
+        stbi_set_flip_vertically_on_load(vertical);
         unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
         KR_CORE_ASSERT(data, "Œ∆¿Ì {0} º”‘ÿ ß∞‹£°", filepath);
 
@@ -38,7 +38,7 @@ namespace Kaesar {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, &data);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         stbi_image_free(data);
@@ -46,6 +46,7 @@ namespace Kaesar {
 
     OpenGLTexture2D::~OpenGLTexture2D()
     {
+        glDeleteTextures(1, &m_RendererID);
     }
 
     void OpenGLTexture2D::Active(int index = 0) const
@@ -53,7 +54,7 @@ namespace Kaesar {
         glActiveTexture(GL_TEXTURE0 + index);
     }
 
-    void OpenGLTexture2D::Bind(uint32_t slot) const
+    void OpenGLTexture2D::Bind() const
     {
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
