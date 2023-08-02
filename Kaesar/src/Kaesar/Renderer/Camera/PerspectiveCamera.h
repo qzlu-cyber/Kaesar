@@ -21,7 +21,7 @@ namespace Kaesar {
         inline void SetDistance(float distance) { m_Distance = distance; }
         glm::vec3 GetFocalPoint() { return m_FocalPoint; }
         void SetFocalPoint(glm::vec3 position) { m_FocalPoint = position; UpdateView(); }
-        inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
+        void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
 
         inline const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
         inline glm::mat4 GetViewProjection() const { return m_Projection * m_ViewMatrix; }

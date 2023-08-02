@@ -6,6 +6,7 @@
 #include "Kaesar/Core/MouseButtonCodes.h"
 #include "Kaesar/Core/Input.h"
 
+#include <glad/glad.h>
 #include <glm/gtx/quaternion.hpp>
 
 namespace Kaesar {
@@ -99,9 +100,7 @@ namespace Kaesar {
     {
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<MouseScrolledEvent>(KR_BIND_EVENT_FN(PerspectiveCamera::OnMouseScroll));
-        dispatcher.Dispatch<WindowResizeEvent>([&](WindowResizeEvent e) {
-            return OnResize(e);
-            });
+        dispatcher.Dispatch<WindowResizeEvent>([&](WindowResizeEvent e) { return OnResize(e); });
     }
 
     bool PerspectiveCamera::OnMouseScroll(MouseScrolledEvent& e)
@@ -115,7 +114,11 @@ namespace Kaesar {
     bool PerspectiveCamera::OnResize(WindowResizeEvent& e) {
         m_ViewportWidth  = static_cast<float>(e.GetWidth());
         m_ViewportHeight = static_cast<float>(e.GetHeight());
-        //UpdateProjection();
+
+        UpdateProjection();
+
+        glViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
+
         return false;
     }
 

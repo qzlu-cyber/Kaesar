@@ -7,6 +7,8 @@ public:
     ExampleLayer()
         : Layer("Example") 
     {
+        auto& app = Kaesar::Application::Get();
+
         float vertices[] = {
             // back face
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left
@@ -128,7 +130,7 @@ public:
         m_Texture = Kaesar::Texture2D::Create("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot_texture.png", 0);
 
         m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.66f, 0.1f, 100.0f);
-        m_Camera->SetViewportSize(1600, 900);
+        m_Camera->SetViewportSize(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
     }
 
     virtual void OnUpdate(const Kaesar::Timestep& timestep) override
