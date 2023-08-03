@@ -25,15 +25,16 @@ namespace Kaesar {
 
     void PerspectiveCamera::UpdateView()
     {
-        // m_Yaw = m_Pitch = 0.0f; // Lock the camera's rotation
         m_Position = CalculatePosition(); // 首先得到摄像机的位置
 
         glm::quat orientation = GetOrientation(); // 然后得到摄像机的方向
-        // 将摄像机的位置应用到单位矩阵上。这个平移变换的结果就是一个矩阵，它表示了摄像机在世界坐标系中的位置
-        // 将摄像机的方向转换为一个旋转矩阵
-        // 将这两个矩阵相乘，得到的结果就是观察矩阵。这个观察矩阵包含了摄像机的位置和旋转信息
-        m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
-        m_ViewMatrix = glm::inverse(m_ViewMatrix);
+        // 将摄像机位置始终视作原点，即和世界坐标中的原点重合，再让观察空间的坐标轴与世界空间坐标轴重合即可得到观察矩阵
+        // 由于摄像机在由世界空间中的变换是先旋转再平移，故 ViewMatrix = R * T (即先做平移变换 T，再做旋转变换)
+        // 首先将摄像机的位置平移到原点，即做平移变换 T
+        // 然后将摄像机的方向与世界坐标轴重合，即做旋转变换 R，直接计算矩阵 R 比较难算，可逆向来看，将世界坐标轴旋转到摄像机的方向再取逆即可得到结果
+        // glm 矩阵以列主序存储，即先存储第一列，再存储第二列，以此类推。故 orientation 即为将世界坐标轴旋转到摄像机的方向
+        // 因 glm::toMat4(orientation) 为正交矩阵，故其逆又等于其转置，所以它就是 R
+        m_ViewMatrix = glm::toMat4(orientation) * glm::translate(glm::mat4(1.0f), -m_Position);
     }
 
     std::pair<float, float> PerspectiveCamera::PanSpeed() const
