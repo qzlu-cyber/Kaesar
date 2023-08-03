@@ -99,4 +99,14 @@ namespace Kaesar {
         ImGui::Text("Hello World!");
         ImGui::End();
     }
+
+    void ImGuiLayer::OnEvent(Event& event)
+    {
+        if (m_BlockEvents) // 如果 ImGui 被阻塞，那么就不处理事件
+        {
+            ImGuiIO& io = ImGui::GetIO();
+            event.m_Handled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse; // 如果事件是鼠标事件，且 ImGui 捕获了鼠标，那么就标记事件已经被处理
+            event.m_Handled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard; // 如果事件是键盘事件，且 ImGui 捕获了键盘，那么就标记事件已经被处理
+        }
+    }
 }

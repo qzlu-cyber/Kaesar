@@ -165,7 +165,10 @@ public:
         Kaesar::RenderCommand::Clear();
         Kaesar::RenderCommand::EnableDepthTest();
 
-        m_Camera->OnUpdate(timestep);
+        if (m_ViewportFocused) // 只有窗口聚焦时才更新相机
+        {
+            m_Camera->OnUpdate(timestep);
+        }
 
         Kaesar::Renderer::BeginScene();
 
@@ -277,6 +280,11 @@ public:
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         ImGui::Begin(u8"视口");
 
+        m_ViewportFocused = ImGui::IsWindowFocused();
+        m_ViewportHovered = ImGui::IsWindowHovered();
+        
+        Kaesar::Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused || !m_ViewportHovered); // 当视口没有被激活时，不接受事件
+
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
@@ -316,6 +324,9 @@ private:
 
     glm::vec2 m_ViewportSize = { 200.0f, 200.0f };
     glm::vec3 m_CubeColor = { 1.0f, 1.0f, 1.0f };
+
+    bool m_ViewportFocused = false; // 标记视口是否被聚焦
+    bool m_ViewportHovered = false; // 标记鼠标是否在视口上
 };
 
 class Sandbox : public Kaesar::Application

@@ -23,7 +23,9 @@ namespace Kaesar {
         void PushLayer(Layer* layer);
         void PushOverlay(Layer* overlay);
 
-        inline Window& GetWindow() { return *m_Window; }
+        inline Window& GetWindow() const { return *m_Window; }
+
+        inline ImGuiLayer* GetImGuiLayer() const { return m_ImGuiLayer; }
 
         inline static Application& Get() { return *s_Instance; }
     private:
