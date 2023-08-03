@@ -55,14 +55,11 @@ public:
         };
 
         float quad[] = {
-            // positions   // texture coords
-            -1.0f,  1.0f,  0.0f, 1.0f,
-            -1.0f, -1.0f,  0.0f, 0.0f,
-             1.0f, -1.0f,  1.0f, 0.0f,
-
-            -1.0f,  1.0f,  0.0f, 1.0f,
-             1.0f, -1.0f,  1.0f, 0.0f,
-             1.0f,  1.0f,  1.0f, 1.0f
+             // positions        // texture coords
+             1.0f,  1.0f, 0.0f,    1.0f, 1.0f,   // top right
+             1.0f, -1.0f, 0.0f,    1.0f, 0.0f,   // bottom right
+            -1.0f, -1.0f, 0.0f,    0.0f, 0.0f,   // bottom left
+            -1.0f,  1.0f, 0.0f,    0.0f, 1.0f    // top left 
         };
 
         uint32_t indices[] = { 
@@ -87,8 +84,8 @@ public:
         };
 
         unsigned int quadIndices[] = {
-            0, 1, 2, // first triangle
-            3, 4, 5  // second triangle
+            0, 1, 3, // first triangle
+            1, 2, 3  // second triangle
         };
         
         m_VertexArray = Kaesar::VertexArray::Create();
@@ -128,13 +125,17 @@ public:
 
         m_ViewportSize = { fspc.Width, fspc.Height };
 
-        m_FrameBuffer = Kaesar::FrameBuffer::Create(fspc);
+        fspc.Samples = 4; // 4x MSAA
+        m_FrameBuffer = Kaesar::FrameBuffer::Create(fspc); // MSAA framebuffer
+        fspc.Samples = 1;
+        m_PostProcessingFB = Kaesar::FrameBuffer::Create(fspc); // 后处理 framebuffer
 
         const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
         m_Shader = Kaesar::Shader::Create(basicShaderPath);
 
         const std::string quadShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\quad.glsl";
         m_QuadShader = Kaesar::Shader::Create(quadShaderPath);
+        m_QuadShader->SetInt("u_Texture", 0);
 
         m_Model = std::make_shared<Kaesar::Model>("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot.obj");
 
@@ -151,6 +152,7 @@ public:
             (spec.Width != (uint32_t)m_ViewportSize.x || spec.Height != (uint32_t)m_ViewportSize.y))
         {
             m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+            m_PostProcessingFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_Camera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
         }
 
@@ -179,9 +181,25 @@ public:
 
         Kaesar::Renderer::Submit(m_Model);
         /// ====================== spot end =====================
+        m_Texture->Unbind();
+        m_Shader->Unbind();
+        m_FrameBuffer->Unbind();
 
         Kaesar::Renderer::EndScene();
+
+        m_FrameBuffer->BlitMultiSample(m_FrameBuffer->GetRendererID(), m_PostProcessingFB->GetRendererID());
+        
         m_FrameBuffer->Unbind();
+        Kaesar::RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+        Kaesar::RenderCommand::ClearColor();
+        Kaesar::RenderCommand::DisableDepthTest();
+
+        m_QuadShader->Bind();
+        m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID());
+        m_QuadVA->Bind();
+        Kaesar::Renderer::Submit(m_QuadVA);
+        m_Texture->UnbindMultisample();
+        m_QuadShader->Unbind();
     }
 
     virtual void OnImGuiRender() override
@@ -262,7 +280,7 @@ public:
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-        uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+        uint64_t textureID = m_PostProcessingFB->GetColorAttachmentRendererID();
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
         ImGui::End();
@@ -286,7 +304,7 @@ private:
     std::shared_ptr<Kaesar::VertexArray> m_VertexArray, m_QuadVA;
     std::shared_ptr<Kaesar::VertexBuffer> m_VertexBuffer, m_QuadVB;
     std::shared_ptr<Kaesar::IndexBuffer> m_IndexBuffer, m_QuadIB;
-    std::shared_ptr<Kaesar::FrameBuffer> m_FrameBuffer;
+    std::shared_ptr<Kaesar::FrameBuffer> m_FrameBuffer, m_PostProcessingFB;
 
     std::shared_ptr<Kaesar::Texture2D> m_Texture;
 

@@ -15,7 +15,9 @@ namespace Kaesar {
 
 		virtual void Active(int index) const = 0;
 		virtual void Bind() const = 0;
-		virtual void Bind(unsigned int id) const = 0;
+		virtual void Unbind() const = 0;
+		virtual void BindMultisample(unsigned int id) const = 0;
+		virtual void UnbindMultisample() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
 	};

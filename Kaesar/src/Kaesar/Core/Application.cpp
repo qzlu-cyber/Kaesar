@@ -29,7 +29,6 @@ namespace Kaesar {
 
     Application::~Application()
     {
-        delete m_ImGuiLayer;
     }
 
     void Application::PushLayer(Layer* layer)

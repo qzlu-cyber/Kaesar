@@ -59,9 +59,19 @@ namespace Kaesar {
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
 
-    void OpenGLTexture2D::Bind(unsigned int id) const
+    void OpenGLTexture2D::Unbind() const
     {
-        glBindTexture(GL_TEXTURE_2D, id);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void OpenGLTexture2D::BindMultisample(unsigned int id) const
+    {
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, id);
+    }
+
+    void OpenGLTexture2D::UnbindMultisample() const
+    {
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
     }
 
     bool OpenGLTexture2D::operator==(const Texture& other) const

@@ -18,7 +18,9 @@ namespace Kaesar {
 
         virtual void Active(int index) const override;
         virtual void Bind() const override;
-        virtual void Bind(unsigned int id) const override;
+        virtual void Unbind() const override;
+        virtual void BindMultisample(unsigned int id) const override;
+        virtual void UnbindMultisample() const override;
 
         virtual bool operator==(const Texture& other) const override;
 

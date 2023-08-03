@@ -31,23 +31,45 @@ namespace Kaesar {
         glGenFramebuffers(1, &m_RendererID);
         glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
-        // 生成纹理附件
-        glGenTextures(1, &m_ColorAttachment);
-        glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.Width, m_Specification.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        // 将其绑定到当前帧缓冲对象
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
+        // 不开启 MSAA
+        if (m_Specification.Samples == 1)
+        {
+            // 生成纹理附件
+            glGenTextures(1, &m_ColorAttachment);
+            glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.Width, m_Specification.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            // 将其绑定到当前帧缓冲对象
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
 
-        // 生成渲染缓冲对象附件
-        glGenRenderbuffers(1, &m_DepthAttachment);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        // 将其绑定到当前帧缓冲对象
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+            // 生成渲染缓冲对象附件
+            glGenRenderbuffers(1, &m_DepthAttachment);
+            glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            // 将其绑定到当前帧缓冲对象
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+        }
+        else
+        {
+            // 生成纹理附件
+            glGenTextures(1, &m_ColorAttachment);
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachment);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB, m_Specification.Width, m_Specification.Height, GL_TRUE);
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+            // 将其绑定到当前帧缓冲对象
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachment, 0);
+
+            // 生成渲染缓冲对象附件
+            glGenRenderbuffers(1, &m_DepthAttachment);
+            glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            // 将其绑定到当前帧缓冲对象
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+        }
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             KR_CORE_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
@@ -64,6 +86,13 @@ namespace Kaesar {
     void OpenGLFrameBuffer::Unbind() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void OpenGLFrameBuffer::BlitMultiSample(unsigned int readFrameBuffer, unsigned int drawFrameBuffer) const
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFrameBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFrameBuffer);
+        glBlitFramebuffer(0, 0, m_Specification.Width, m_Specification.Height, 0, 0, m_Specification.Width, m_Specification.Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
 
     void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
