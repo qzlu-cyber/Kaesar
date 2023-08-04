@@ -146,12 +146,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-<<<<<<< HEAD
-=======
-    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h" />
-    <ClInclude Include="src\Kaesar\Scene\Component.h" />
-    <ClInclude Include="src\Kaesar\Scene\Entity.h" />
->>>>>>> ab8935901c33bde322c83a952e3538ac685b4eff
     <ClInclude Include="src\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Events\Event.h" />
     <ClInclude Include="src\Events\KeyEvent.h" />
@@ -186,6 +180,7 @@
     <ClInclude Include="src\Kaesar\Scene\Component.h" />
     <ClInclude Include="src\Kaesar\Scene\Entity.h" />
     <ClInclude Include="src\Kaesar\Scene\Scene.h" />
+    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
@@ -615,11 +610,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
-=======
-    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp" />
-    <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
->>>>>>> ab8935901c33bde322c83a952e3538ac685b4eff
     <ClCompile Include="src\Kaesar\Core\Application.cpp" />
     <ClCompile Include="src\Kaesar\Core\Input.cpp" />
     <ClCompile Include="src\Kaesar\Core\Layer.cpp" />
@@ -641,6 +631,7 @@
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
     <ClCompile Include="src\Kaesar\Scene\Scene.cpp" />
+    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
