@@ -20,6 +20,7 @@ namespace Kaesar {
         auto& app = Application::Get();
 
         m_ActiveScene = std::make_shared<Scene>();
+        m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
 
         float quad[] = {
             // positions        // texture coords
@@ -215,8 +216,16 @@ namespace Kaesar {
         }
 
 
-        ImGui::Begin(u8"²âÊÔ");
-        ImGui::ColorEdit3(u8"ÑÕÉ«", glm::value_ptr(m_CubeColor));
+        m_ScenePanel->OnImGuiRender();
+
+        ImGui::Begin("Scene");
+
+        ImGui::ColorEdit3("cube color", glm::value_ptr(m_CubeColor));
+        ImGui::ColorEdit3("clear color", glm::value_ptr(m_ClearColor));
+        ImGui::End();
+
+        ImGui::Begin("Properties");
+        ImGui::DragFloat3("scale", glm::value_ptr(m_Scale), 0.1f, 0.1f, 10.0f);
         ImGui::End();
 
         /// ====================== viewport ========================
@@ -242,12 +251,6 @@ namespace Kaesar {
 
     void EditorLayer::OnEvent(Event& event)
     {
-        if (event.GetEventType() == EventType::KeyPressed)
-        {
-            KeyPressedEvent& e = static_cast<KeyPressedEvent&>(event);
-            if (e.GetKeyCode() == KR_KEY_LEFT_ALT)
-                KR_TRACE("Alt key is pressed (event)!");
-            KR_TRACE("{0}", static_cast<char>(e.GetKeyCode()));
-        }
+        m_Camera->OnEvent(event);
     }
 }

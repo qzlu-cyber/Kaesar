@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Kaesar.h>
+#include "UI/ScenePanel.h"
 
 #include "Kaesar/Core/Layer.h"
 
@@ -19,6 +20,7 @@ namespace Kaesar {
 
     private:
         std::shared_ptr<Scene> m_ActiveScene;
+        std::shared_ptr<ScenePanel> m_ScenePanel;
         std::shared_ptr<VertexArray> m_QuadVA;
         std::shared_ptr<VertexBuffer> m_QuadVB;
         std::shared_ptr<IndexBuffer> m_QuadIB;
@@ -33,7 +35,9 @@ namespace Kaesar {
         std::shared_ptr<PerspectiveCamera> m_Camera;
 
         glm::vec2 m_ViewportSize = { 200.0f, 200.0f };
+        glm::vec3 m_ClearColor = { 0.1f, 0.1f, 0.1f };
         glm::vec3 m_CubeColor = { 1.0f, 1.0f, 1.0f };
+        glm::vec3 m_Scale = { 1.0f,1.0f,1.0f };
 
         bool m_ViewportFocused = false; // 标记视口是否被聚焦
         bool m_ViewportHovered = false; // 标记鼠标是否在视口上

@@ -90,11 +90,18 @@ namespace Kaesar {
         }
     }
 
+    void ImGuiLayer::SetDarkThemeColors()
+    {
+        auto& colors = ImGui::GetStyle().Colors;
+
+        // Frame BG
+        colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
+        colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+        colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+    }
+
     void ImGuiLayer::OnImGuiRender()
     {
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
-
         ImGui::Begin(u8"Êä³ö");
         ImGui::Text("Hello World!");
         ImGui::End();

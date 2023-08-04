@@ -139,10 +139,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\UI\ScenePanel.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\KaesarEditorApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\UI\ScenePanel.h" />
     <ClInclude Include="src\EditorLayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
