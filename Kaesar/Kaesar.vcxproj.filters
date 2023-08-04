@@ -1443,6 +1443,13 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+<<<<<<< HEAD
+=======
+    <ClInclude Include="src\Kaesar\Scene\Scene.h" />
+    <ClInclude Include="src\Kaesar\Scene\Entity.h" />
+    <ClInclude Include="src\Kaesar\Scene\Component.h" />
+    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h" />
+>>>>>>> ab8935901c33bde322c83a952e3538ac685b4eff
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1541,5 +1548,11 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+<<<<<<< HEAD
+=======
+    <ClCompile Include="src\Kaesar\Scene\Scene.cpp" />
+    <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
+    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp" />
+>>>>>>> ab8935901c33bde322c83a952e3538ac685b4eff
   </ItemGroup>
 </Project>

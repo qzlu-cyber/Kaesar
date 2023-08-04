@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Kaesar/Scene/SceneCamera.h"
+
 #include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -35,5 +37,14 @@ namespace Kaesar {
                 * rotation
                 * glm::scale(glm::mat4(1.0f), Scale);
         }
+    };
+
+    struct CameraComponent
+    {
+        SceneCamera Camera;
+        bool FixedAspectRatio = false;
+
+        CameraComponent() = default;
+        CameraComponent(const CameraComponent&) = default;
     };
 }
