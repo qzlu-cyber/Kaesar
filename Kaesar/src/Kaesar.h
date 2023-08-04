@@ -19,6 +19,10 @@
 #include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Renderer/Texture.h"
 
+#include "Kaesar/Scene/Scene.h"
+#include "Kaesar/Scene/Entity.h"
+#include "Kaesar/Scene/Component.h"
+
 #include "Kaesar/Renderer/Camera/PerspectiveCamera.h"
 // -------------------------------------------------
 

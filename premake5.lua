@@ -19,6 +19,7 @@ IncludeDir["ImGui"] = "Kaesar/vendor/imgui"
 IncludeDir["glm"] = "Kaesar/vendor/glm"
 IncludeDir["stb_image"] = "Kaesar/vendor/stb_image"
 IncludeDir["assimp"] = "Kaesar/vendor/assimp/include"
+IncludeDir["entt"] = "Kaesar/vendor/entt/include"
 
 group "Dependencies"
 	include "Kaesar/vendor/GLFW"
@@ -58,7 +59,8 @@ project "Kaesar"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.assimp}"
+		"%{IncludeDir.assimp}",
+		"%{IncludeDir.entt}"
 	}
 
 	libdirs {
@@ -126,7 +128,8 @@ project "Sandbox"
 		"Kaesar/vendor/GLFW/include",
 		"Kaesar/src",
 		"Kaesar/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links

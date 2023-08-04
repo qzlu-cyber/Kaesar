@@ -9,50 +9,7 @@ public:
     {
         auto& app = Kaesar::Application::Get();
 
-        float vertices[] = {
-            // back face
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-right    
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f, // top-right              
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f, // top-right
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f,-1.0f, // top-left
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left                
-            // front face
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-right        
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-left        
-            // left face
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f, 0.0f,0.0f, // top-left       
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f, 0.0f,0.0f, // bottom-right
-            // right face
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f, 0.0f,0.0f,  // top-right      
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right          
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.0f,0.0f,  // bottom-left
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
-             // bottom face          
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
-              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
-              0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-left        
-              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
-             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-right
-             // top face										     
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-left
-              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-right
-              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right                 
-              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right
-             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-left  
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f   // top-left 
-        };
+        m_ActiveScene = std::make_shared<Kaesar::Scene>();
 
         float quad[] = {
              // positions        // texture coords
@@ -62,60 +19,25 @@ public:
             -1.0f,  1.0f, 0.0f,    0.0f, 1.0f    // top left 
         };
 
-        uint32_t indices[] = { 
-            // front
-            0, 1, 2,
-            2, 3, 0,
-            // right
-            1, 5, 6,
-            6, 2, 1,
-            // back
-            7, 6, 5,
-            5, 4, 7,
-            // left
-            4, 0, 3,
-            3, 7, 4,
-            // bottom
-            4, 5, 1,
-            1, 0, 4,
-            // top
-            3, 2, 6,
-            6, 7, 3
-        };
-
         unsigned int quadIndices[] = {
             0, 1, 3, // first triangle
             1, 2, 3  // second triangle
         };
         
-        m_VertexArray = Kaesar::VertexArray::Create();
         m_QuadVA = Kaesar::VertexArray::Create();
 
         // 将顶点数组复制到一个顶点缓冲中
-        m_VertexBuffer = Kaesar::VertexBuffer::Create(&vertices[0], sizeof(vertices));
         m_QuadVB = Kaesar::VertexBuffer::Create(&quad[0], sizeof(quad));
 
         // 将索引数组到一个索引缓冲中
-        m_IndexBuffer = Kaesar::IndexBuffer::Create(&indices[0], sizeof(indices) / sizeof(uint32_t));
         m_QuadIB = Kaesar::IndexBuffer::Create(&quadIndices[0], sizeof(quadIndices) / sizeof(uint32_t));
-
-        Kaesar::BufferLayout layout = {
-            { Kaesar::ShaderDataType::Float3, "a_Position" },
-            { Kaesar::ShaderDataType::Float3, "a_Normal" },
-            { Kaesar::ShaderDataType::Float2, "a_TexCoords" }
-        };
 
         Kaesar::BufferLayout quadLayout = {
             { Kaesar::ShaderDataType::Float2, "a_Position" },
             { Kaesar::ShaderDataType::Float2, "a_TexCoords" }
         };
 
-        m_VertexBuffer->SetLayout(layout);
         m_QuadVB->SetLayout(quadLayout);
-
-        m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-        m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
         m_QuadVA->AddVertexBuffer(m_QuadVB);
         m_QuadVA->SetIndexBuffer(m_QuadIB);
 
@@ -143,6 +65,8 @@ public:
 
         m_Camera = std::make_shared<Kaesar::PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
         m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+        
+        auto spotEntity = m_ActiveScene->CreateEntity("spot");
     }
 
     virtual void OnUpdate(const Kaesar::Timestep& timestep) override
@@ -158,6 +82,8 @@ public:
 
         if (Kaesar::Input::IsKeyPressed(KR_KEY_LEFT_ALT))
             KR_TRACE("Alt key is pressed (poll)!");
+
+        m_ActiveScene->OnUpdateEditor(timestep, m_Camera);
 
         m_FrameBuffer->Bind();
 
@@ -311,9 +237,10 @@ public:
     }
 
 private:
-    std::shared_ptr<Kaesar::VertexArray> m_VertexArray, m_QuadVA;
-    std::shared_ptr<Kaesar::VertexBuffer> m_VertexBuffer, m_QuadVB;
-    std::shared_ptr<Kaesar::IndexBuffer> m_IndexBuffer, m_QuadIB;
+    std::shared_ptr<Kaesar::Scene> m_ActiveScene;
+    std::shared_ptr<Kaesar::VertexArray> m_QuadVA;
+    std::shared_ptr<Kaesar::VertexBuffer> m_QuadVB;
+    std::shared_ptr<Kaesar::IndexBuffer> m_QuadIB;
     std::shared_ptr<Kaesar::FrameBuffer> m_FrameBuffer, m_PostProcessingFB;
 
     std::shared_ptr<Kaesar::Texture2D> m_Texture;

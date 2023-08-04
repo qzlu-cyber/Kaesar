@@ -120,10 +120,16 @@
     <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h">
       <Filter>src\Kaesar\Renderer\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\FrameBuffer.h">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Mesh.h">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\Model.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h">
@@ -148,6 +154,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h">
@@ -1422,9 +1431,9 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Renderer\Model.h" />
-    <ClInclude Include="src\Kaesar\Renderer\FrameBuffer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLFrameBuffer.h" />
+    <ClInclude Include="src\Kaesar\Scene\Scene.h" />
+    <ClInclude Include="src\Kaesar\Scene\Entity.h" />
+    <ClInclude Include="src\Kaesar\Scene\Component.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1457,7 +1466,13 @@
     <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp">
       <Filter>src\Kaesar\Renderer\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\FrameBuffer.cpp">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Mesh.cpp">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\Model.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp">
@@ -1484,6 +1499,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1508,15 +1526,7 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Kaesar\Renderer\Model.cpp" />
-    <ClCompile Include="src\Kaesar\Renderer\FrameBuffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLFrameBuffer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\res\shaders\aa.glsl" />
-    <None Include="src\res\shaders\basic.glsl" />
-    <None Include="src\res\shaders\mouse.glsl" />
-    <None Include="src\res\shaders\outline.glsl" />
-    <None Include="src\res\shaders\quad.glsl" />
+    <ClCompile Include="src\Kaesar\Scene\Scene.cpp" />
+    <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
   </ItemGroup>
 </Project>
