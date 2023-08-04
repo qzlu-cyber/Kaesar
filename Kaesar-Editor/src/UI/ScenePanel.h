@@ -18,10 +18,13 @@ namespace Kaesar {
     private:
         void DrawEntity(Entity entity);
         void DrawComponents(Entity entity);
+        void ScenePanel::DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f);
 
     private:
         std::shared_ptr<Scene> m_Context;
         Entity m_SelectionContext;
+
+        bool m_ScaleLock = true;
     };
 }
 

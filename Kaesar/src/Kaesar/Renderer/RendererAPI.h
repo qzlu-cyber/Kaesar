@@ -26,6 +26,8 @@ namespace Kaesar {
 
         virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0; // ÉèÖÃÊÓ¿Ú
 
+        virtual std::string GetRendererInfo() = 0;
+
         inline static API GetAPI() { return s_API; }
 
     private:

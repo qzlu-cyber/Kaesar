@@ -23,7 +23,6 @@ namespace Kaesar {
 		void OnUpdateEditor(Timestep ts, std::shared_ptr<PerspectiveCamera>& camera);
 		void OnViewportResize(uint32_t width, uint32_t height);
 
-
 	private:
 		entt::registry m_Registry; // container of all entities and components
 

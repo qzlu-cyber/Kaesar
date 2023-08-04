@@ -6,13 +6,16 @@
 namespace Kaesar {
     void OpenGLRendererAPI::Init()
     {
-        const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-        const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-        const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-        KR_CORE_WARN("Driver: {0}", vendor);
-        KR_CORE_WARN("Renderer: {0}", renderer);
-        KR_CORE_WARN("Version: {0}", version);
         glEnable(GL_MULTISAMPLE); // 开启多重采样
+    }
+
+    std::string OpenGLRendererAPI::GetRendererInfo()
+    {
+        std::string info;
+        info += u8"驱动: " + std::string((char*)glGetString(GL_VENDOR)) + "\n";
+        info += u8"渲染器: " + std::string((char*)glGetString(GL_RENDERER)) + "\n";
+        info += u8"版本: " + std::string((char*)glGetString(GL_VERSION));
+        return info;
     }
 
     void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)

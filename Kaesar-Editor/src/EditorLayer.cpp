@@ -8,6 +8,7 @@ namespace Kaesar {
         :Layer("Editor Layer")
     {
         RenderCommand::Init();
+        m_Info = RenderCommand::Info();
     }
 
     EditorLayer::~EditorLayer()
@@ -63,20 +64,20 @@ namespace Kaesar {
         fspc.Samples = 1;
         m_PostProcessingFB = FrameBuffer::Create(fspc); // 后处理 framebuffer
 
-        const std::string basicShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\basic.glsl";
+        const std::string basicShaderPath = "assets/shaders/basic.glsl";
         m_Shader = Shader::Create(basicShaderPath);
 
-        const std::string quadShaderPath = "D:\\CPP\\Kaesar\\Kaesar\\src\\res\\shaders\\quad.glsl";
+        const std::string quadShaderPath = "assets/shaders/quad.glsl";
         m_QuadShader = Shader::Create(quadShaderPath);
         m_QuadShader->SetInt("u_Texture", 0);
 
-        m_Model = std::make_shared<Model>("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot.obj");
+        m_Model = std::make_shared<Model>("assets/models/spot/spot.obj");
 
-        m_Texture = Texture2D::Create("D:\\CPP\\Kaesar\\Kaesar\\src\\res\\models\\spot\\spot_texture.png", 0);
+        m_Texture = Texture2D::Create("assets/models/spot/spot_texture.png", 0);
 
         m_Camera = std::make_shared<PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
         m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-        
+
         m_Entity = m_ActiveScene->CreateEntity("spot");
     }
 
@@ -100,14 +101,7 @@ namespace Kaesar {
             KR_TRACE("Alt key is pressed (poll)!");
 
         m_ActiveScene->OnUpdateEditor(timestep, m_Camera);
-
-        auto& rotation = m_Entity.GetComponent<TransformComponent>().Rotation;
-        // UI 显示随相机旋转参数更新
-        rotation.x = m_Camera->GetPitch();
-        rotation.y = m_Camera->GetYaw();
-
-        // 当 UI 参数更新时，相机也跟着更新
-        // m_Camera->SetYawPitch(rotation.y, rotation.x);
+        m_SelectedEntity = m_ScenePanel->GetSelectedContext();
 
         m_FrameBuffer->Bind();
 
@@ -124,6 +118,11 @@ namespace Kaesar {
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, glm::radians(140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        if (m_SelectedEntity)
+        {
+            glm::vec3 scale = m_SelectedEntity.GetComponent<TransformComponent>().Scale;
+            model = glm::scale(model, scale);
+        }
         model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
 
         /// ====================== spot ========================
@@ -220,20 +219,25 @@ namespace Kaesar {
                 }
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu(u8"编辑")) {
+                if (ImGui::MenuItem(u8"复制"))
+                {
+                    
+                }
+                ImGui::EndMenu();
+            }
             ImGui::EndMenuBar();
         }
 
-
         m_ScenePanel->OnImGuiRender();
 
-        ImGui::Begin("Scene");
-
-        ImGui::ColorEdit3("cube color", glm::value_ptr(m_CubeColor));
-        ImGui::ColorEdit3("clear color", glm::value_ptr(m_ClearColor));
-        ImGui::End();
-
-        ImGui::Begin("Properties");
-        ImGui::DragFloat3("scale", glm::value_ptr(m_Scale), 0.1f, 0.1f, 10.0f);
+        /// ====================== Renderer info ========================
+        ImGui::Begin("Renderer info");
+        ImGui::Text(m_Info.c_str());
+        ImGui::Text("\nApplication average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
+        ImGui::Text("%d active windows (%d visible)", io.MetricsActiveWindows, io.MetricsRenderWindows);
+        ImGui::Text("%d active allocations", io.MetricsActiveAllocations);
         ImGui::End();
 
         /// ====================== viewport ========================
@@ -255,6 +259,29 @@ namespace Kaesar {
 
         ImGui::PopStyleVar();
         ImGui::End();
+
+        /// ======================== camera ==========================
+        static bool camerSettings = true;
+        if (camerSettings) {
+            ImGui::Begin(u8"相机", &camerSettings);
+            //Fov
+            float fov = m_Camera->GetFOV();
+            if (ImGui::SliderFloat(u8"视野", &fov, 10, 180)) {
+                m_Camera->SetFov(fov);
+            }
+            ImGui::Separator();
+            //near-far clip
+            float nearClip = m_Camera->GetNear();
+            float farClip = m_Camera->GetFar();
+            if (ImGui::SliderFloat(u8"远平面", &farClip, 10, 10000)) {
+                m_Camera->SetFarClip(farClip);
+            }
+            ImGui::Separator();
+            if (ImGui::SliderFloat(u8"近平面", &nearClip, 0.0001, 1)) {
+                m_Camera->SetNearClip(nearClip);
+            }
+            ImGui::End();
+        }
     }
 
     void EditorLayer::OnEvent(Event& event)

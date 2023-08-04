@@ -28,12 +28,11 @@ namespace Kaesar {
     }
 
     void Scene::OnUpdateEditor(Timestep ts, std::shared_ptr<PerspectiveCamera>& camera) {
-        //TODO: Implement OnUpdateEditor
         auto group = m_Registry.group<TransformComponent>(entt::get<TagComponent>);
         for (auto& entity : group)
         {
-            auto tag = m_Registry.get<TagComponent>(entity);
-            //KR_CORE_TRACE("Entity with ID :{0} and tag name : {1}", (uint32_t)entity, tag.Tag);
+            auto& tag = m_Registry.get<TagComponent>(entity);
+            
         }
     }
 
