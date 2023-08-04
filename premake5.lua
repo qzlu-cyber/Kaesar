@@ -1,6 +1,6 @@
 workspace "Kaesar"
 	architecture "x64"
-	startproject "Sandbox"
+	startproject "Kaesar-Editor"
 
 	configurations
 	{
@@ -89,6 +89,60 @@ project "Kaesar"
 			"KR_PLATFORM_WINDOWS",
 			"KR_BUILD_DLL",
 			"GLFW_INCLUDE_NONE"
+		}
+
+	filter "configurations:Debug"
+		defines "KR_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release"
+		defines "KR_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
+		defines "KR_DIST"
+		runtime "Release"
+		optimize "on"
+
+project "Kaesar-Editor"
+	location "Kaesar-Editor"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.cpp"
+	}
+
+	includedirs
+	{
+		"Kaesar/vendor/spdlog/include",
+		"Kaesar/vendor/GLFW/include",
+		"Kaesar/src",
+		"Kaesar/vendor",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
+	}
+
+	links
+	{
+		"Kaesar"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"KR_PLATFORM_WINDOWS"
 		}
 
 	filter "configurations:Debug"

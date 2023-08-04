@@ -28,5 +28,5 @@
 
 #include "Kaesar/ImGui/ImGuiLayer.h"
 // ------------------Entry Point--------------------
-#include "Kaesar/Core/EntryPoint.h"
+//#include "Kaesar/Core/EntryPoint.h"
 // -------------------------------------------------
