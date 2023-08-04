@@ -27,6 +27,8 @@ namespace Kaesar {
 	private:
 		entt::registry m_Registry; // container of all entities and components
 
+		std::vector<std::shared_ptr<Entity>> m_Entities; // container of all entities
+
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;
 

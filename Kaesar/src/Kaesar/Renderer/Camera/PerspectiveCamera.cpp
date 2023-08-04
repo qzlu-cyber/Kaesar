@@ -34,7 +34,11 @@ namespace Kaesar {
         // 然后将摄像机的方向与世界坐标轴重合，即做旋转变换 R，直接计算矩阵 R 比较难算，可逆向来看，将世界坐标轴旋转到摄像机的方向再取逆即可得到结果
         // glm 矩阵以列主序存储，即先存储第一列，再存储第二列，以此类推。故 orientation 即为将世界坐标轴旋转到摄像机的方向
         // 因 glm::toMat4(orientation) 为正交矩阵，故其逆又等于其转置，所以它就是 R
-        m_ViewMatrix = glm::toMat4(orientation) * glm::translate(glm::mat4(1.0f), -m_Position);
+        // m_ViewMatrix = glm::toMat4(orientation) * glm::translate(glm::mat4(1.0f), -m_Position);
+        // 上面更好理解，但是先平移后旋转，这样会导致旋转中心不在原点，而是在摄像机的位置，这样会导致旋转的轨迹不是以摄像机为中心的球体，而是以摄像机为中心的椭球体
+        // 对上述过程取逆，即可得到正确的结果
+        m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
+        m_ViewMatrix = glm::inverse(m_ViewMatrix);
     }
 
     std::pair<float, float> PerspectiveCamera::PanSpeed() const

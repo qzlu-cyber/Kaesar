@@ -9,13 +9,14 @@ namespace Kaesar {
     Scene::~Scene() {}
 
     Entity Scene::CreateEntity(const std::string& name) {
-        Entity entity = { m_Registry.create(), this };
+        std::shared_ptr<Entity> entity = std::make_shared<Entity>(m_Registry.create(), this);
+        m_Entities.push_back(entity);
 
-        auto& tag = entity.AddComponent<TagComponent>();
-        tag.Tag = name.empty() ? "Entity" : name;
-        entity.AddComponent<TransformComponent>();
+        auto& tag = (*entity).AddComponent<TagComponent>();
+        tag.Tag = name.empty() ? "Entity" : name; // entity 名称
+        (*entity).AddComponent<TransformComponent>(); // 所有 entity 都默认有 transform 组件
 
-        return entity;
+        return *entity;
     }
 
     void Scene::DestroyEntity(Entity entity) {

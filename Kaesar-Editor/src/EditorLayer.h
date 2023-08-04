@@ -42,5 +42,6 @@ namespace Kaesar {
         bool m_ViewportFocused = false; // 标记视口是否被聚焦
         bool m_ViewportHovered = false; // 标记鼠标是否在视口上
 
+        Entity m_Entity;
     };
 }

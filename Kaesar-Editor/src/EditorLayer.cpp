@@ -76,8 +76,8 @@ namespace Kaesar {
 
         m_Camera = std::make_shared<PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
         m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-
-        auto spotEntity = m_ActiveScene->CreateEntity("spot");
+        
+        m_Entity = m_ActiveScene->CreateEntity("spot");
     }
 
     void EditorLayer::OnDetach()
@@ -100,6 +100,14 @@ namespace Kaesar {
             KR_TRACE("Alt key is pressed (poll)!");
 
         m_ActiveScene->OnUpdateEditor(timestep, m_Camera);
+
+        auto& rotation = m_Entity.GetComponent<TransformComponent>().Rotation;
+        // UI 显示随相机旋转参数更新
+        rotation.x = m_Camera->GetPitch();
+        rotation.y = m_Camera->GetYaw();
+
+        // 当 UI 参数更新时，相机也跟着更新
+        // m_Camera->SetYawPitch(rotation.y, rotation.x);
 
         m_FrameBuffer->Bind();
 
