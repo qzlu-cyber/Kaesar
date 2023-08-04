@@ -146,6 +146,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h" />
     <ClInclude Include="src\Kaesar\Scene\Component.h" />
     <ClInclude Include="src\Kaesar\Scene\Entity.h" />
     <ClInclude Include="src\Events\ApplicationEvent.h" />
@@ -609,6 +610,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
     <ClCompile Include="src\Kaesar\Core\Application.cpp" />
     <ClCompile Include="src\Kaesar\Core\Input.cpp" />

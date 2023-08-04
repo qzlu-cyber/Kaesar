@@ -1434,6 +1434,7 @@
     <ClInclude Include="src\Kaesar\Scene\Scene.h" />
     <ClInclude Include="src\Kaesar\Scene\Entity.h" />
     <ClInclude Include="src\Kaesar\Scene\Component.h" />
+    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1528,5 +1529,6 @@
     </ClCompile>
     <ClCompile Include="src\Kaesar\Scene\Scene.cpp" />
     <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
+    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp" />
   </ItemGroup>
 </Project>
