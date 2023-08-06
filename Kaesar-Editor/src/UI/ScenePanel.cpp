@@ -112,7 +112,7 @@ namespace Kaesar {
 
         ImGui::SameLine();
         ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        if (m_ScaleLock)
+        if (label == u8"Ëõ·Å" && m_ScaleLock)
         {
             values.y = values.x;
             values.z = values.x;
@@ -131,7 +131,7 @@ namespace Kaesar {
 
         ImGui::SameLine();
         ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
-        if (m_ScaleLock)
+        if (label == u8"Ëõ·Å" && m_ScaleLock)
         {
             values.x = values.y;
             values.z = values.y;
@@ -153,7 +153,7 @@ namespace Kaesar {
 
         ImGui::SameLine();
         ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
-        if (m_ScaleLock)
+        if (label == u8"Ëõ·Å" && m_ScaleLock)
         {
             values.x = values.z;
             values.y = values.z;

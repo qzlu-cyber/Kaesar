@@ -117,12 +117,18 @@ namespace Kaesar {
         Renderer::BeginScene();
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         if (m_SelectedEntity)
         {
+            glm::vec3 translate = m_SelectedEntity.GetComponent<TransformComponent>().Translation;
+            glm::vec3 rotate = m_SelectedEntity.GetComponent<TransformComponent>().Rotation;
             glm::vec3 scale = m_SelectedEntity.GetComponent<TransformComponent>().Scale;
             model = glm::scale(model, scale);
+            model = glm::rotate(model, glm::radians(rotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotate.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::translate(model, translate);
         }
+        model = glm::rotate(model, glm::radians(140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
 
         /// ====================== spot ========================

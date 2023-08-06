@@ -162,6 +162,9 @@
     <ClInclude Include="src\Kaesar\Scene\Scene.h">
       <Filter>src\Kaesar\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h">
+      <Filter>src\Kaesar\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
@@ -1443,7 +1446,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Scene\SceneCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1509,6 +1511,9 @@
     <ClCompile Include="src\Kaesar\Scene\Scene.cpp">
       <Filter>src\Kaesar\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp">
+      <Filter>src\Kaesar\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1542,6 +1547,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp" />
   </ItemGroup>
 </Project>

@@ -64,7 +64,8 @@ project "Kaesar"
 	}
 
 	libdirs {
-		"Syndra/vendor/assimp/lib"
+		"Kaesar/vendor/assimp/build/Debug",
+		"Kaesar/vendor/assimp/build/Release"
 	}
 
 	links 
@@ -72,8 +73,7 @@ project "Kaesar"
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"opengl32.lib",
-		"assimp-vc143-mtd.lib"
+		"opengl32.lib"
 	}
 
 	defines
@@ -95,11 +95,19 @@ project "Kaesar"
 		defines "KR_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		links
+		{	
+			"assimp-vc143-mtd.lib"
+		}
 
 	filter "configurations:Release"
 		defines "KR_RELEASE"
 		runtime "Release"
 		optimize "on"
+		links
+		{
+			"assimp-vc143-mt.lib",
+		}	
 
 	filter "configurations:Dist"
 		defines "KR_DIST"
@@ -124,12 +132,14 @@ project "Kaesar-Editor"
 
 	includedirs
 	{
-		"Kaesar/vendor/spdlog/include",
-		"Kaesar/vendor/GLFW/include",
-		"Kaesar/src",
-		"Kaesar/vendor",
+		"%{wks.location}/Kaesar/vendor/spdlog/include",
+		"%{wks.location}/Kaesar/src",
+		"%{wks.location}/Kaesar/vendor",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.Imgui}",
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.assimp}"
 	}
 
 	links
@@ -182,6 +192,7 @@ project "Sandbox"
 		"Kaesar/vendor/GLFW/include",
 		"Kaesar/src",
 		"Kaesar/vendor",
+		"%{IncludeDir.Imgui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}"
 	}
@@ -193,7 +204,6 @@ project "Sandbox"
 
 	filter "system:windows"
 		systemversion "latest"
-
 		defines
 		{
 			"KR_PLATFORM_WINDOWS"
