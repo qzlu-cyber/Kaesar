@@ -29,7 +29,7 @@ namespace Kaesar {
             m_SelectionContext = {}; // 清空选中的实体
 
         // 如果鼠标右键点击了当前的窗口，开启一个弹出式上下文菜单
-        if (ImGui::BeginPopupContextWindow(0, 1))
+        if (ImGui::BeginPopupContextWindow(0, 1, false))
         {
             if (ImGui::Selectable(u8"新建物体")) {
                 m_Context->CreateEntity();
@@ -40,17 +40,12 @@ namespace Kaesar {
         ImGui::End();
 
         /// ===================== Properties =======================
-        ImGui::Begin(u8"属性");
+        ImGui::Begin(u8"组件");
 
         if (m_SelectionContext)
         {
             DrawComponents(m_SelectionContext);
             ImGui::SetNextItemWidth(-1);
-            // TODO: Add Component
-            if (ImGui::Button(u8"添加属性")) 
-            {
-
-            }
         }
 
         ImGui::End();
@@ -173,10 +168,11 @@ namespace Kaesar {
 
         // 确定用于渲染表示实体的树节点的标志。检查实体当前是否被选中，以及节点是否应在单击箭头时展开
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-
+        flags |= ImGuiTreeNodeFlags_SpanAvailWidth; // 节点的宽度将扩展到当前行的最大宽度
         // 在界面中呈现一个树节点，使用指定的标志和标签文本。此函数调用的结果指示节点是打开还是关闭
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.Tag.c_str());
-        if (ImGui::IsItemClicked()) { // 是否点击了当前的树节点（实体）
+        if (ImGui::IsItemClicked()) // 是否点击了当前的树节点（实体）
+        { 
             m_SelectionContext = entity; // 选中当前的实体
         }
 
@@ -197,8 +193,24 @@ namespace Kaesar {
             }
         }
 
+        bool entityDeleted = false;
+        if (ImGui::BeginPopupContextItem()) // 如果右键点击了当前的树节点（实体）
+        {
+            if (ImGui::Selectable(u8"删除实体")) // 呈现一个菜单项，允许用户删除实体
+                entityDeleted = true;
+
+            ImGui::EndPopup();
+        }
+
         if (opened) { // 如果当前的树节点（实体）是打开的
             ImGui::TreePop(); // 关闭当前的树节点（实体）
+        }
+
+        if (entityDeleted)
+        {
+            m_Context->DestroyEntity(entity); // 销毁实体
+            if (m_SelectionContext == entity)
+                m_SelectionContext = {}; // 重置选中的实体
         }
     }
 
@@ -234,11 +246,49 @@ namespace Kaesar {
                 auto& rot = entity.GetComponent<TransformComponent>().Rotation;
 
                 DrawVec3Control(u8"位置", translate);
+                ImGui::Separator();
                 DrawVec3Control(u8"旋转", rot);
+                ImGui::Separator();
                 DrawVec3Control(u8"缩放", scale, 1.0f);
 
                 ImGui::TreePop();
             }
         }
+
+        ImGui::Separator();
+        float buttonSz = 100;
+        ImGui::PushItemWidth(buttonSz);
+
+        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+        ImGui::Dummy({ 0,10 });
+        ImGui::NewLine();
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2.0f - buttonSz / 2.0f);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0,100 });
+        if (ImGui::Button(u8"添加组件"))
+            ImGui::OpenPopup("AddComponent");
+        ImGui::PopStyleVar();
+
+        if (ImGui::BeginPopup("AddComponent"))
+        {
+            if (ImGui::MenuItem(u8"相机"))
+            {
+                if (!m_SelectionContext.HasComponent<CameraComponent>())
+                    m_SelectionContext.AddComponent<CameraComponent>();
+                else
+                    KR_CORE_WARN("组件已存在！");
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem("Mesh Renderer"))
+            {
+                //TODO
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        ImGui::PopItemWidth();
     }
 }

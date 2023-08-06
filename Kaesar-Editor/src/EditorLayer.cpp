@@ -119,6 +119,7 @@ namespace Kaesar {
         glm::mat4 model = glm::mat4(1.0f);
         if (m_SelectedEntity)
         {
+            KR_CORE_TRACE("当前选中的实体为：{0}", (uint32_t)m_SelectedEntity);
             glm::vec3 translate = m_SelectedEntity.GetComponent<TransformComponent>().Translation;
             glm::vec3 rotate = m_SelectedEntity.GetComponent<TransformComponent>().Rotation;
             glm::vec3 scale = m_SelectedEntity.GetComponent<TransformComponent>().Scale;
@@ -225,10 +226,46 @@ namespace Kaesar {
                 }
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu(u8"编辑")) {
+            if (ImGui::BeginMenu(u8"编辑")) 
+            {
+                if (ImGui::MenuItem(u8"新建"))
+                {
+                    if (m_SelectedEntity)
+                    {
+                        m_ActiveScene->CreateEntity();
+                    }
+                }
                 if (ImGui::MenuItem(u8"复制"))
                 {
-                    
+                    if (m_SelectedEntity)
+                    {
+                        m_ActiveScene->DuplicateEntity(m_SelectedEntity);
+                    }
+                    else
+                    {
+                        KR_CORE_ERROR("请选择要复制的实体！");
+                    }
+                }
+                //? 有 bug
+                if (ImGui::MenuItem(u8"删除"))
+                {
+                    if (m_SelectedEntity)
+                    {
+                        m_ActiveScene->DestroyEntity(m_SelectedEntity);
+                        m_SelectedEntity = {};
+                    }
+                    else
+                    {
+                        KR_CORE_ERROR("请选择要删除的实体！");
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu(u8"实体"))
+            {
+                if (ImGui::MenuItem(u8"新建"))
+                {
+                    m_ActiveScene->CreateEntity();
                 }
                 ImGui::EndMenu();
             }

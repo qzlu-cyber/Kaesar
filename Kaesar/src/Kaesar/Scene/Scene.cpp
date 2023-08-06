@@ -19,8 +19,34 @@ namespace Kaesar {
         return *entity;
     }
 
+    Entity Scene::DuplicateEntity(Entity entity)
+    {
+        Entity duplicateEntity = CreateEntity();
+        if (duplicateEntity)
+        {
+            auto& entityTag = entity.GetComponent<TagComponent>();
+            auto& entityTrans = entity.GetComponent<TransformComponent>();
+            auto& duplicateEntityTag = duplicateEntity.GetComponent<TagComponent>();
+            auto& duplicateEntityTrans = duplicateEntity.GetComponent<TransformComponent>();
+            duplicateEntityTag.Tag = entityTag.Tag + u8"副本";
+            duplicateEntityTrans = entityTrans;
+        }
+
+        return duplicateEntity;
+    }
+
     void Scene::DestroyEntity(Entity entity) {
-        m_Registry.destroy(entity);
+        m_Registry.destroy(entity); // 销毁 entity
+
+        // 从 m_Entities 中移除 entity
+        for (auto& e : m_Entities) {
+            if (*e == entity) {
+                auto it = std::find(m_Entities.begin(), m_Entities.end(), e);
+                if (it != m_Entities.end()) {
+                    m_Entities.erase(it);
+                }
+            }
+        }
     }
 
     void Scene::OnUpdateRuntime(Timestep ts) {

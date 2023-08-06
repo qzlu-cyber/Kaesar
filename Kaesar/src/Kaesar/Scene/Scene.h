@@ -16,6 +16,7 @@ namespace Kaesar {
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
+		Entity DuplicateEntity(Entity entity);
 
 		void DestroyEntity(Entity entity);
 
