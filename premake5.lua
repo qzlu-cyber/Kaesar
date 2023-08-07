@@ -21,6 +21,7 @@ IncludeDir["stb_image"] = "Kaesar/vendor/stb_image"
 IncludeDir["assimp"] = "Kaesar/vendor/assimp/include"
 IncludeDir["entt"] = "Kaesar/vendor/entt/include"
 IncludeDir["yaml_cpp"] = "Kaesar/vendor/yaml-cpp/include"
+IncludeDir["ImGuizmo"] = "Kaesar/vendor/ImGuizmo"
 
 group "Dependencies"
 	include "Kaesar/vendor/GLFW"
@@ -49,7 +50,9 @@ project "Kaesar"
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
 		"%{prj.name}/vendor/stb_image/**.h",
-		"%{prj.name}/vendor/stb_image/**.cpp"
+		"%{prj.name}/vendor/stb_image/**.cpp",
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp"
 	}
 
 	includedirs
@@ -63,7 +66,8 @@ project "Kaesar"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.assimp}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.yaml_cpp}"
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	libdirs {
@@ -79,6 +83,9 @@ project "Kaesar"
 		"yaml-cpp",
 		"opengl32.lib"
 	}
+
+	filter "files:vendor/ImGuizmo/**.cpp"
+	flags { "NoPCH" }
 
 	defines
 	{
@@ -143,7 +150,8 @@ project "Kaesar-Editor"
 		"%{IncludeDir.Imgui}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.assimp}"
+		"%{IncludeDir.assimp}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links
@@ -198,7 +206,8 @@ project "Sandbox"
 		"Kaesar/vendor",
 		"%{IncludeDir.Imgui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links

@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>KR_PLATFORM_WINDOWS;KR_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Kaesar\vendor\spdlog\include;..\Kaesar\vendor\GLFW\include;..\Kaesar\src;..\Kaesar\vendor;..;..\Kaesar\vendor\glm;..\Kaesar\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Kaesar\vendor\spdlog\include;..\Kaesar\vendor\GLFW\include;..\Kaesar\src;..\Kaesar\vendor;..;..\Kaesar\vendor\glm;..\Kaesar\vendor\entt\include;..\Kaesar\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -96,7 +96,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>KR_PLATFORM_WINDOWS;KR_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Kaesar\vendor\spdlog\include;..\Kaesar\vendor\GLFW\include;..\Kaesar\src;..\Kaesar\vendor;..;..\Kaesar\vendor\glm;..\Kaesar\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Kaesar\vendor\spdlog\include;..\Kaesar\vendor\GLFW\include;..\Kaesar\src;..\Kaesar\vendor;..;..\Kaesar\vendor\glm;..\Kaesar\vendor\entt\include;..\Kaesar\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -117,7 +117,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>KR_PLATFORM_WINDOWS;KR_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Kaesar\vendor\spdlog\include;..\Kaesar\vendor\GLFW\include;..\Kaesar\src;..\Kaesar\vendor;..;..\Kaesar\vendor\glm;..\Kaesar\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Kaesar\vendor\spdlog\include;..\Kaesar\vendor\GLFW\include;..\Kaesar\src;..\Kaesar\vendor;..;..\Kaesar\vendor\glm;..\Kaesar\vendor\entt\include;..\Kaesar\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>

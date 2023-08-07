@@ -1,10 +1,12 @@
 #include "krpch.h"
 #include "EditorLayer.h"
 
+#include "imgui/imgui.h"
+#include "ImGuizmo.h"
+
 #include "Kaesar/Scene/SceneSerializer.h"
 #include "Kaesar/Utils/PlatformUtils.h"
-
-#include <imgui/imgui.h>
+#include "Kaesar/Utils/Math.h"
 
 namespace Kaesar {
     EditorLayer::EditorLayer()
@@ -306,16 +308,68 @@ namespace Kaesar {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         ImGui::Begin(u8"视口");
 
+        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+        auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+        auto viewportOffset = ImGui::GetWindowPos();
+        m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+        m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
 
-        Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused || !m_ViewportHovered); // 当视口没有被激活时，不接受事件
+        Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered); // 当视口没有被激活时，不接受事件
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
         uint64_t textureID = m_PostProcessingFB->GetColorAttachmentRendererID();
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+        // Gizmos
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist();
+
+        ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, 
+                    m_ViewportBounds[1].x - m_ViewportBounds[0].x, 
+                   m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+
+        const glm::mat4& cameraProjection = m_Camera->GetProjection();
+        glm::mat4 cameraView = m_Camera->GetViewMatrix();
+        ImGuizmo::DrawGrid(glm::value_ptr(cameraView), 
+                           glm::value_ptr(cameraProjection),
+                     glm::value_ptr(glm::mat4(1.0f)), 7);
+
+        Entity selectedEntity = m_ScenePanel->GetSelectedContext();
+        if (selectedEntity && m_GizmoType != -1)
+        {
+            // Entity transform
+            auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
+            glm::mat4 transform = transformComponent.GetTransform();
+
+            // Snapping
+            bool snap = Input::IsKeyPressed(KR_KEY_LEFT_CONTROL);
+            float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+            // Snap to 45 degrees for rotation
+            if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+                snapValue = 45.0f;
+
+            float snapValues[3] = { snapValue, snapValue, snapValue };
+
+            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+                (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+                nullptr, snap ? snapValues : nullptr);
+
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 translation, rotation, scale;
+                Math::DecomposeTransform(transform, translation, rotation, scale);
+
+                glm::vec3 deltaRotation = rotation - transformComponent.Rotation;
+                transformComponent.Translation = translation;
+                transformComponent.Rotation += deltaRotation;
+                transformComponent.Scale = scale;
+            }
+        }
 
         ImGui::End();
 

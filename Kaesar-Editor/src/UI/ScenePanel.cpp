@@ -296,7 +296,9 @@ namespace Kaesar {
             {
                 DrawVec3Control(u8"位置", component.Translation);
                 ImGui::Separator();
-                DrawVec3Control(u8"旋转", component.Rotation);
+                glm::vec3 Rot = glm::degrees(component.Rotation);
+                DrawVec3Control(u8"旋转", Rot);
+                component.Rotation = glm::radians(Rot);
                 ImGui::Separator();
                 DrawVec3Control(u8"缩放", component.Scale, 1.0f);
             });
