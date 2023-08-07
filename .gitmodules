@@ -13,3 +13,6 @@
 [submodule "Kaesar/vendor/yaml-cpp"]
 	path = Kaesar/vendor/yaml-cpp
 	url = https://github.com/ErfanMo77/yaml-cpp.git
+[submodule "Kaesar/vendor/ImGuizmo"]
+	path = Kaesar/vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
