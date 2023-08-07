@@ -19,6 +19,11 @@ namespace Kaesar {
         virtual void OnEvent(Event& event) override;
 
     private:
+        void NewScene();
+        void OpenScene();
+        void SaveSceneAs();
+
+    private:
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
         std::shared_ptr<VertexArray> m_QuadVA;

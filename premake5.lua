@@ -20,7 +20,7 @@ IncludeDir["glm"] = "Kaesar/vendor/glm"
 IncludeDir["stb_image"] = "Kaesar/vendor/stb_image"
 IncludeDir["assimp"] = "Kaesar/vendor/assimp/include"
 IncludeDir["entt"] = "Kaesar/vendor/entt/include"
-IncludeDir["yaml_cpp"] = "%{wks.location}/Kaesar/vendor/yaml-cpp/include"
+IncludeDir["yaml_cpp"] = "Kaesar/vendor/yaml-cpp/include"
 
 group "Dependencies"
 	include "Kaesar/vendor/GLFW"

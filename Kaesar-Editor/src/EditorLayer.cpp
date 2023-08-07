@@ -1,7 +1,10 @@
 #include "krpch.h"
 #include "EditorLayer.h"
 
-#include "imgui/imgui.h"
+#include "Kaesar/Scene/SceneSerializer.h"
+#include "Kaesar/Utils/PlatformUtils.h"
+
+#include <imgui/imgui.h>
 
 namespace Kaesar {
     EditorLayer::EditorLayer()
@@ -224,6 +227,18 @@ namespace Kaesar {
         {
             if (ImGui::BeginMenu(u8"文件"))
             {
+                if (ImGui::MenuItem(u8"新建场景"))
+                {
+                    NewScene();
+                }
+                if (ImGui::MenuItem(u8"打开场景"))
+                {
+                    OpenScene();
+                }
+                if (ImGui::MenuItem(u8"保存场景"))
+                {
+                    SaveSceneAs();
+                }
                 if (ImGui::MenuItem(u8"退出"))
                 {
                     Application::Get().CloseApp();
@@ -334,5 +349,36 @@ namespace Kaesar {
     void EditorLayer::OnEvent(Event& event)
     {
         m_Camera->OnEvent(event);
+    }
+
+    void EditorLayer::NewScene()
+    {
+        m_ActiveScene = std::make_shared<Scene>();
+        m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+        m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+    }
+
+    void EditorLayer::OpenScene()
+    {
+        std::optional<std::string> filepath = FileDialogs::OpenFile("Kaesar Scene (*.kaesar)\0*.kaesar\0");
+        if (filepath)
+        {
+            m_ActiveScene = std::make_shared<Scene>();
+            m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+            m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+
+            SceneSerializer serializer(m_ActiveScene);
+            serializer.Deserializer(*filepath); // 解引用获取存储在 std::optional<std::string> 类型中的实际字符串值
+        }  
+    }
+
+    void EditorLayer::SaveSceneAs()
+    {
+        std::optional<std::string> filepath = FileDialogs::SaveFile("Kaesar Scene (*.kaesar)\0*.kaesar\0");
+        if (filepath)
+        {
+            SceneSerializer serializer(m_ActiveScene);
+            serializer.Serializer(*filepath);
+        }
     }
 }

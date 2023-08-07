@@ -25,6 +25,9 @@
     <Filter Include="src\Kaesar\Scene">
       <UniqueIdentifier>{D09D5B77-BC96-7AC9-E5C8-5F4ED1205AD5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Kaesar\Utils">
+      <UniqueIdentifier>{13328977-FF2A-A8C9-285D-8D4E14B587D5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
     </Filter>
@@ -164,6 +167,12 @@
     </ClInclude>
     <ClInclude Include="src\Kaesar\Scene\SceneCamera.h">
       <Filter>src\Kaesar\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Scene\SceneSerializer.h">
+      <Filter>src\Kaesar\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Utils\PlatformUtils.h">
+      <Filter>src\Kaesar\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
@@ -1514,6 +1523,9 @@
     <ClCompile Include="src\Kaesar\Scene\SceneCamera.cpp">
       <Filter>src\Kaesar\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Scene\SceneSerializer.cpp">
+      <Filter>src\Kaesar\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1536,6 +1548,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsUtils.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
