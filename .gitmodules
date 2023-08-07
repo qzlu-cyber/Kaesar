@@ -10,6 +10,3 @@
 [submodule "Kaesar/vendor/glm"]
 	path = Kaesar/vendor/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "Kaesar/vendor/yaml-cpp"]
-	path = Kaesar/vendor/yaml-cpp
-	url = https://github.com/thecherno/yaml-cpp.git
