@@ -66,7 +66,7 @@ namespace Kaesar {
         ImGui::Text(label.c_str());
 
         // 绘制 checkbox
-        if (label == u8"缩放") 
+        if (label == u8"缩放")
         {
             ImGui::SameLine();
             // 调整单选框距离左边的间距
@@ -162,6 +162,61 @@ namespace Kaesar {
         ImGui::PopID();
     }
 
+    /// <summary>
+    /// 一个函数模板，允许在一个统一的方式下绘制不同类型的组件的用户界面
+    /// </summary>
+    /// <typeparam name="T">组件类型</typeparam>
+    /// <typeparam name="UIFunction">一个可调用对象，用于在 UI 中绘制和交互组件的内容</typeparam>
+    /// <param name="name">组件的名称，用于显示在 UI 中的标题</param>
+    /// <param name="entity">表示当前实体的引用，通过这个引用可以获取和操作实体的组件</param>
+    /// <param name="removable">表示是否允许移除这个组件</param>
+    /// <param name="uiFunction">一个可调用对象，用于在 UI 中绘制和交互组件的内容</param>
+    template<typename T, typename UIFunction>
+    void DrawComponent(const std::string& name, Entity entity, bool removable, UIFunction uiFunction)
+    {
+        const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed
+            | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap
+            | ImGuiTreeNodeFlags_FramePadding;
+
+        if (entity.HasComponent<T>())
+        {
+            auto& component = entity.GetComponent<T>();
+
+            ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+            float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+            // 创建一个 UI 节点，表示组件的内容，会在 UI 中显示一个可展开的节点
+            bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+            ImGui::PopStyleVar();
+            ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+            if (ImGui::Button("...", ImVec2{ lineHeight, lineHeight }))
+            {
+                ImGui::OpenPopup("ComponentSettings");
+            }
+
+            bool removeComponent = false;
+            if (ImGui::BeginPopup("ComponentSettings"))
+            {
+                if (removable) 
+                {
+                    if (ImGui::MenuItem(u8"删除组件")) // 如果用户选择了这个选项
+                        removeComponent = true;
+                }
+                ImGui::EndPopup();
+            }
+            // 检查 UI 节点是否被展开
+            if (open)
+            {
+                uiFunction(component); // 如果节点被展开，就调用传入的 UI 函数（uiFunction）来绘制组件的具体内容
+                ImGui::TreePop(); // 关闭 UI 节点
+            }
+
+            if (removeComponent)
+                entity.RemoveComponent<T>();
+        }
+    }
+
     void ScenePanel::DrawEntity(Entity entity)
     {
         auto& tag = entity.GetComponent<TagComponent>();
@@ -172,14 +227,14 @@ namespace Kaesar {
         // 在界面中呈现一个树节点，使用指定的标志和标签文本。此函数调用的结果指示节点是打开还是关闭
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.Tag.c_str());
         if (ImGui::IsItemClicked()) // 是否点击了当前的树节点（实体）
-        { 
+        {
             m_SelectionContext = entity; // 选中当前的实体
         }
 
         // 实现拖拽排序
         for (int n = 0; n < m_Context->m_Entities.size(); n++)
         {
-            auto&item = m_Context->m_Entities[n];
+            auto& item = m_Context->m_Entities[n];
             // 检查是否有一个 ImGui 项目被拖动并且不是悬停的
             if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
             {
@@ -216,9 +271,9 @@ namespace Kaesar {
 
     void ScenePanel::DrawComponents(Entity entity)
     {
-        if (entity.HasComponent<TagComponent>()) {
-            if (ImGui::TreeNodeEx((void*)typeid(TagComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, u8"名称")) {
-                auto& tag = entity.GetComponent<TagComponent>().Tag;
+        DrawComponent<TagComponent>(u8"名称", entity, false, [](TagComponent& component)
+            {
+                auto& tag = component.Tag;
 
                 char buffer[256];
                 memset(buffer, 0, sizeof(buffer));
@@ -227,33 +282,87 @@ namespace Kaesar {
                 ImGui::PushID("TagInput"); // 使用唯一的ID
 
                 // 呈现一个文本输入框，允许用户编辑一个实体的 tag
-                if (ImGui::InputText("", buffer, sizeof(buffer))) 
+                if (ImGui::InputText("", buffer, sizeof(buffer)))
                 {
                     tag = std::string(buffer); // 更新实体的 tag
                 }
 
                 ImGui::PopID(); // 恢复ID状态
-                ImGui::TreePop();
-            }
-        }
+            });
 
         ImGui::Separator();
 
-        if (entity.HasComponent<TransformComponent>()) {
-            if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, u8"变换")) {
-                auto& translate = entity.GetComponent<TransformComponent>().Translation;
-                auto& scale = entity.GetComponent<TransformComponent>().Scale;
-                auto& rot = entity.GetComponent<TransformComponent>().Rotation;
-
-                DrawVec3Control(u8"位置", translate);
+        DrawComponent<TransformComponent>(u8"变换", entity, false, [this](TransformComponent& component)
+            {
+                DrawVec3Control(u8"位置", component.Translation);
                 ImGui::Separator();
-                DrawVec3Control(u8"旋转", rot);
+                DrawVec3Control(u8"旋转", component.Rotation);
                 ImGui::Separator();
-                DrawVec3Control(u8"缩放", scale, 1.0f);
+                DrawVec3Control(u8"缩放", component.Scale, 1.0f);
+            });
 
-                ImGui::TreePop();
-            }
-        }
+        ImGui::Separator();
+
+        DrawComponent<CameraComponent>(u8"相机", entity, true, [this](CameraComponent& component)
+            {
+                SceneCamera& camera = component.Camera;
+
+                ImGui::Checkbox(u8"主相机", &component.Primary);
+
+                const char* projectionType[] = { "Perspective", "Orthographic" };
+                const char* currentProjectionType = projectionType[(int)camera.GetProjectionType()];
+                // 下拉菜单，用于选择相机的投影类型
+                if (ImGui::BeginCombo(u8"投影方式", currentProjectionType)) // 获取当前相机的投影类型并设置为下拉菜单的当前选择项
+                {
+                    // 使用循环绘制两个选择项，并在选择某个项时更新相机的投影类型
+                    for (int i = 0; i < 2; i++)
+                    {
+                        bool isSelected = currentProjectionType == projectionType[i];
+                        if (ImGui::Selectable(projectionType[i], isSelected))
+                        {
+                            currentProjectionType = projectionType[i];
+                            camera.SetProjectionType((SceneCamera::ProjectionType)i);
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+                {
+                    float perspectiveFov = glm::degrees(camera.GetPerspectiveFOV());
+                    if (ImGui::DragFloat(u8"视野", &perspectiveFov))
+                        camera.SetPerspectiveFOV(glm::radians(perspectiveFov));
+
+                    float perspectiveNear = camera.GetPerspectiveNearClip();
+                    if (ImGui::DragFloat(u8"近平面", &perspectiveNear))
+                        camera.SetPerspectiveNearClip(perspectiveNear);
+
+                    float perspectiveFar = camera.GetPerspectiveFarClip();
+                    if (ImGui::DragFloat(u8"远平面", &perspectiveFar))
+                        camera.SetPerspectiveFarClip(perspectiveFar);
+                }
+
+                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+                {
+                    float orthoSize = camera.GetOrthographicSize();
+                    if (ImGui::DragFloat(u8"尺寸", &orthoSize))
+                        camera.SetOrthographicSize(orthoSize);
+
+                    float orthoNear = camera.GetOrthographicNearClip();
+                    if (ImGui::DragFloat(u8"近平面", &orthoNear))
+                        camera.SetOrthographicNearClip(orthoNear);
+
+                    float orthoFar = camera.GetOrthographicFarClip();
+                    if (ImGui::DragFloat(u8"远平面", &orthoFar))
+                        camera.SetOrthographicFarClip(orthoFar);
+
+                    ImGui::Checkbox(u8"固定宽高比", &component.FixedAspectRatio);
+                }
+            });
 
         ImGui::Separator();
         float buttonSz = 100;

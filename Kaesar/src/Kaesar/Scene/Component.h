@@ -42,7 +42,10 @@ namespace Kaesar {
     struct CameraComponent
     {
         SceneCamera Camera;
-        bool FixedAspectRatio = false;
+        bool FixedAspectRatio = false; // 固定宽高比
+        bool Primary = true; // 标识相机组件是否为主相机
+        // 主相机通常是场景中的主要视图，它负责渲染整个场景的内容,
+        // 在一个包含多个相机的场景中，可以通过设置一个相机为主相机来决定哪一个相机是用户所看到的主要视角
 
         CameraComponent() = default;
         CameraComponent(const CameraComponent&) = default;
