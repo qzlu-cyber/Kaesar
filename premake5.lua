@@ -20,11 +20,13 @@ IncludeDir["glm"] = "Kaesar/vendor/glm"
 IncludeDir["stb_image"] = "Kaesar/vendor/stb_image"
 IncludeDir["assimp"] = "Kaesar/vendor/assimp/include"
 IncludeDir["entt"] = "Kaesar/vendor/entt/include"
+IncludeDir["yaml_cpp"] = "%{wks.location}/Kaesar/vendor/yaml-cpp/include"
 
 group "Dependencies"
 	include "Kaesar/vendor/GLFW"
 	include "Kaesar/vendor/Glad"
 	include "Kaesar/vendor/imgui"
+	include "Kaesar/vendor/yaml-cpp"
 group ""
 
 project "Kaesar"
@@ -60,7 +62,8 @@ project "Kaesar"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.assimp}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}"
 	}
 
 	libdirs {
@@ -73,6 +76,7 @@ project "Kaesar"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		"yaml-cpp",
 		"opengl32.lib"
 	}
 
