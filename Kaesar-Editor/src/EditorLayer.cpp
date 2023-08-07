@@ -210,11 +210,15 @@ namespace Kaesar {
 
         // DockSpace
         ImGuiIO& io = ImGui::GetIO();
+        ImGuiStyle& style = ImGui::GetStyle();
+        float minWinSizeX = style.WindowMinSize.x; // 保存当前样式中窗口的最小宽度
+        style.WindowMinSize.x = 370.0f; // 窗口的最小宽度
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
         {
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
         }
+        style.WindowMinSize.x = minWinSizeX; // 在 DockSpace 结束后，将样式中窗口的最小宽度还原回之前保存的值
 
         if (ImGui::BeginMenuBar())
         {
@@ -303,7 +307,7 @@ namespace Kaesar {
         ImGui::PopStyleVar();
         ImGui::End();
 
-        /// ======================== camera ==========================
+        /// ======================== editor camera ==========================
         static bool camerSettings = true;
         if (camerSettings) {
             ImGui::Begin(u8"相机", &camerSettings);
