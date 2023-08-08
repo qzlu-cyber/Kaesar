@@ -1,6 +1,8 @@
 #include "krpch.h"
 #include "ScenePanel.h"
 
+#include "Kaesar/Utils/PlatformUtils.h"
+
 #include <cstring>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -365,15 +367,34 @@ namespace Kaesar {
             });
 
         ImGui::Separator();
+
+        DrawComponent<MeshComponent>(u8"网格", entity, true, [this](MeshComponent& component)
+            {
+                char buffer[256];
+                memset(buffer, 0, sizeof(buffer));
+                strcpy_s(buffer, "\0");
+                ImGui::InputText(u8"路径", buffer, sizeof(buffer));
+                ImGui::SameLine();
+                if (ImGui::Button(u8"选择")) 
+                {
+                    std::optional<std::string> filepath = Kaesar::FileDialogs::OpenFile("网格文件 (*.obj)\0*.obj\0");
+                    if (filepath)
+                    {
+                        strcpy_s(buffer, (*filepath).c_str());
+                    }
+                }
+            });
+
+        ImGui::Separator();
         float buttonSz = 100;
         ImGui::PushItemWidth(buttonSz);
 
         float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-        ImGui::Dummy({ 0,10 });
+        ImGui::Dummy({ 0, 10 });
         ImGui::NewLine();
         ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2.0f - buttonSz / 2.0f);
 
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0,100 });
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0, 100 });
         if (ImGui::Button(u8"添加组件"))
             ImGui::OpenPopup("AddComponent");
         ImGui::PopStyleVar();
@@ -386,12 +407,17 @@ namespace Kaesar {
                     m_SelectionContext.AddComponent<CameraComponent>();
                 else
                     KR_CORE_WARN("组件已存在！");
+
                 ImGui::CloseCurrentPopup();
             }
 
-            if (ImGui::MenuItem("Mesh Renderer"))
+            if (ImGui::MenuItem(u8"网格"))
             {
-                //TODO
+                if (!m_SelectionContext.HasComponent<MeshComponent>())
+                    m_SelectionContext.AddComponent<MeshComponent>();
+                else
+                    KR_CORE_WARN("组件已存在！");
+
                 ImGui::CloseCurrentPopup();
             }
 

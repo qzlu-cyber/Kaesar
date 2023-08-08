@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Kaesar/Scene/SceneCamera.h"
+#include "Kaesar/Renderer/Model.h"
 
 #include <string>
 #include <glm/glm.hpp>
@@ -49,5 +50,16 @@ namespace Kaesar {
 
         CameraComponent() = default;
         CameraComponent(const CameraComponent&) = default;
+    };
+
+    struct MeshComponent 
+    {
+        Model model;
+        std::string path; 
+
+        MeshComponent() = default;
+        MeshComponent(const MeshComponent&) = default;
+        MeshComponent(const std::string& path)
+            :path(path), model(path) {}
     };
 }

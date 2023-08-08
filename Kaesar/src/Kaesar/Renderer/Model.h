@@ -11,6 +11,7 @@ namespace Kaesar {
 	class Model
 	{
 	public:
+		Model() = default;
 		Model(const std::string& filepath);
 
 		void Draw(const Shader& shader);

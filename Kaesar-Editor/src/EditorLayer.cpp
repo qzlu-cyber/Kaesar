@@ -276,6 +276,7 @@ namespace Kaesar {
         // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
         if (!opt_padding)
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
         ImGui::Begin("DockSpace Demo", &open, window_flags);
         if (!opt_padding)
             ImGui::PopStyleVar();
