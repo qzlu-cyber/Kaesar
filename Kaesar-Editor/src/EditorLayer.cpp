@@ -33,7 +33,7 @@ namespace Kaesar {
         m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
 
         FramebufferSpecification fspc;
-        fspc.Attachments = { FramebufferTextureFormat::RGBA8 , FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::DEPTH24STENCIL8 };
+        fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
         fspc.Width = 1920;
         fspc.Height = 1080;
         fspc.Samples = 4;
@@ -41,11 +41,54 @@ namespace Kaesar {
         fspc.Samples = 1;
         m_PostProcessingFB = FrameBuffer::Create(fspc);
 
-        fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER , FramebufferTextureFormat::DEPTH24STENCIL8 };
+        fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::DEPTH24STENCIL8 };
         m_MousePickFB = FrameBuffer::Create(fspc);
 
         m_ViewportSize = { fspc.Width, fspc.Height };
-
+        float vertices[] = {
+            // back face
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f,-1.0f,// bottom-right    
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f,// top-right              
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f,// top-right
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f,-1.0f,// top-left
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f,// bottom-left                
+            // front face
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-right        
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-left        
+            // left face
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f, 0.0f,0.0f, // top-left       
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f, 0.0f,0.0f, // bottom-right
+            // right face
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f, 0.0f,0.0f,  // top-right      
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right          
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.0f,0.0f,  // bottom-left
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
+             // bottom face          
+             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
+              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
+              0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-left        
+              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
+             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
+             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-right
+             // top face										     
+             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-left
+              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-right
+              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right                 
+              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right
+             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-left  
+             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f  // top-left              
+        };
         float quad[] = {
             // positions   // texCoords
            -1.0f,  1.0f,  0.0f, 1.0f,
@@ -56,21 +99,55 @@ namespace Kaesar {
             1.0f, -1.0f,  1.0f, 0.0f,
             1.0f,  1.0f,  1.0f, 1.0f
         };
+
+        m_VertexArray = VertexArray::Create();
         m_QuadVA = VertexArray::Create();
+
+        m_VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
         m_QuadVB = VertexBuffer::Create(quad, sizeof(quad));
 
+        BufferLayout layout = {
+            {ShaderDataType::Float3,"a_pos"},
+            {ShaderDataType::Float2,"a_uv"},
+            {ShaderDataType::Float3,"a_normal"},
+        };
         BufferLayout quadLayout = {
             {ShaderDataType::Float2,"a_Position"},
             {ShaderDataType::Float2,"a_TexCoords"},
         };
 
+        m_VertexBuffer->SetLayout(layout);
+        m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+
         m_QuadVB->SetLayout(quadLayout);
         m_QuadVA->AddVertexBuffer(m_QuadVB);
 
+        unsigned int indices[] = { 
+            0, 1, 2,
+            2, 3, 0,
+            // right
+            1, 5, 6,
+            6, 2, 1,
+            // back
+            7, 6, 5,
+            5, 4, 7,
+            // left
+            4, 0, 3,
+            3, 7, 4,
+            // bottom
+            4, 5, 1,
+            1, 0, 4,
+            // top
+            3, 2, 6,
+            6, 7, 3 
+        };
         unsigned int quadIndices[] = {
             0, 1, 2, // first triangle
             3, 4, 5  // second triangle
         };
+
+        m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+        m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
         m_QuadIB = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
         m_QuadVA->SetIndexBuffer(m_QuadIB);
@@ -103,9 +180,6 @@ namespace Kaesar {
             m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         }
 
-        if (Input::IsKeyPressed(KR_KEY_LEFT_ALT))
-            KR_TRACE("Alt key is pressed (poll)!");
-
         m_ActiveScene->OnUpdateEditor(timestep, m_Camera);
         m_SelectedEntity = m_ScenePanel->GetSelectedContext();
 
@@ -118,20 +192,13 @@ namespace Kaesar {
 
         RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
         RenderCommand::Clear();
-        m_FrameBuffer->ClearAttachment(1, -1);
         RenderCommand::EnableDepthTest();
 
         Renderer::BeginScene();
 
-        RenderCommand::SetClearColor(glm::vec4(m_ClearColor, 1.0f));
-        RenderCommand::Clear();
-        m_FrameBuffer->ClearAttachment(1, -1);
-        glEnable(GL_DEPTH_TEST);
-
         glm::mat4 model = glm::mat4(1.0f);
         if (m_SelectedEntity)
         {
-            KR_CORE_TRACE("当前选中的实体为：{0}", (uint32_t)m_SelectedEntity);
             glm::vec3 translate = m_SelectedEntity.GetComponent<TransformComponent>().Translation;
             glm::vec3 rotate = m_SelectedEntity.GetComponent<TransformComponent>().Rotation;
             glm::vec3 scale = m_SelectedEntity.GetComponent<TransformComponent>().Scale;
@@ -144,33 +211,36 @@ namespace Kaesar {
         model = glm::rotate(model, glm::radians(140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
 
-
         auto basicShader = m_Shaders.Get("basic");
-        basicShader->Bind();
         m_Texture->Bind();
         basicShader->Bind(); // glUseProgram
         basicShader->SetMat4("u_Model", model);
         basicShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
+        basicShader->SetInt("u_ID", (uint32_t)m_Entity);
         Renderer::Submit(m_Model);
         Renderer::EndScene();
+        m_FrameBuffer->Unbind();
 
         m_MousePickFB->Bind();
         RenderCommand::SetClearColor(glm::vec4(m_ClearColor, 1.0f));
         RenderCommand::Clear();
         m_MousePickFB->ClearAttachment(0, -1);
-        glEnable(GL_DEPTH_TEST);
+        auto mouseShader = m_Shaders.Get("mouse");
+        mouseShader->Bind();
+        mouseShader->SetMat4("u_Model", m_Entity.GetComponent<TransformComponent>().GetTransform());
+        mouseShader->SetInt("u_ID", (uint32_t)m_Entity);
+        mouseShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
+        Renderer::Submit(m_VertexArray);
+        m_MousePickFB->Unbind();
 
         m_PostProcessingFB->Bind();
         RenderCommand::Clear();
-        m_PostProcessingFB->ClearAttachment(1, -1);
-        glDisable(GL_DEPTH_TEST);
+        RenderCommand::DisableDepthTest();
 
         auto postProcShader = m_Shaders.Get("quad");
         postProcShader->Bind();
         m_Texture->Active(0);
         m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID(0));
-        m_Texture->Active(1);
-        m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID(1));
         Renderer::Submit(m_QuadVA);
 
         m_PostProcessingFB->Unbind();
@@ -413,7 +483,7 @@ namespace Kaesar {
         m_Camera->OnEvent(event);
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
-        //dispatcher.Dispatch<MouseButtonPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
     }
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -453,23 +523,25 @@ namespace Kaesar {
         my = viewportSize.y - my;
         int mouseX = (int)mx;
         int mouseY = (int)my;
-
-        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+        auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y && !altIsDown)
         {
             m_MousePickFB->Bind();
             int pixelData = m_MousePickFB->ReadPixel(0, mouseX, mouseY);
             if (pixelData != -1) 
             {
-                m_ScenePanel->SetSelectedEntity(m_ActiveScene->FindEntity(pixelData));
+                m_ScenePanel->SetSelectedEntity({ m_ActiveScene->FindEntity(pixelData), m_ActiveScene.get() });
             }
             else
             {
-                m_ScenePanel->SetSelectedEntity({});
+                if (!ImGuizmo::IsOver()) 
+                {
+                    m_ScenePanel->SetSelectedEntity({});
+                }
             }
             KR_CORE_WARN("pixel data: {0}", pixelData);
             m_MousePickFB->Unbind();
         }
-
         return false;
     }
 

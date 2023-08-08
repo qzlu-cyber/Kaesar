@@ -17,7 +17,7 @@ namespace Kaesar {
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity DuplicateEntity(Entity entity);
-		Entity FindEntity(uint32_t id);
+		entt::entity FindEntity(uint32_t id);
 
 		void DestroyEntity(Entity entity);
 
@@ -28,7 +28,7 @@ namespace Kaesar {
 	private:
 		entt::registry m_Registry; // container of all entities and components
 
-		std::vector<std::shared_ptr<Entity>> m_Entities; // container of all entities
+		std::vector<entt::entity> m_Entities; // container of all entities
 
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;

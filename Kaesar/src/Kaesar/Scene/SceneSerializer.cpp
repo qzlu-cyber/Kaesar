@@ -153,7 +153,7 @@ namespace Kaesar {
       
         for (auto& entity : m_Scene->m_Entities)
         {
-            SerializeEntity(out, *entity);
+            SerializeEntity(out, { entity, m_Scene.get() });
         }
 
         out << YAML::EndSeq;

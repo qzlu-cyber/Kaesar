@@ -9,14 +9,14 @@ namespace Kaesar {
     Scene::~Scene() {}
 
     Entity Scene::CreateEntity(const std::string& name) {
-        std::shared_ptr<Entity> entity = std::make_shared<Entity>(m_Registry.create(), this);
+        Entity entity = { m_Registry.create(), this };
         m_Entities.push_back(entity);
 
-        auto& tag = (*entity).AddComponent<TagComponent>();
+        auto& tag = entity.AddComponent<TagComponent>();
         tag.Tag = name.empty() ? "Entity" : name; // entity 名称
-        (*entity).AddComponent<TransformComponent>(); // 所有 entity 都默认有 transform 组件
+        entity.AddComponent<TransformComponent>(); // 所有 entity 都默认有 transform 组件
 
-        return *entity;
+        return entity;
     }
 
     Entity Scene::DuplicateEntity(Entity entity)
@@ -35,11 +35,11 @@ namespace Kaesar {
         return duplicateEntity;
     }
 
-    Entity Scene::FindEntity(uint32_t id)
+    entt::entity Scene::FindEntity(uint32_t id)
     {
         for (auto& e : m_Entities) {
-            if (*e == (entt::entity)id) {
-                return *e;
+            if (e == (entt::entity)id) {
+                return e;
             }
         }
         return {};
@@ -50,10 +50,11 @@ namespace Kaesar {
 
         // 从 m_Entities 中移除 entity
         for (auto& e : m_Entities) {
-            if (*e == entity) {
+            if (e == entity) {
                 auto it = std::find(m_Entities.begin(), m_Entities.end(), e);
                 if (it != m_Entities.end()) {
                     m_Entities.erase(it);
+                    break;
                 }
             }
         }

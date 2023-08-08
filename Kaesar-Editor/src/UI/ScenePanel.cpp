@@ -21,7 +21,7 @@ namespace Kaesar {
 
         for (auto& entity : m_Context->m_Entities)
         {
-            DrawEntity(*entity);
+            DrawEntity({ entity, m_Context.get()});
         }
 
         // 如果鼠标左键点击了当前的窗口，并且当前的窗口是悬停的
@@ -263,9 +263,9 @@ namespace Kaesar {
 
         if (entityDeleted)
         {
-            m_Context->DestroyEntity(entity); // 销毁实体
             if (m_SelectionContext == entity)
                 m_SelectionContext = {}; // 重置选中的实体
+            m_Context->DestroyEntity(entity); // 销毁实体
         }
     }
 
