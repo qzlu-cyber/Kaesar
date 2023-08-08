@@ -44,7 +44,7 @@ namespace Kaesar {
         fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER , FramebufferTextureFormat::DEPTH24STENCIL8 };
         m_MousePickFB = FrameBuffer::Create(fspc);
 
-        m_ViewportSize = { fspc.Width,fspc.Height };
+        m_ViewportSize = { fspc.Width, fspc.Height };
 
         float quad[] = {
             // positions   // texCoords

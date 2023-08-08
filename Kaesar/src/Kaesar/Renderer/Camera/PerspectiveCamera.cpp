@@ -19,8 +19,11 @@ namespace Kaesar {
 
     void PerspectiveCamera::UpdateProjection()
     {
-        m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-        m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+        if (m_ViewportHeight > 1)
+        {
+            m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
+            m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+        }
     }
 
     void PerspectiveCamera::UpdateView()
