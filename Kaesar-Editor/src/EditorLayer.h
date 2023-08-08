@@ -23,13 +23,15 @@ namespace Kaesar {
         void OpenScene();
         void SaveSceneAs();
 
+        bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+
     private:
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
         std::shared_ptr<VertexArray> m_QuadVA;
         std::shared_ptr<VertexBuffer> m_QuadVB;
         std::shared_ptr<IndexBuffer> m_QuadIB;
-        std::shared_ptr<FrameBuffer> m_FrameBuffer, m_PostProcessingFB;
+        std::shared_ptr<FrameBuffer> m_FrameBuffer, m_PostProcessingFB, m_MousePickFB;
 
         std::shared_ptr<Texture2D> m_Texture;
 

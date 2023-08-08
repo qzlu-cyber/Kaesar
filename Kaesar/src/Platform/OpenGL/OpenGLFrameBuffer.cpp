@@ -279,20 +279,23 @@ namespace Kaesar {
         Invalidate();
     }
 
-    void OpenGLFrameBuffer::ClearAttachment(uint32_t attachmentIndex)
+    int OpenGLFrameBuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
     {
         KR_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "索引必须小于帧缓冲颜色附件的个数！");
 
-        // 获取到第 attachmentIndex 个颜色附件的规格
-        auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+        int pixelData;
+        glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
 
-        // 创建一个临时数组并填充清除值（例如，全零值）
-        std::vector<GLubyte> clearColorData(m_Specification.Width * m_Specification.Height * 4, 0);
-        // 将清除值上传到纹理对象
-        glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[attachmentIndex]);
-        glTexImage2D(GL_TEXTURE_2D, 0, TextureFormatToGL(spec.TextureFormat),
-            m_Specification.Width, m_Specification.Height, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, clearColorData.data());
-        glBindTexture(GL_TEXTURE_2D, 0);  // 解绑纹理对象
+        return pixelData;
+    }
+
+    void OpenGLFrameBuffer::ClearAttachment(uint32_t attachmentIndex, int value)
+    {
+        KR_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "索引必须小于帧缓冲颜色附件的个数！");
+
+        auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
+        glClearTexImage(m_ColorAttachments[attachmentIndex], 0,
+            TextureFormatToGL(spec.TextureFormat), GL_INT, &value);
     }
 }

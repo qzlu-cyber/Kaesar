@@ -35,6 +35,16 @@ namespace Kaesar {
         return duplicateEntity;
     }
 
+    Entity Scene::FindEntity(uint32_t id)
+    {
+        for (auto& e : m_Entities) {
+            if (*e == (entt::entity)id) {
+                return *e;
+            }
+        }
+        return {};
+    }
+
     void Scene::DestroyEntity(Entity entity) {
         m_Registry.destroy(entity); // Ïú»Ù entity
 

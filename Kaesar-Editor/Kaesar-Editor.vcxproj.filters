@@ -18,4 +18,7 @@
       <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\mouse.glsl" />
+  </ItemGroup>
 </Project>

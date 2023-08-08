@@ -17,6 +17,7 @@ namespace Kaesar {
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity DuplicateEntity(Entity entity);
+		Entity FindEntity(uint32_t id);
 
 		void DestroyEntity(Entity entity);
 

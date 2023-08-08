@@ -18,13 +18,15 @@ namespace Kaesar {
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
+		virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) override;
+
 		inline virtual uint32_t GetRendererID() const override { return m_RendererID; };
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override
 		{
 			KR_CORE_ASSERT(index < m_ColorAttachments.size(), "索引必须小于帧缓冲颜色附件的个数！");
 			return m_ColorAttachments[index];
 		};
-		virtual void OpenGLFrameBuffer::ClearAttachment(uint32_t attachmentIndex) override;
+		virtual void OpenGLFrameBuffer::ClearAttachment(uint32_t attachmentIndex, int value) override;
 
 		inline virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; };
 

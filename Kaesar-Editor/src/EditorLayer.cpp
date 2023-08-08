@@ -8,12 +8,15 @@
 #include "Kaesar/Utils/PlatformUtils.h"
 #include "Kaesar/Utils/Math.h"
 
+#include <glad/glad.h>
+
 namespace Kaesar {
     EditorLayer::EditorLayer()
         :Layer("Editor Layer")
     {
         RenderCommand::Init();
         m_Info = RenderCommand::Info();
+        m_Camera = std::make_shared<PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
     }
 
     EditorLayer::~EditorLayer()
@@ -24,60 +27,61 @@ namespace Kaesar {
     void EditorLayer::OnAttach()
     {
         auto& app = Application::Get();
+        m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
         m_ActiveScene = std::make_shared<Scene>();
         m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
 
+        FramebufferSpecification fspc;
+        fspc.Attachments = { FramebufferTextureFormat::RGBA8 , FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::DEPTH24STENCIL8 };
+        fspc.Width = 1920;
+        fspc.Height = 1080;
+        fspc.Samples = 4;
+        m_FrameBuffer = FrameBuffer::Create(fspc);
+        fspc.Samples = 1;
+        m_PostProcessingFB = FrameBuffer::Create(fspc);
+
+        fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER , FramebufferTextureFormat::DEPTH24STENCIL8 };
+        m_MousePickFB = FrameBuffer::Create(fspc);
+
+        m_ViewportSize = { fspc.Width,fspc.Height };
+
         float quad[] = {
-            // positions        // texture coords
-            1.0f,  1.0f, 0.0f,    1.0f, 1.0f,   // top right
-            1.0f, -1.0f, 0.0f,    1.0f, 0.0f,   // bottom right
-           -1.0f, -1.0f, 0.0f,    0.0f, 0.0f,   // bottom left
-           -1.0f,  1.0f, 0.0f,    0.0f, 1.0f    // top left 
-        };
+            // positions   // texCoords
+           -1.0f,  1.0f,  0.0f, 1.0f,
+           -1.0f, -1.0f,  0.0f, 0.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
 
-        unsigned int quadIndices[] = {
-            0, 1, 3, // first triangle
-            1, 2, 3  // second triangle
+           -1.0f,  1.0f,  0.0f, 1.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f
         };
-
         m_QuadVA = VertexArray::Create();
-
-        // 将顶点数组复制到一个顶点缓冲中
-        m_QuadVB = VertexBuffer::Create(&quad[0], sizeof(quad));
-
-        // 将索引数组到一个索引缓冲中
-        m_QuadIB = IndexBuffer::Create(&quadIndices[0], sizeof(quadIndices) / sizeof(uint32_t));
+        m_QuadVB = VertexBuffer::Create(quad, sizeof(quad));
 
         BufferLayout quadLayout = {
-            { ShaderDataType::Float2, "a_Position" },
-            { ShaderDataType::Float2, "a_TexCoords" }
+            {ShaderDataType::Float2,"a_Position"},
+            {ShaderDataType::Float2,"a_TexCoords"},
         };
 
         m_QuadVB->SetLayout(quadLayout);
         m_QuadVA->AddVertexBuffer(m_QuadVB);
+
+        unsigned int quadIndices[] = {
+            0, 1, 2, // first triangle
+            3, 4, 5  // second triangle
+        };
+
+        m_QuadIB = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
         m_QuadVA->SetIndexBuffer(m_QuadIB);
-
-        FramebufferSpecification fspc;
-        fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
-        fspc.Width = 1920;
-        fspc.Height = 1080;
-        fspc.Samples = 4; // 4x MSAA
-        m_FrameBuffer = FrameBuffer::Create(fspc); // MSAA framebuffer
-        fspc.Samples = 1;
-        m_PostProcessingFB = FrameBuffer::Create(fspc); // 后处理 framebuffer
-
-        m_ViewportSize = { fspc.Width, fspc.Height };
 
         m_Shaders.Load("assets/shaders/basic.glsl");
         m_Shaders.Load("assets/shaders/quad.glsl");
+        m_Shaders.Load("assets/shaders/mouse.glsl");
 
         m_Model = std::make_shared<Model>("assets/models/spot/spot.obj");
 
         m_Texture = Texture2D::Create("assets/models/spot/spot_texture.png", 0);
-
-        m_Camera = std::make_shared<PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
-        m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
         m_Entity = m_ActiveScene->CreateEntity("spot");
     }
@@ -94,6 +98,7 @@ namespace Kaesar {
         {
             m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_PostProcessingFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+            m_MousePickFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_Camera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
             m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         }
@@ -104,18 +109,24 @@ namespace Kaesar {
         m_ActiveScene->OnUpdateEditor(timestep, m_Camera);
         m_SelectedEntity = m_ScenePanel->GetSelectedContext();
 
-        m_FrameBuffer->Bind();
-
-        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-        RenderCommand::Clear();
-        RenderCommand::EnableDepthTest();
-
         if (m_ViewportFocused) // 只有窗口聚焦时才更新相机
         {
             m_Camera->OnUpdate(timestep);
         }
 
+        m_FrameBuffer->Bind();
+
+        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+        RenderCommand::Clear();
+        m_FrameBuffer->ClearAttachment(1, -1);
+        RenderCommand::EnableDepthTest();
+
         Renderer::BeginScene();
+
+        RenderCommand::SetClearColor(glm::vec4(m_ClearColor, 1.0f));
+        RenderCommand::Clear();
+        m_FrameBuffer->ClearAttachment(1, -1);
+        glEnable(GL_DEPTH_TEST);
 
         glm::mat4 model = glm::mat4(1.0f);
         if (m_SelectedEntity)
@@ -133,32 +144,36 @@ namespace Kaesar {
         model = glm::rotate(model, glm::radians(140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
 
-        /// ====================== spot ========================
-        m_Texture->Active(0);
+
+        auto basicShader = m_Shaders.Get("basic");
+        basicShader->Bind();
         m_Texture->Bind();
-
-        auto modelShader = m_Shaders.Get("basic");
-        auto quadShader = m_Shaders.Get("quad");
-
-        modelShader->Bind(); // glUseProgram
-        modelShader->SetMat4("u_Model", model);
-        modelShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
-
+        basicShader->Bind(); // glUseProgram
+        basicShader->SetMat4("u_Model", model);
+        basicShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
         Renderer::Submit(m_Model);
-
         Renderer::EndScene();
-        /// ====================== spot end =====================
 
-        m_FrameBuffer->BlitMultiSample(m_FrameBuffer->GetRendererID(), m_PostProcessingFB->GetRendererID());
+        m_MousePickFB->Bind();
+        RenderCommand::SetClearColor(glm::vec4(m_ClearColor, 1.0f));
+        RenderCommand::Clear();
+        m_MousePickFB->ClearAttachment(0, -1);
+        glEnable(GL_DEPTH_TEST);
 
-        m_FrameBuffer->Unbind();
-        RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-        RenderCommand::ClearColor();
-        RenderCommand::DisableDepthTest();
+        m_PostProcessingFB->Bind();
+        RenderCommand::Clear();
+        m_PostProcessingFB->ClearAttachment(1, -1);
+        glDisable(GL_DEPTH_TEST);
 
-        quadShader->Bind();
-        m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID());
+        auto postProcShader = m_Shaders.Get("quad");
+        postProcShader->Bind();
+        m_Texture->Active(0);
+        m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID(0));
+        m_Texture->Active(1);
+        m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID(1));
         Renderer::Submit(m_QuadVA);
+
+        m_PostProcessingFB->Unbind();
     }
 
     void EditorLayer::OnImGuiRender()
@@ -310,7 +325,7 @@ namespace Kaesar {
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
 
-        Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused && !m_ViewportHovered); // 当视口没有被激活时，不接受事件
+        Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused || !m_ViewportHovered); // 当视口没有被激活时，不接受事件
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
@@ -396,6 +411,8 @@ namespace Kaesar {
     void EditorLayer::OnEvent(Event& event)
     {
         m_Camera->OnEvent(event);
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<MouseButtonPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
     }
 
     void EditorLayer::NewScene()
@@ -427,5 +444,34 @@ namespace Kaesar {
             SceneSerializer serializer(m_ActiveScene);
             serializer.Serializer(*filepath);
         }
+    }
+
+    bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+    {
+        auto [mx, my] = ImGui::GetMousePos();
+        mx -= m_ViewportBounds[0].x;
+        my -= m_ViewportBounds[0].y;
+        glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+        my = viewportSize.y - my;
+        int mouseX = (int)mx;
+        int mouseY = (int)my;
+
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+        {
+            m_MousePickFB->Bind();
+            int pixelData = m_MousePickFB->ReadPixel(0, mouseX, mouseY);
+            if (pixelData != -1) 
+            {
+                m_ScenePanel->SetSelectedEntity(m_ActiveScene->FindEntity(pixelData));
+            }
+            else
+            {
+                m_ScenePanel->SetSelectedEntity({});
+            }
+            KR_CORE_WARN("pixel data: {0}", pixelData);
+            m_MousePickFB->Unbind();
+        }
+
+        return false;
     }
 }

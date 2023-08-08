@@ -12,7 +12,7 @@ namespace Kaesar {
         ScenePanel(const std::shared_ptr<Scene>& scene);
 
         void OnImGuiRender();
-
+        inline void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; }
         inline Entity GetSelectedContext() const { return m_SelectionContext; }
 
     private:
