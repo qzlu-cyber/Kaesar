@@ -237,19 +237,19 @@ namespace Kaesar {
         {
             if (ImGui::BeginMenu(u8"文件"))
             {
-                if (ImGui::MenuItem(u8"新建场景"))
+                if (ImGui::MenuItem(u8"新建场景", "Ctrl+N"))
                 {
                     NewScene();
                 }
-                if (ImGui::MenuItem(u8"打开场景"))
+                if (ImGui::MenuItem(u8"打开场景", "Ctrl+O"))
                 {
                     OpenScene();
                 }
-                if (ImGui::MenuItem(u8"保存场景"))
+                if (ImGui::MenuItem(u8"保存场景", "Ctrl+Shift+S"))
                 {
                     SaveSceneAs();
                 }
-                if (ImGui::MenuItem(u8"退出"))
+                if (ImGui::MenuItem(u8"退出", "ESC"))
                 {
                     Application::Get().CloseApp();
                 }
@@ -412,38 +412,36 @@ namespace Kaesar {
     {
         m_Camera->OnEvent(event);
         EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<MouseButtonPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
+        dispatcher.Dispatch<KeyPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+        //dispatcher.Dispatch<MouseButtonPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
     }
 
-    void EditorLayer::NewScene()
+    bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
     {
-        m_ActiveScene = std::make_shared<Scene>();
-        m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
-        m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
-    }
+        if (e.GetRepeatCount() > 0)
+            return false;
 
-    void EditorLayer::OpenScene()
-    {
-        std::optional<std::string> filepath = FileDialogs::OpenFile("Kaesar Scene (*.kaesar)\0*.kaesar\0");
-        if (filepath)
+        bool control = Input::IsKeyPressed(KR_KEY_LEFT_CONTROL) || Input::IsKeyPressed(KR_KEY_RIGHT_CONTROL);
+        bool shift = Input::IsKeyPressed(KR_KEY_LEFT_SHIFT) || Input::IsKeyPressed(KR_KEY_RIGHT_SHIFT);
+
+        switch (e.GetKeyCode())
         {
-            m_ActiveScene = std::make_shared<Scene>();
-            m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
-            m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
-
-            SceneSerializer serializer(m_ActiveScene);
-            serializer.Deserializer(*filepath); // 解引用获取存储在 std::optional<std::string> 类型中的实际字符串值
-        }  
-    }
-
-    void EditorLayer::SaveSceneAs()
-    {
-        std::optional<std::string> filepath = FileDialogs::SaveFile("Kaesar Scene (*.kaesar)\0*.kaesar\0");
-        if (filepath)
-        {
-            SceneSerializer serializer(m_ActiveScene);
-            serializer.Serializer(*filepath);
+            case KR_KEY_N: if (control) NewScene(); break;
+            case KR_KEY_O: if (control) OpenScene(); break;
+            case KR_KEY_S: if (control && shift) SaveSceneAs(); break;
+            // Gizmos
+            case KR_KEY_Q: if (!ImGuizmo::IsUsing()) m_GizmoType = -1; break;
+            case KR_KEY_W: if (!ImGuizmo::IsUsing()) m_GizmoType = ImGuizmo::OPERATION::TRANSLATE; break;
+            case KR_KEY_E: if (!ImGuizmo::IsUsing()) m_GizmoType = ImGuizmo::OPERATION::ROTATE; break;
+            case KR_KEY_R: if (!ImGuizmo::IsUsing()) m_GizmoType = ImGuizmo::OPERATION::SCALE; break;
+            // 聚焦实体
+            case KR_KEY_F: if (m_ScenePanel->GetSelectedContext())
+                                m_Camera->SetFocalPoint(m_ScenePanel->GetSelectedContext().GetComponent<TransformComponent>().Translation);
+                break;
+            case KR_KEY_ESCAPE: Application::Get().CloseApp(); break;
         }
+
+        return false;
     }
 
     bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
@@ -473,5 +471,36 @@ namespace Kaesar {
         }
 
         return false;
+    }
+
+    void EditorLayer::NewScene()
+    {
+        m_ActiveScene = std::make_shared<Scene>();
+        m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+        m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+    }
+
+    void EditorLayer::OpenScene()
+    {
+        std::optional<std::string> filepath = FileDialogs::OpenFile("Kaesar Scene (*.kaesar)\0*.kaesar\0");
+        if (filepath)
+        {
+            m_ActiveScene = std::make_shared<Scene>();
+            m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+            m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+
+            SceneSerializer serializer(m_ActiveScene);
+            serializer.Deserializer(*filepath); // 解引用获取存储在 std::optional<std::string> 类型中的实际字符串值
+        }
+    }
+
+    void EditorLayer::SaveSceneAs()
+    {
+        std::optional<std::string> filepath = FileDialogs::SaveFile("Kaesar Scene (*.kaesar)\0*.kaesar\0");
+        if (filepath)
+        {
+            SceneSerializer serializer(m_ActiveScene);
+            serializer.Serializer(*filepath);
+        }
     }
 }

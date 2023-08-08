@@ -23,6 +23,7 @@ namespace Kaesar {
         void OpenScene();
         void SaveSceneAs();
 
+        bool OnKeyPressed(KeyPressedEvent& e);
         bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
     private:
@@ -41,7 +42,7 @@ namespace Kaesar {
 
         std::shared_ptr<PerspectiveCamera> m_Camera;
 
-        int m_GizmoType = 1;
+        int m_GizmoType = -1;
 
         glm::vec2 m_ViewportSize = { 200.0f, 200.0f };
         glm::vec3 m_ClearColor = { 0.1f, 0.1f, 0.1f };
