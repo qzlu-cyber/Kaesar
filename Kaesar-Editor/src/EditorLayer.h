@@ -35,7 +35,7 @@ namespace Kaesar {
 
         std::shared_ptr<Model> m_Model;
 
-        std::shared_ptr<Shader> m_Shader, m_QuadShader;
+        ShaderLibrary m_Shaders;
 
         std::shared_ptr<PerspectiveCamera> m_Camera;
 

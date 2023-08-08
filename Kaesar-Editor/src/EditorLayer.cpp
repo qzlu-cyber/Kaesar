@@ -69,12 +69,8 @@ namespace Kaesar {
         fspc.Samples = 1;
         m_PostProcessingFB = FrameBuffer::Create(fspc); // ºó´¦Àí framebuffer
 
-        const std::string basicShaderPath = "assets/shaders/basic.glsl";
-        m_Shader = Shader::Create(basicShaderPath);
-
-        const std::string quadShaderPath = "assets/shaders/quad.glsl";
-        m_QuadShader = Shader::Create(quadShaderPath);
-        m_QuadShader->SetInt("u_Texture", 0);
+        m_Shaders.Load("assets/shaders/basic.glsl");
+        m_Shaders.Load("assets/shaders/quad.glsl");
 
         m_Model = std::make_shared<Model>("assets/models/spot/spot.obj");
 
@@ -141,17 +137,17 @@ namespace Kaesar {
         m_Texture->Active(0);
         m_Texture->Bind();
 
-        m_Shader->Bind(); // glUseProgram
-        m_Shader->SetMat4("u_Model", model);
-        m_Shader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
+        auto modelShader = m_Shaders.Get("basic");
+        auto quadShader = m_Shaders.Get("quad");
+
+        modelShader->Bind(); // glUseProgram
+        modelShader->SetMat4("u_Model", model);
+        modelShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
 
         Renderer::Submit(m_Model);
-        /// ====================== spot end =====================
-        m_Texture->Unbind();
-        m_Shader->Unbind();
-        m_FrameBuffer->Unbind();
 
         Renderer::EndScene();
+        /// ====================== spot end =====================
 
         m_FrameBuffer->BlitMultiSample(m_FrameBuffer->GetRendererID(), m_PostProcessingFB->GetRendererID());
 
@@ -160,12 +156,9 @@ namespace Kaesar {
         RenderCommand::ClearColor();
         RenderCommand::DisableDepthTest();
 
-        m_QuadShader->Bind();
+        quadShader->Bind();
         m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID());
-        m_QuadVA->Bind();
         Renderer::Submit(m_QuadVA);
-        m_Texture->UnbindMultisample();
-        m_QuadShader->Unbind();
     }
 
     void EditorLayer::OnImGuiRender()
