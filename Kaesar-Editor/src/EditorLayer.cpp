@@ -523,6 +523,7 @@ namespace Kaesar {
             int pixelData = m_MousePickFB->ReadPixel(0, mouseX, mouseY);
             if (pixelData != -1) 
             {
+                m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
                 m_ScenePanel->SetSelectedEntity({ m_ActiveScene->FindEntity(pixelData), m_ActiveScene.get() });
             }
             else
