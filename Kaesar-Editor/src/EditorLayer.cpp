@@ -59,15 +59,15 @@ namespace Kaesar {
         m_QuadVA->SetIndexBuffer(m_QuadIB);
 
         FramebufferSpecification fspc;
-        fspc.Width = app.GetWindow().GetWidth();
-        fspc.Height = app.GetWindow().GetHeight();
-
-        m_ViewportSize = { fspc.Width, fspc.Height };
-
+        fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
+        fspc.Width = 1920;
+        fspc.Height = 1080;
         fspc.Samples = 4; // 4x MSAA
         m_FrameBuffer = FrameBuffer::Create(fspc); // MSAA framebuffer
         fspc.Samples = 1;
         m_PostProcessingFB = FrameBuffer::Create(fspc); // ∫Û¥¶¿Ì framebuffer
+
+        m_ViewportSize = { fspc.Width, fspc.Height };
 
         m_Shaders.Load("assets/shaders/basic.glsl");
         m_Shaders.Load("assets/shaders/quad.glsl");
