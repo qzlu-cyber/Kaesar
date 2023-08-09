@@ -136,6 +136,17 @@ namespace Kaesar {
             out << YAML::EndMap; // CameraComponent End
         }
 
+        if (entity.HasComponent<MeshComponent>())
+        {
+            out << YAML::Key << "MeshComponent";
+            out << YAML::BeginMap; // MeshComponent Begin
+
+            auto& meshComponent = entity.GetComponent<MeshComponent>();
+            out << YAML::Key << "Path" << YAML::Value << meshComponent.path;
+
+            out << YAML::EndMap; // MeshComponent End
+        }
+
         out << YAML::EndMap; // Entity End
     }
 
