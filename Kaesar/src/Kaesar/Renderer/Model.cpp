@@ -5,9 +5,20 @@
 #include <filesystem>
 
 namespace Kaesar {
-    Model::Model(const std::string& filepath)
+    Model::Model(const std::string& path)
     {
-        LoadModel(filepath);
+        std::filesystem::path filepath(path);
+
+        if (!filepath.is_absolute())
+        {
+            auto dir = std::filesystem::current_path();
+            auto filePath = dir.string() + path;
+            LoadModel(filePath);
+        }
+        else
+        {
+            LoadModel(path);
+        }
     }
 
     void Model::Draw(const Shader& shader)

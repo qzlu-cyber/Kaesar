@@ -391,12 +391,15 @@ namespace Kaesar {
             {
                 auto dir = std::filesystem::current_path();
                 std::optional<std::string> path = Kaesar::FileDialogs::OpenFile("模型文件 (*.obj)\0*.obj\0");
-                if (path) {
-                    auto filepath = path->substr(dir.string().size());
-                    if (path->find(dir.string()) != std::string::npos) {
+                if (path)
+                {
+                    std::string filepath;
+                    if (path->find(dir.string()) != std::string::npos)
+                    {
                         filepath = path->substr(dir.string().size());
                     }
-                    else {
+                    else
+                    {
                         filepath = *path;
                     }
                     tag = filepath;
