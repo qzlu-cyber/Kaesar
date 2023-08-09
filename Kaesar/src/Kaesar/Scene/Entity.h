@@ -14,6 +14,8 @@ namespace Kaesar {
 
         Entity(const Entity& other) = default;
 
+        ~Entity() = default;
+
         template<typename T, typename... Args>
         T& AddComponent(Args&&... args)
         {

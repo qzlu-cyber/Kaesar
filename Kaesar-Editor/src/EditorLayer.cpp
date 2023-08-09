@@ -164,19 +164,6 @@ namespace Kaesar {
                         KR_CORE_ERROR("请选择要复制的实体！");
                     }
                 }
-                //? 有 bug
-                if (ImGui::MenuItem(u8"删除"))
-                {
-                    if (m_SelectedEntity)
-                    {
-                        m_ActiveScene->DestroyEntity(m_SelectedEntity);
-                        m_SelectedEntity = {};
-                    }
-                    else
-                    {
-                        KR_CORE_ERROR("请选择要删除的实体！");
-                    }
-                }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu(u8"实体"))

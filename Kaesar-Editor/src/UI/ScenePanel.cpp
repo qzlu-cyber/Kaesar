@@ -26,7 +26,8 @@ namespace Kaesar {
 
         for (auto& entity : m_Context->m_Entities)
         {
-            DrawEntity(entity);
+            if (entity)
+                DrawEntity(entity);
         }
 
         // 如果鼠标左键点击了当前的窗口，并且当前的窗口是悬停的
