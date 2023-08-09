@@ -24,11 +24,12 @@ void main(){
 out vec4 FragColor;
 out int id;
 
-uniform sampler2D u_Texture;
+uniform sampler2D texture_diffuse1;
 
 in vec2 v_TexCoords;
 
 void main()
 {	
-	FragColor = texture(u_Texture, v_TexCoords);
+	vec3 color = texture(texture_diffuse1, v_TexCoords).rgb;
+	FragColor = vec4(color, 1.0f);
 }

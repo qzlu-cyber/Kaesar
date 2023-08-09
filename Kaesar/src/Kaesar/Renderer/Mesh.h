@@ -13,6 +13,8 @@ namespace Kaesar {
         glm::vec3 Position;
         glm::vec3 Normal;
         glm::vec2 TexCoords;
+        glm::vec3 Tangent;
+        glm::vec3 Bitangent;
     };
 
     // Mesh 纹理形式的材质数据
@@ -20,6 +22,7 @@ namespace Kaesar {
     {
         unsigned int id;
         std::string type;
+        std::string path;
     };
 
     class Mesh

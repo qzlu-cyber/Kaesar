@@ -2,6 +2,7 @@
 
 #include "Kaesar/Renderer/Mesh.h"
 #include "Kaesar/Renderer/Shader.h"
+#include "Kaesar/Renderer/Texture.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -25,8 +26,10 @@ namespace Kaesar {
 		std::vector<MeshTexture> LoadMaterialtextures(aiMaterial* material, aiTextureType type, const std::string& typeName);
 
 	public:
-		std::vector<Mesh> m_Meshes;
-		std::string m_Directory; // 模型所在目录
+		std::vector<Mesh> meshes;
+		std::vector<std::shared_ptr<Texture2D>> textures;
+		std::vector<MeshTexture> textures_loaded;
+		std::string directory; // 模型所在目录
 
 	};
 }

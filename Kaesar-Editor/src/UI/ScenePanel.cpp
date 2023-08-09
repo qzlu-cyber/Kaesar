@@ -4,6 +4,7 @@
 #include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Utils/PlatformUtils.h"
 
+#include <filesystem>
 #include <cstring>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -370,26 +371,27 @@ namespace Kaesar {
         ImGui::Separator();
 
         if (entity.HasComponent<MeshComponent>()) {
-            auto& path = entity.GetComponent<MeshComponent>().path;
+            auto& tag = entity.GetComponent<MeshComponent>().path;
 
             char buffer[256];
             memset(buffer, 0, sizeof(buffer));
-            strcpy_s(buffer, path.c_str());
+            strcpy_s(buffer, tag.c_str());
 
             if (ImGui::InputText(u8"路径", buffer, sizeof(buffer)))
             {
-                path = std::string(buffer);
+                tag = std::string(buffer);
             }
 
             ImGui::SameLine();
 
             if (ImGui::Button(u8"选择"))
             {
-                std::optional<std::string> filepath = Kaesar::FileDialogs::OpenFile("网格文件 (*.obj)\0*.obj\0");
-                if (filepath)
-                {
-                    strcpy_s(buffer, (*filepath).c_str());
-                    entity.GetComponent<MeshComponent>().model = Model(*filepath);
+                auto dir = std::filesystem::current_path();
+                std::optional<std::string> path = Kaesar::FileDialogs::OpenFile("模型文件 (*.obj)\0*.obj\0");
+                if (path) {
+                    auto filepath = path->substr(dir.string().size());
+                    tag = filepath;
+                    entity.GetComponent<MeshComponent>().model = Model(filepath);
                 }
             }
         }

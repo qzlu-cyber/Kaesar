@@ -2,10 +2,14 @@
 #include "Model.h"
 
 #include <glm/glm.hpp>
+#include <filesystem>
 
 namespace Kaesar {
-    Model::Model(const std::string& filepath)
+    Model::Model(const std::string& path)
     {
+        auto dir = std::filesystem::current_path();
+        auto filepath = dir.string() + path;
+
         LoadModel(filepath);
     }
 
@@ -28,7 +32,7 @@ namespace Kaesar {
             return;
         }
 
-        m_Directory = filepath.substr(0, filepath.find_last_of('/'));
+        directory = filepath.substr(0, filepath.find_last_of('\\'));
 
         ProcessNode(scene->mRootNode, scene);
     }
@@ -39,7 +43,7 @@ namespace Kaesar {
         for (auto i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            m_Meshes.push_back(ProcessMesh(mesh, scene));
+            meshes.push_back(ProcessMesh(mesh, scene));
         }
 
         // 递归子节点
@@ -53,7 +57,7 @@ namespace Kaesar {
     {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        std::vector<MeshTexture> textures;
+        std::vector<MeshTexture> meshTextures;
 
         // 处理顶点
         for (auto i = 0; i < mesh->mNumVertices; i++)
@@ -104,15 +108,56 @@ namespace Kaesar {
         }
 
         // 处理材质
-        aiMaterial* material = scene->mMaterials[scene->mNumMaterials];
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        // 1. 漫反射贴图
+        std::vector<MeshTexture> diffuseMaps = LoadMaterialtextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+        meshTextures.insert(meshTextures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        // 2. 高光贴图
+        std::vector<MeshTexture> specularMaps = LoadMaterialtextures(material, aiTextureType_SPECULAR, "texture_specular");
+        meshTextures.insert(meshTextures.end(), specularMaps.begin(), specularMaps.end());
+        // 3. 法线贴图
+        std::vector<MeshTexture> normalMaps = LoadMaterialtextures(material, aiTextureType_HEIGHT, "texture_normal");
+        meshTextures.insert(meshTextures.end(), normalMaps.begin(), normalMaps.end());
+        // 4. 位移贴图
+        std::vector<MeshTexture> heightMaps = LoadMaterialtextures(material, aiTextureType_AMBIENT, "texture_height");
+        meshTextures.insert(meshTextures.end(), heightMaps.begin(), heightMaps.end());
 
-        return Mesh(vertices, indices, textures);
+        return Mesh(vertices, indices, meshTextures);
     }
 
     std::vector<MeshTexture> Model::LoadMaterialtextures(aiMaterial* material, aiTextureType type, const std::string& typeName)
     {
-        return std::vector<MeshTexture>();
+        std::vector<MeshTexture> tmpTextures;
+        for (unsigned int i = 0; i < material->GetTextureCount(type); i++)
+        {
+            aiString str;
+            material->GetTexture(type, i, &str);
+            bool skip = false;
+            for (unsigned int j = 0; j < textures_loaded.size(); j++)
+            {
+                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+                {
+                    tmpTextures.push_back(textures_loaded[j]);
+                    skip = true;
+                    break;
+                }
+            }
+
+            if (!skip)
+            {   
+                MeshTexture texture;
+                std::string filename = str.C_Str();
+                filename = directory + '\\' + filename;
+                auto tex = Texture2D::Create(filename, 0);
+                textures.push_back(tex);
+                texture.id = tex->GetRendererID();
+                texture.type = typeName;
+                texture.path = str.C_Str();
+                tmpTextures.push_back(texture);
+                textures_loaded.push_back(texture); // add to loaded textures
+            }
+        }
+
+        return tmpTextures;
     }
-
-
 }

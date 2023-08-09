@@ -30,10 +30,6 @@ namespace Kaesar {
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
 
-        std::shared_ptr<Texture2D> m_Texture;
-
-        ShaderLibrary m_Shaders;
-
         PerspectiveCamera* m_Camera;
 
         int m_GizmoType = -1;

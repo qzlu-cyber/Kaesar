@@ -83,7 +83,7 @@ namespace Kaesar
         s_Data->basicShader->Bind(); // glUseProgram
         s_Data->basicShader->SetMat4("u_Model", transform.GetTransform());
         s_Data->basicShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
-        Renderer::Submit(mesh.model);
+        Renderer::Submit(mesh.model, s_Data->basicShader);
         s_Data->mainFB->Unbind();
 
         s_Data->mouseFB->Bind();
@@ -94,7 +94,7 @@ namespace Kaesar
         s_Data->mouseShader->SetMat4("u_Model", transform.GetTransform());
         s_Data->mouseShader->SetInt("u_ID", (uint32_t)entity);
         s_Data->mouseShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
-        Renderer::Submit(mesh.model);
+        Renderer::Submit(mesh.model, s_Data->mouseShader);
         s_Data->mouseFB->Unbind();
     }
 
@@ -107,7 +107,7 @@ namespace Kaesar
         s_Data->quadShader->Bind();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, s_Data->mainFB->GetColorAttachmentRendererID());
-        Renderer::Submit(s_Data->vertexArray);
+        Renderer::Submit(s_Data->vertexArray, s_Data->quadShader);
         s_Data->postProcessFB->Unbind();
         Renderer::EndScene();
     }
