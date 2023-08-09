@@ -6,6 +6,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <glm/glm.hpp>
+#include <filesystem>
 
 namespace YAML {
     template<>
@@ -225,6 +226,18 @@ namespace Kaesar {
                     camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
                     camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
                     camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+                }
+
+                auto meshComponent = entity["MeshComponent"];
+                if (meshComponent)
+                {
+                    auto dir = std::filesystem::current_path();
+                    auto& mc = deserializedEntity.AddComponent<MeshComponent>();
+                    mc.path = meshComponent["Path"].as<std::string>();
+                    if (mc.path.find("\\") == 0) {
+                        mc.path = dir.string() + mc.path;
+                    }
+                    mc.model = Model(mc.path);
                 }
             }
         }
