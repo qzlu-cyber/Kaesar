@@ -5,11 +5,8 @@
 #include <filesystem>
 
 namespace Kaesar {
-    Model::Model(const std::string& path)
+    Model::Model(const std::string& filepath)
     {
-        auto dir = std::filesystem::current_path();
-        auto filepath = dir.string() + path;
-
         LoadModel(filepath);
     }
 

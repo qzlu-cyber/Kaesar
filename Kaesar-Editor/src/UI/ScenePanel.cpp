@@ -392,6 +392,12 @@ namespace Kaesar {
                 std::optional<std::string> path = Kaesar::FileDialogs::OpenFile("模型文件 (*.obj)\0*.obj\0");
                 if (path) {
                     auto filepath = path->substr(dir.string().size());
+                    if (path->find(dir.string()) != std::string::npos) {
+                        filepath = path->substr(dir.string().size());
+                    }
+                    else {
+                        filepath = *path;
+                    }
                     tag = filepath;
                     entity.GetComponent<MeshComponent>().model = Model(filepath);
                 }
