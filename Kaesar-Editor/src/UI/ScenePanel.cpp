@@ -14,6 +14,7 @@ namespace Kaesar {
     ScenePanel::ScenePanel(const std::shared_ptr<Scene>& scene)
     {
         m_Context = scene;
+        m_SelectionContext = {};
     }
 
     void ScenePanel::OnImGuiRender()
@@ -25,7 +26,7 @@ namespace Kaesar {
 
         for (auto& entity : m_Context->m_Entities)
         {
-            DrawEntity(*entity);
+            DrawEntity(entity);
         }
 
         // 如果鼠标左键点击了当前的窗口，并且当前的窗口是悬停的
@@ -35,7 +36,8 @@ namespace Kaesar {
         // 如果鼠标右键点击了当前的窗口，开启一个弹出式上下文菜单
         if (ImGui::BeginPopupContextWindow(0, 1, false))
         {
-            if (ImGui::Selectable(u8"新建物体")) {
+            if (ImGui::Selectable(u8"新建物体")) 
+            {
                 m_Context->CreateEntity();
             }
             ImGui::EndPopup();
@@ -221,18 +223,18 @@ namespace Kaesar {
         }
     }
 
-    void ScenePanel::DrawEntity(Entity entity)
+    void ScenePanel::DrawEntity(std::shared_ptr<Entity>& entity)
     {
-        auto& tag = entity.GetComponent<TagComponent>();
+        auto& tag = (*entity).GetComponent<TagComponent>();
 
         // 确定用于渲染表示实体的树节点的标志。检查实体当前是否被选中，以及节点是否应在单击箭头时展开
-        ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags flags = ((m_SelectionContext == *entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
         flags |= ImGuiTreeNodeFlags_SpanAvailWidth; // 节点的宽度将扩展到当前行的最大宽度
         // 在界面中呈现一个树节点，使用指定的标志和标签文本。此函数调用的结果指示节点是打开还是关闭
-        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.Tag.c_str());
+        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)*entity, flags, tag.Tag.c_str());
         if (ImGui::IsItemClicked()) // 是否点击了当前的树节点（实体）
         {
-            m_SelectionContext = entity; // 选中当前的实体
+            m_SelectionContext = *entity; // 选中当前的实体
         }
 
         // 实现拖拽排序
@@ -267,9 +269,9 @@ namespace Kaesar {
 
         if (entityDeleted)
         {
-            if (m_SelectionContext == entity)
+            if (m_SelectionContext == *entity)
                 m_SelectionContext = {}; // 重置选中的实体
-            m_Context->DestroyEntity(entity); // 销毁实体
+            m_Context->DestroyEntity(*entity); // 销毁实体
         }
     }
 

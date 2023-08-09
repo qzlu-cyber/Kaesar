@@ -1,6 +1,7 @@
 #include "krpch.h"
 #include "SceneRenderer.h"
 
+#include "Kaesar/Scene/Scene.h"
 #include "Kaesar/Renderer/RenderCommand.h"
 #include "Kaesar/Renderer/Renderer.h"
 
@@ -78,24 +79,49 @@ namespace Kaesar
         Renderer::BeginScene();
     }
 
-    void SceneRenderer::RenderEntity(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
+    void SceneRenderer::RenderScene(Scene& scene)
     {
-        s_Data->basicShader->Bind(); // glUseProgram
-        s_Data->basicShader->SetMat4("u_Model", transform.GetTransform());
-        s_Data->basicShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
-        Renderer::Submit(mesh.model, s_Data->basicShader);
+        auto view = scene.m_Registry.view<TransformComponent, MeshComponent>();
+
+        s_Data->mainFB->Bind();
+        for (auto entity : view)
+        {
+            auto& transformComponent = view.get<TransformComponent>(entity);
+            auto& meshComponent = view.get<MeshComponent>(entity);
+            
+            RenderEntityColor(entity, transformComponent, meshComponent);
+        }
         s_Data->mainFB->Unbind();
 
         s_Data->mouseFB->Bind();
         RenderCommand::SetClearColor(glm::vec4(s_Data->clearColor, 1.0f));
         RenderCommand::Clear();
         s_Data->mouseFB->ClearAttachment(0, -1);
+        for (auto entity : view)
+        {
+            auto& transformComponent = view.get<TransformComponent>(entity);
+            auto& meshComponent = view.get<MeshComponent>(entity);
+
+            RenderEntityID(entity, transformComponent, meshComponent);
+        }
+        s_Data->mouseFB->Unbind();
+    }
+
+    void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
+    {
+        s_Data->basicShader->Bind(); // glUseProgram
+        s_Data->basicShader->SetMat4("u_Model", transform.GetTransform());
+        s_Data->basicShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
+        Renderer::Submit(mesh.model, s_Data->basicShader);
+    }
+
+    void SceneRenderer::RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
+    {
         s_Data->mouseShader->Bind();
         s_Data->mouseShader->SetMat4("u_Model", transform.GetTransform());
         s_Data->mouseShader->SetInt("u_ID", (uint32_t)entity);
         s_Data->mouseShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
         Renderer::Submit(mesh.model, s_Data->mouseShader);
-        s_Data->mouseFB->Unbind();
     }
 
     void SceneRenderer::EndScene()

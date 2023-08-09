@@ -13,13 +13,16 @@
 
 namespace Kaesar {
     class Entity;
+    class Scene;
 
     class SceneRenderer
     {
     public:
         static void Initialize();
         static void BeginScene(const PerspectiveCamera& camera);
-        static void RenderEntity(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
+        static void RenderScene(Scene& scene);
+        static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
+        static void RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void EndScene();
 
         static void OnViewportResize(uint32_t width, uint32_t height);

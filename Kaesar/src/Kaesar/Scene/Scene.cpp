@@ -71,16 +71,7 @@ namespace Kaesar {
 
     void Scene::OnUpdateEditor(Timestep ts, PerspectiveCamera& camera) {
         SceneRenderer::BeginScene(camera);
-
-        auto view = m_Registry.view<TransformComponent, MeshComponent>();
-        for (auto& entity : view)
-        {
-            TransformComponent& transform = view.get<TransformComponent>(entity);
-            MeshComponent& mesh = view.get<MeshComponent>(entity);
-
-            SceneRenderer::RenderEntity(entity, transform, mesh);
-        }
-
+        SceneRenderer::RenderScene(*this);
         SceneRenderer::EndScene();
     }
 

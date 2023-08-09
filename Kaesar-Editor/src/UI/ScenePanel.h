@@ -16,7 +16,7 @@ namespace Kaesar {
         inline Entity GetSelectedContext() const { return m_SelectionContext; }
 
     private:
-        void DrawEntity(Entity entity);
+        void DrawEntity(std::shared_ptr<Entity>& entity);
         void DrawComponents(Entity entity);
         void ScenePanel::DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f);
 
