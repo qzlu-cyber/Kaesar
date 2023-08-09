@@ -3,3 +3,7 @@ bin/
 bin-int/
 
 *.user
+*.json
+*.srctrlbm
+*.srctrldb
+*.srctrlprj
