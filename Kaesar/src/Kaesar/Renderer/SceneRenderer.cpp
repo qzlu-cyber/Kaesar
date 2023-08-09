@@ -16,7 +16,7 @@ namespace Kaesar
         fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
         fspc.Width = 1920;
         fspc.Height = 1080;
-        fspc.Samples = 1;
+        fspc.Samples = 4;
         s_Data->mainFB = FrameBuffer::Create(fspc);
         fspc.Samples = 1;
         s_Data->postProcessFB = FrameBuffer::Create(fspc);

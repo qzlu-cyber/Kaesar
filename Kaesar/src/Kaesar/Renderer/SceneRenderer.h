@@ -24,7 +24,8 @@ namespace Kaesar {
 
         static void OnViewportResize(uint32_t width, uint32_t height);
 
-        static uint32_t GetTextureID(int index) { return s_Data->mainFB->GetColorAttachmentRendererID(index); }
+        static uint32_t GetTextureID(int index) { return s_Data->postProcessFB->GetColorAttachmentRendererID(index); }
+        static std::shared_ptr<FrameBuffer> GetMouseFB() { return s_Data->mouseFB; }
         static FramebufferSpecification GetMainFBSpec() { return s_Data->mainFB->GetSpecification(); }
 
     private:

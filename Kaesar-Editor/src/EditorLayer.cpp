@@ -342,26 +342,31 @@ namespace Kaesar {
         my = viewportSize.y - my;
         int mouseX = (int)mx;
         int mouseY = (int)my;
-        //auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
-        //if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y && !altIsDown)
-        //{
-        //    m_MousePickFB->Bind();
-        //    int pixelData = m_MousePickFB->ReadPixel(0, mouseX, mouseY);
-        //    if (pixelData != -1) 
-        //    {
-        //        m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
-        //        m_ScenePanel->SetSelectedEntity({ m_ActiveScene->FindEntity(pixelData), m_ActiveScene.get() });
-        //    }
-        //    else
-        //    {
-        //        if (!ImGuizmo::IsOver()) 
-        //        {
-        //            m_ScenePanel->SetSelectedEntity({});
-        //        }
-        //    }
-        //    KR_CORE_WARN("pixel data: {0}", pixelData);
-        //    m_MousePickFB->Unbind();
-        //}
+        auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y && !altIsDown)
+        {
+            auto mouseFB = m_ActiveScene->GetMouseFB();
+            mouseFB->Bind();
+
+            int pixelData = mouseFB->ReadPixel(0, mouseX, mouseY);
+            if (pixelData != -1) 
+            {
+                m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+                m_ScenePanel->SetSelectedEntity(m_ActiveScene->FindEntity(pixelData));
+            }
+            else
+            {
+                if (!ImGuizmo::IsOver()) 
+                {
+                    m_ScenePanel->SetSelectedEntity({});
+                }
+            }
+
+            KR_CORE_WARN("pixel data: {0}", pixelData);
+
+            mouseFB->Unbind();
+        }
+
         return false;
     }
 
