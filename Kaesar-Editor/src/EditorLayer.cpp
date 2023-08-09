@@ -16,12 +16,12 @@ namespace Kaesar {
     {
         RenderCommand::Init();
         m_Info = RenderCommand::Info();
-        m_Camera = std::make_shared<PerspectiveCamera>(45.0f, 1.778f, 0.1f, 100.0f);
+        m_Camera = new PerspectiveCamera(45.0f, 1.778f, 0.1f, 100.0f);
     }
 
     EditorLayer::~EditorLayer()
     {
-
+        delete m_Camera;
     }
 
     void EditorLayer::OnAttach()
@@ -37,137 +37,8 @@ namespace Kaesar {
         fspc.Width = 1920;
         fspc.Height = 1080;
         fspc.Samples = 4;
-        m_FrameBuffer = FrameBuffer::Create(fspc);
-        fspc.Samples = 1;
-        m_PostProcessingFB = FrameBuffer::Create(fspc);
-
-        fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::DEPTH24STENCIL8 };
-        m_MousePickFB = FrameBuffer::Create(fspc);
 
         m_ViewportSize = { fspc.Width, fspc.Height };
-        float vertices[] = {
-            // back face
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f, // bottom-left
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f,-1.0f,// bottom-right    
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f,// top-right              
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f,-1.0f,// top-right
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f,-1.0f,// top-left
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f,-1.0f,// bottom-left                
-            // front face
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-right        
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-right
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f,1.0f,  // bottom-left
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 0.0f,1.0f,  // top-left        
-            // left face
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f, 0.0f,0.0f, // top-left       
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f,0.0f, // bottom-left
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f,0.0f, // top-right
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f, 0.0f,0.0f, // bottom-right
-            // right face
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f, 0.0f,0.0f,  // top-right      
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right          
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f, 0.0f,0.0f,  // bottom-right
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.0f,0.0f,  // bottom-left
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f,0.0f,  // top-left
-             // bottom face          
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
-              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
-              0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-left        
-              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-left
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,0.0f, // top-right
-             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,0.0f, // bottom-right
-             // top face										     
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-left
-              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f,0.0f,  // top-right
-              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right                 
-              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-right
-             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f,0.0f,  // bottom-left  
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 1.0f,0.0f  // top-left              
-        };
-        float quad[] = {
-            // positions   // texCoords
-           -1.0f,  1.0f,  0.0f, 1.0f,
-           -1.0f, -1.0f,  0.0f, 0.0f,
-            1.0f, -1.0f,  1.0f, 0.0f,
-
-           -1.0f,  1.0f,  0.0f, 1.0f,
-            1.0f, -1.0f,  1.0f, 0.0f,
-            1.0f,  1.0f,  1.0f, 1.0f
-        };
-
-        m_VertexArray = VertexArray::Create();
-        m_QuadVA = VertexArray::Create();
-
-        m_VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
-        m_QuadVB = VertexBuffer::Create(quad, sizeof(quad));
-
-        BufferLayout layout = {
-            {ShaderDataType::Float3,"a_pos"},
-            {ShaderDataType::Float2,"a_uv"},
-            {ShaderDataType::Float3,"a_normal"},
-        };
-        BufferLayout quadLayout = {
-            {ShaderDataType::Float2,"a_Position"},
-            {ShaderDataType::Float2,"a_TexCoords"},
-        };
-
-        m_VertexBuffer->SetLayout(layout);
-        m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-        m_QuadVB->SetLayout(quadLayout);
-        m_QuadVA->AddVertexBuffer(m_QuadVB);
-
-        unsigned int indices[] = { 
-            0, 1, 2,
-            2, 3, 0,
-            // right
-            1, 5, 6,
-            6, 2, 1,
-            // back
-            7, 6, 5,
-            5, 4, 7,
-            // left
-            4, 0, 3,
-            3, 7, 4,
-            // bottom
-            4, 5, 1,
-            1, 0, 4,
-            // top
-            3, 2, 6,
-            6, 7, 3 
-        };
-        unsigned int quadIndices[] = {
-            0, 1, 2, // first triangle
-            3, 4, 5  // second triangle
-        };
-
-        m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-        m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
-        m_QuadIB = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
-        m_QuadVA->SetIndexBuffer(m_QuadIB);
-
-        m_Shaders.Load("assets/shaders/basic.glsl");
-        m_Shaders.Load("assets/shaders/quad.glsl");
-        m_Shaders.Load("assets/shaders/mouse.glsl");
-
-        m_Model = std::make_shared<Model>("assets/models/spot/spot.obj");
-
-        m_Texture = Texture2D::Create("assets/models/spot/spot_texture.png", 0);
-
-        m_Entity = m_ActiveScene->CreateEntity("spot");
-
-        // 设置小牛的模型矩阵
-        glm::vec3& translate = m_Entity.GetComponent<TransformComponent>().Translation;
-        glm::vec3& rotate = m_Entity.GetComponent<TransformComponent>().Rotation;
-        glm::vec3& scale = m_Entity.GetComponent<TransformComponent>().Scale;
-        scale = glm::vec3(2.5f, 2.5f, 2.5f);
-        rotate = glm::radians(140.0f) * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
     void EditorLayer::OnDetach()
@@ -176,66 +47,21 @@ namespace Kaesar {
 
     void EditorLayer::OnUpdate(const Timestep& timestep)
     {
-        FramebufferSpecification spec = m_FrameBuffer->GetSpecification();
-        if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
+        if (FramebufferSpecification spec = m_ActiveScene->GetSpec(); 
+            m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
             (spec.Width != (uint32_t)m_ViewportSize.x || spec.Height != (uint32_t)m_ViewportSize.y))
         {
-            m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-            m_PostProcessingFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-            m_MousePickFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_Camera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
             m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         }
 
-        m_ActiveScene->OnUpdateEditor(timestep, m_Camera);
+        m_ActiveScene->OnUpdateEditor(timestep, *m_Camera);
         m_SelectedEntity = m_ScenePanel->GetSelectedContext();
 
         if (m_ViewportFocused) // 只有窗口聚焦时才更新相机
         {
             m_Camera->OnUpdate(timestep);
         }
-
-        m_FrameBuffer->Bind();
-
-        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-        RenderCommand::Clear();
-        RenderCommand::EnableDepthTest();
-
-        Renderer::BeginScene();
-
-        auto basicShader = m_Shaders.Get("basic");
-        m_Texture->Bind();
-        basicShader->Bind(); // glUseProgram
-        basicShader->SetMat4("u_Model", m_Entity.GetComponent<TransformComponent>().GetTransform());
-        basicShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
-        basicShader->SetInt("u_ID", (uint32_t)m_Entity);
-        Renderer::Submit(m_Model);
-        Renderer::EndScene();
-        m_FrameBuffer->Unbind();
-
-        m_MousePickFB->Bind();
-        RenderCommand::SetClearColor(glm::vec4(m_ClearColor, 1.0f));
-        RenderCommand::Clear();
-        m_MousePickFB->ClearAttachment(0, -1);
-        auto mouseShader = m_Shaders.Get("mouse");
-        mouseShader->Bind();
-        mouseShader->SetMat4("u_Model", m_Entity.GetComponent<TransformComponent>().GetTransform());
-        mouseShader->SetInt("u_ID", (uint32_t)m_Entity);
-        mouseShader->SetMat4("u_ViewProjection", m_Camera->GetViewProjection());
-        Renderer::Submit(m_VertexArray);
-        m_MousePickFB->Unbind();
-
-        m_PostProcessingFB->Bind();
-        RenderCommand::Clear();
-        RenderCommand::DisableDepthTest();
-
-        auto postProcShader = m_Shaders.Get("quad");
-        postProcShader->Bind();
-        m_Texture->Active(0);
-        m_Texture->BindMultisample(m_FrameBuffer->GetColorAttachmentRendererID(0));
-        Renderer::Submit(m_QuadVA);
-
-        m_PostProcessingFB->Unbind();
     }
 
     void EditorLayer::OnImGuiRender()
@@ -393,7 +219,7 @@ namespace Kaesar {
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-        uint64_t textureID = m_PostProcessingFB->GetColorAttachmentRendererID();
+        uint64_t textureID = m_ActiveScene->GetMainTextureID();
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
         // Gizmos
@@ -516,26 +342,26 @@ namespace Kaesar {
         my = viewportSize.y - my;
         int mouseX = (int)mx;
         int mouseY = (int)my;
-        auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
-        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y && !altIsDown)
-        {
-            m_MousePickFB->Bind();
-            int pixelData = m_MousePickFB->ReadPixel(0, mouseX, mouseY);
-            if (pixelData != -1) 
-            {
-                m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
-                m_ScenePanel->SetSelectedEntity({ m_ActiveScene->FindEntity(pixelData), m_ActiveScene.get() });
-            }
-            else
-            {
-                if (!ImGuizmo::IsOver()) 
-                {
-                    m_ScenePanel->SetSelectedEntity({});
-                }
-            }
-            KR_CORE_WARN("pixel data: {0}", pixelData);
-            m_MousePickFB->Unbind();
-        }
+        //auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
+        //if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y && !altIsDown)
+        //{
+        //    m_MousePickFB->Bind();
+        //    int pixelData = m_MousePickFB->ReadPixel(0, mouseX, mouseY);
+        //    if (pixelData != -1) 
+        //    {
+        //        m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+        //        m_ScenePanel->SetSelectedEntity({ m_ActiveScene->FindEntity(pixelData), m_ActiveScene.get() });
+        //    }
+        //    else
+        //    {
+        //        if (!ImGuizmo::IsOver()) 
+        //        {
+        //            m_ScenePanel->SetSelectedEntity({});
+        //        }
+        //    }
+        //    KR_CORE_WARN("pixel data: {0}", pixelData);
+        //    m_MousePickFB->Unbind();
+        //}
         return false;
     }
 

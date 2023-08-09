@@ -14,6 +14,7 @@ namespace Kaesar {
 
         static void Submit(const std::shared_ptr<VertexArray>& vertexArray);
         static void Submit(const std::shared_ptr<Model>& model);
+        static void Submit(const Model& model);
 
         static void OnWindowResize(uint32_t width, uint32_t height);
 

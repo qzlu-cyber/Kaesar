@@ -1,6 +1,7 @@
 #include "krpch.h"
 #include "ScenePanel.h"
 
+#include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Utils/PlatformUtils.h"
 
 #include <cstring>
@@ -23,7 +24,7 @@ namespace Kaesar {
 
         for (auto& entity : m_Context->m_Entities)
         {
-            DrawEntity({ entity, m_Context.get()});
+            DrawEntity(*entity);
         }
 
         // 如果鼠标左键点击了当前的窗口，并且当前的窗口是悬停的
@@ -368,22 +369,30 @@ namespace Kaesar {
 
         ImGui::Separator();
 
-        DrawComponent<MeshComponent>(u8"网格", entity, true, [this](MeshComponent& component)
+        if (entity.HasComponent<MeshComponent>()) {
+            auto& path = entity.GetComponent<MeshComponent>().path;
+
+            char buffer[256];
+            memset(buffer, 0, sizeof(buffer));
+            strcpy_s(buffer, path.c_str());
+
+            if (ImGui::InputText(u8"路径", buffer, sizeof(buffer)))
             {
-                char buffer[256];
-                memset(buffer, 0, sizeof(buffer));
-                strcpy_s(buffer, "\0");
-                ImGui::InputText(u8"路径", buffer, sizeof(buffer));
-                ImGui::SameLine();
-                if (ImGui::Button(u8"选择")) 
+                path = std::string(buffer);
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button(u8"选择"))
+            {
+                std::optional<std::string> filepath = Kaesar::FileDialogs::OpenFile("网格文件 (*.obj)\0*.obj\0");
+                if (filepath)
                 {
-                    std::optional<std::string> filepath = Kaesar::FileDialogs::OpenFile("网格文件 (*.obj)\0*.obj\0");
-                    if (filepath)
-                    {
-                        strcpy_s(buffer, (*filepath).c_str());
-                    }
+                    strcpy_s(buffer, (*filepath).c_str());
+                    entity.GetComponent<MeshComponent>().model = Model(*filepath);
                 }
-            });
+            }
+        }
 
         ImGui::Separator();
         float buttonSz = 100;

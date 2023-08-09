@@ -24,7 +24,6 @@ void main(){
 out vec4 FragColor;
 out int id;
 
-uniform int u_ID;
 uniform sampler2D u_Texture;
 
 in vec2 v_TexCoords;
@@ -32,5 +31,4 @@ in vec2 v_TexCoords;
 void main()
 {	
 	FragColor = texture(u_Texture, v_TexCoords);
-	id = u_ID;
 }

@@ -13,6 +13,7 @@ namespace Kaesar {
         inline static void ClearColor() { s_RendererAPI->ClearColor(); }
         inline static void EnableDepthTest() { s_RendererAPI->EnableDepthTest(); }
         inline static void DisableDepthTest() { s_RendererAPI->DisableDepthTest(); }
+        inline static void SetState(int stateID, bool on) { s_RendererAPI->SetState(stateID, on); }
         inline static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
         {
             s_RendererAPI->DrawIndexed(vertexArray);

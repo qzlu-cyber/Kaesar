@@ -29,18 +29,12 @@ namespace Kaesar {
     private:
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
-        std::shared_ptr<VertexArray> m_VertexArray, m_QuadVA;
-        std::shared_ptr<VertexBuffer> m_VertexBuffer, m_QuadVB;
-        std::shared_ptr<IndexBuffer> m_IndexBuffer, m_QuadIB;
-        std::shared_ptr<FrameBuffer> m_FrameBuffer, m_PostProcessingFB, m_MousePickFB;
 
         std::shared_ptr<Texture2D> m_Texture;
 
-        std::shared_ptr<Model> m_Model;
-
         ShaderLibrary m_Shaders;
 
-        std::shared_ptr<PerspectiveCamera> m_Camera;
+        PerspectiveCamera* m_Camera;
 
         int m_GizmoType = -1;
 
@@ -55,7 +49,6 @@ namespace Kaesar {
         glm::vec2 m_ViewportBounds[2];
 
         std::string m_Info;
-        Entity m_Entity, m_CubeEntity2;
         Entity m_SelectedEntity;
     };
 }

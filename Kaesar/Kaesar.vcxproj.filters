@@ -1462,6 +1462,7 @@
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Utils\Math.h" />
+    <ClInclude Include="src\Kaesar\Renderer\SceneRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1573,5 +1574,6 @@
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Utils\Math.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\SceneRenderer.cpp" />
   </ItemGroup>
 </Project>

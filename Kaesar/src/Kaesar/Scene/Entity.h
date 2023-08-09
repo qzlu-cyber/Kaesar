@@ -10,7 +10,7 @@ namespace Kaesar {
     public:
         Entity() = default;
 
-        Entity(entt::entity handle, Scene* scene);
+        Entity(entt::entity handle);
 
         Entity(const Entity& other) = default;
 
@@ -18,7 +18,7 @@ namespace Kaesar {
         T& AddComponent(Args&&... args)
         {
             KR_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-            T& component = m_Scene->m_Registry.emplace<T>(m_EntityID, std::forward<Args>(args)...);
+            T& component = s_Scene->m_Registry.emplace<T>(m_EntityID, std::forward<Args>(args)...);
             return component;
         }
 
@@ -26,24 +26,28 @@ namespace Kaesar {
         T& GetComponent()
         {
             KR_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-            return m_Scene->m_Registry.get<T>(m_EntityID);
+            return s_Scene->m_Registry.get<T>(m_EntityID);
         }
 
         template<typename T>
         bool HasComponent()
         {
-            return m_Scene->m_Registry.has<T>(m_EntityID);
+            return s_Scene->m_Registry.has<T>(m_EntityID);
         }
 
         template<typename T>
         void RemoveComponent()
         {
             KR_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-            m_Scene->m_Registry.remove<T>(m_EntityID);
+            s_Scene->m_Registry.remove<T>(m_EntityID);
         }
 
+        bool IsSelected() const { return m_Selected; }
+
+        void SetSelected(bool selected) { m_Selected = selected; }
+
         bool operator ==(const Entity& other) const {
-            return m_EntityID == other.m_EntityID && m_Scene == other.m_Scene;
+            return m_EntityID == other.m_EntityID;
         }
 
         bool operator ==(const entt::entity& other) const {
@@ -66,9 +70,13 @@ namespace Kaesar {
             return (uint32_t)m_EntityID;
         }
 
+    public:
+        static Scene* s_Scene;
+
     private:
         entt::entity m_EntityID{ entt::null };
-        Scene* m_Scene = nullptr;
+
+        bool m_Selected;
     };
 }
 

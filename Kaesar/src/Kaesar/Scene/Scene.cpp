@@ -5,12 +5,17 @@
 #include "Kaesar/Scene/Component.h"
 
 namespace Kaesar {
-    Scene::Scene() {}
+    Scene::Scene() 
+    {
+        Entity::s_Scene = this;
+        SceneRenderer::Initialize();
+    }
+
     Scene::~Scene() {}
 
     Entity Scene::CreateEntity(const std::string& name) {
-        Entity entity = { m_Registry.create(), this };
-        m_Entities.push_back(entity);
+        Entity entity = { m_Registry.create() };
+        m_Entities.push_back(std::make_shared<Entity>(entity));
 
         auto& tag = entity.AddComponent<TagComponent>();
         tag.Tag = name.empty() ? "Entity" : name; // entity Ãû³Æ
@@ -38,8 +43,8 @@ namespace Kaesar {
     entt::entity Scene::FindEntity(uint32_t id)
     {
         for (auto& e : m_Entities) {
-            if (e == (entt::entity)id) {
-                return e;
+            if (*e == (entt::entity)id) {
+                return *e;
             }
         }
         return {};
@@ -50,7 +55,7 @@ namespace Kaesar {
 
         // ´Ó m_Entities ÖÐÒÆ³ý entity
         for (auto& e : m_Entities) {
-            if (e == entity) {
+            if (*e == entity) {
                 auto it = std::find(m_Entities.begin(), m_Entities.end(), e);
                 if (it != m_Entities.end()) {
                     m_Entities.erase(it);
@@ -64,18 +69,26 @@ namespace Kaesar {
         //TODO: Implement OnUpdateRuntime
     }
 
-    void Scene::OnUpdateEditor(Timestep ts, std::shared_ptr<PerspectiveCamera>& camera) {
-        auto group = m_Registry.group<TransformComponent>(entt::get<TagComponent>);
-        for (auto& entity : group)
+    void Scene::OnUpdateEditor(Timestep ts, PerspectiveCamera& camera) {
+        SceneRenderer::BeginScene(camera);
+
+        auto view = m_Registry.view<TransformComponent, MeshComponent>();
+        for (auto& entity : view)
         {
-            auto& tag = m_Registry.get<TagComponent>(entity);
-            
+            TransformComponent& transform = view.get<TransformComponent>(entity);
+            MeshComponent& mesh = view.get<MeshComponent>(entity);
+
+            SceneRenderer::RenderEntity(entity, transform, mesh);
         }
+
+        SceneRenderer::EndScene();
     }
 
     void Scene::OnViewportResize(uint32_t width, uint32_t height) {
         m_ViewportWidth = width;
         m_ViewportHeight = height;
+
+        SceneRenderer::OnViewportResize(width, height);
 
         auto view = m_Registry.view<CameraComponent>();
         for (auto& entity : view)

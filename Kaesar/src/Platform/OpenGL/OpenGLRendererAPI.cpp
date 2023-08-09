@@ -43,6 +43,11 @@ namespace Kaesar {
         glDisable(GL_DEPTH_TEST);
     }
 
+    void OpenGLRendererAPI::SetState(int stateID, bool on)
+    {
+        on ? glEnable(stateID) : glDisable(stateID);
+    }
+
     void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
     {
         glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);

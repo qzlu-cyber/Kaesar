@@ -174,6 +174,7 @@
     <ClInclude Include="src\Kaesar\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Kaesar\Renderer\Renderer.h" />
     <ClInclude Include="src\Kaesar\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\Kaesar\Renderer\SceneRenderer.h" />
     <ClInclude Include="src\Kaesar\Renderer\Shader.h" />
     <ClInclude Include="src\Kaesar\Renderer\Texture.h" />
     <ClInclude Include="src\Kaesar\Renderer\VertexArray.h" />
@@ -630,6 +631,7 @@
     <ClCompile Include="src\Kaesar\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\SceneRenderer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Shader.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Texture.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp" />
