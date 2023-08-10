@@ -5,7 +5,7 @@
 layout (location = 0) in vec2 a_Position;
 layout (location = 1) in vec2 a_TexCoords;
 
-out vec2 v_TexCoords;
+layout(location = 0) out vec2 v_TexCoords;
 
 void main()
 {
@@ -17,11 +17,11 @@ void main()
 
 #version 460 core
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
-in vec2 v_TexCoords;
+layout(location = 0) in vec2 v_TexCoords;
 
-uniform sampler2DMS u_ScreenTexture;
+layout(binding = 0) uniform sampler2DMS u_ScreenTexture;
 
 void main()
 {

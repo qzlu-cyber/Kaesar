@@ -7,3 +7,7 @@ bin-int/
 *.srctrlbm
 *.srctrldb
 *.srctrlprj
+
+Kaesar/vendor/VulkanSDK
+Kaesar-Editor/assets/cache
+scripts/__pycache__

@@ -43,6 +43,7 @@ namespace Kaesar {
         {
             glm::mat4 transform;
             glm::vec4 lightPos;
+            int id; // 记录实体的 ID，用于鼠标拾取
         };
 
         struct SceneData

@@ -135,6 +135,9 @@
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\Material.h">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Mesh.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
@@ -150,10 +153,16 @@
     <ClInclude Include="src\Kaesar\Renderer\RendererAPI.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\SceneRenderer.h">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Shader.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Texture.h">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\UniformBuffer.h">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\VertexArray.h">
@@ -174,6 +183,9 @@
     <ClInclude Include="src\Kaesar\Scene\SceneSerializer.h">
       <Filter>src\Kaesar\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Utils\Math.h">
+      <Filter>src\Kaesar\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\Kaesar\Utils\PlatformUtils.h">
       <Filter>src\Kaesar\Utils</Filter>
     </ClInclude>
@@ -193,6 +205,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture2D.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
@@ -1461,10 +1476,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Kaesar\Utils\Math.h" />
-    <ClInclude Include="src\Kaesar\Renderer\SceneRenderer.h" />
-    <ClInclude Include="src\Kaesar\Renderer\UniformBuffer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1500,6 +1511,9 @@
     <ClCompile Include="src\Kaesar\Renderer\FrameBuffer.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\Material.cpp">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Mesh.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
@@ -1515,10 +1529,16 @@
     <ClCompile Include="src\Kaesar\Renderer\RendererAPI.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\SceneRenderer.cpp">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Shader.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\Texture.cpp">
+      <Filter>src\Kaesar\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kaesar\Renderer\UniformBuffer.cpp">
       <Filter>src\Kaesar\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp">
@@ -1536,6 +1556,9 @@
     <ClCompile Include="src\Kaesar\Scene\SceneSerializer.cpp">
       <Filter>src\Kaesar\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Kaesar\Utils\Math.cpp">
+      <Filter>src\Kaesar\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1552,6 +1575,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture2D.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
@@ -1575,9 +1601,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Kaesar\Utils\Math.cpp" />
-    <ClCompile Include="src\Kaesar\Renderer\SceneRenderer.cpp" />
-    <ClCompile Include="src\Kaesar\Renderer\UniformBuffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp" />
   </ItemGroup>
 </Project>

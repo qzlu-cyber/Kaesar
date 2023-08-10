@@ -11,6 +11,8 @@ workspace "Kaesar"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "Kaesar/vendor/GLFW/include"
@@ -22,6 +24,28 @@ IncludeDir["assimp"] = "Kaesar/vendor/assimp/include"
 IncludeDir["entt"] = "Kaesar/vendor/entt/include"
 IncludeDir["yaml_cpp"] = "Kaesar/vendor/yaml-cpp/include"
 IncludeDir["ImGuizmo"] = "Kaesar/vendor/ImGuizmo"
+IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
+IncludeDir["shaderc"] = "%{wks.location}/Kaesar/vendor/shaderc"
+IncludeDir["SPIRV_Cross"] = "%{wks.location}/Kaesar/vendor/SPIRV-Cross"
+
+LibraryDir = {}
+
+LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/Lib"
+LibraryDir["VulkanSDK_Debug"] = "%{wks.location}/Kaesar/vendor/VulkanSDK/Lib"
+LibraryDir["VulkanSDK_DLL"] = "%{wks.location}/Kaesar/vendor/VulkanSDK/Bin"
+
+Library = {}
+Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
+Library["VulkanUtils"] = "%{LibraryDir.VulkanSDK}/VkLayer_utils.lib"
+
+Library["ShaderC_Debug"] = "%{LibraryDir.VulkanSDK_Debug}/shaderc_sharedd.lib"
+Library["SPIRV_Cross_Debug"] = "%{LibraryDir.VulkanSDK_Debug}/spirv-cross-cored.lib"
+Library["SPIRV_Cross_GLSL_Debug"] = "%{LibraryDir.VulkanSDK_Debug}/spirv-cross-glsld.lib"
+Library["SPIRV_Tools_Debug"] = "%{LibraryDir.VulkanSDK_Debug}/SPIRV-Toolsd.lib"
+
+Library["ShaderC_Release"] = "%{LibraryDir.VulkanSDK}/shaderc_shared.lib"
+Library["SPIRV_Cross_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-core.lib"
+Library["SPIRV_Cross_GLSL_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-glsl.lib"
 
 group "Dependencies"
 	include "Kaesar/vendor/GLFW"
@@ -35,7 +59,7 @@ project "Kaesar"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -67,7 +91,8 @@ project "Kaesar"
 		"%{IncludeDir.assimp}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.VulkanSDK}"
 	}
 
 	libdirs {
@@ -84,7 +109,7 @@ project "Kaesar"
 		"opengl32.lib"
 	}
 
-	filter "files:vendor/ImGuizmo/**.cpp"
+	filter "files:Kaesar/vendor/ImGuizmo/**.cpp"
 	flags { "NoPCH" }
 
 	defines
@@ -107,8 +132,11 @@ project "Kaesar"
 		runtime "Debug"
 		symbols "on"
 		links
-		{	
-			"assimp-vc143-mtd.lib"
+		{
+			"assimp-vc143-mtd.lib",
+			"%{Library.ShaderC_Debug}",
+			"%{Library.SPIRV_Cross_Debug}",
+			"%{Library.SPIRV_Cross_GLSL_Debug}"
 		}
 
 	filter "configurations:Release"
@@ -118,19 +146,29 @@ project "Kaesar"
 		links
 		{
 			"assimp-vc143-mt.lib",
+			"%{Library.ShaderC_Release}",
+			"%{Library.SPIRV_Cross_Release}",
+			"%{Library.SPIRV_Cross_GLSL_Release}"
 		}	
 
 	filter "configurations:Dist"
 		defines "KR_DIST"
 		runtime "Release"
 		optimize "on"
+		links
+		{
+			"assimp-vc143-mt.lib",
+			"%{Library.ShaderC_Release}",
+			"%{Library.SPIRV_Cross_Release}",
+			"%{Library.SPIRV_Cross_GLSL_Release}"
+		}	
 
 project "Kaesar-Editor"
 	location "Kaesar-Editor"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -187,7 +225,7 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")

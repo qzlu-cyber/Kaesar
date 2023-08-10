@@ -19,6 +19,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\shaders\mouse.glsl" />
+    <None Include="assets\shaders\diffuse.glsl" />
   </ItemGroup>
 </Project>

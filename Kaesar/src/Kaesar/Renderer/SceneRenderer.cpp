@@ -59,10 +59,14 @@ namespace Kaesar
 
         if (!s_Data->basicShader)
         {
+            //s_Data->shaders.Load("assets/shaders/aa.glsl");
             s_Data->shaders.Load("assets/shaders/basic.glsl");
             s_Data->shaders.Load("assets/shaders/quad.glsl");
             s_Data->shaders.Load("assets/shaders/mouse.glsl");
         }
+        //s_Data->quadShader = Shader::Create("assets/shaders/quad.glsl");
+        //s_Data->basicShader = Shader::Create("assets/shaders/diffuse.glsl");
+        //s_Data->mouseShader = Shader::Create("assets/shaders/mouse.glsl");
         s_Data->basicShader = s_Data->shaders.Get("basic");
         s_Data->mouseShader = s_Data->shaders.Get("mouse");
         s_Data->quadShader = s_Data->shaders.Get("quad");
@@ -100,7 +104,7 @@ namespace Kaesar
             {
                 s_Data->transformBuffer.transform = transformComponent.GetTransform();
                 s_Data->transformUniformBuffer->SetData(&s_Data->transformBuffer, sizeof(TransformData), 0);
-                
+
                 RenderEntityColor(entity, transformComponent, meshComponent);
             }
         }
@@ -118,6 +122,7 @@ namespace Kaesar
             if (!meshComponent.path.empty())
             {
                 s_Data->transformBuffer.transform = transformComponent.GetTransform();
+                s_Data->transformBuffer.id = (uint32_t)entity;
                 s_Data->transformUniformBuffer->SetData(&s_Data->transformBuffer, sizeof(TransformData), 0);
 
                 RenderEntityID(entity, transformComponent, meshComponent);
@@ -135,7 +140,6 @@ namespace Kaesar
     void SceneRenderer::RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
     {
         s_Data->mouseShader->Bind();
-        s_Data->mouseShader->SetInt("u_ID", (uint32_t)entity);
         Renderer::Submit(mesh.model, s_Data->mouseShader);
     }
 
