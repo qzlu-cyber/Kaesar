@@ -12,7 +12,7 @@ namespace Kaesar {
         virtual void ClearColor() override;
         virtual void EnableDepthTest() override;
         virtual void DisableDepthTest() override;
-        virtual void SetState(int stateID, bool on) override;
+        virtual void SetState(RenderState state, bool on) override;
 
         virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
 

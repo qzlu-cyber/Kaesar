@@ -4,9 +4,25 @@
 #include <glad/glad.h>
 
 namespace Kaesar {
+    GLenum RenderStateToGLState(RenderState state)
+    {
+        switch (state)
+        {
+            case Kaesar::RenderState::DEPTH_TEST: return GL_DEPTH_TEST;
+            case Kaesar::RenderState::BLEND:      return GL_BLEND;
+            case Kaesar::RenderState::CULL:       return GL_CULL_FACE;
+        }
+        KR_CORE_ASSERT(false, "设置渲染状态失败，没有此状态！");
+
+        return 0;
+    }
+
     void OpenGLRendererAPI::Init()
     {
         glEnable(GL_MULTISAMPLE); // 开启多重采样
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        glEnable(GL_CULL_FACE);
     }
 
     std::string OpenGLRendererAPI::GetRendererInfo()
@@ -43,9 +59,9 @@ namespace Kaesar {
         glDisable(GL_DEPTH_TEST);
     }
 
-    void OpenGLRendererAPI::SetState(int stateID, bool on)
+    void OpenGLRendererAPI::SetState(RenderState state, bool on)
     {
-        on ? glEnable(stateID) : glDisable(stateID);
+        on ? glEnable(RenderStateToGLState(state)) : glDisable(RenderStateToGLState(state));
     }
 
     void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)

@@ -5,6 +5,13 @@
 #include <glm/glm.hpp>
 
 namespace Kaesar {
+    enum class RenderState
+    {
+        DEPTH_TEST,
+        BLEND,
+        CULL
+    };
+
     class RendererAPI
     {
     public:
@@ -21,7 +28,7 @@ namespace Kaesar {
         virtual void ClearColor() = 0;
         virtual void EnableDepthTest() = 0; // 深度测试
         virtual void DisableDepthTest() = 0;
-        virtual void SetState(int stateID, bool on) = 0; // 设置渲染状态
+        virtual void SetState(RenderState state, bool on) = 0; // 设置渲染状态
 
         virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0; // 绘制索引顶点数组
 
