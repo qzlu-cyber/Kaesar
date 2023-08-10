@@ -53,20 +53,53 @@ namespace Kaesar {
         vertexBuffer->Bind();
 
         // 顶点缓冲区的布局
-        uint32_t index = 0;
         const BufferLayout& layout = vertexBuffer->GetLayout();
         for (const auto& element : layout) {
-            // 设定顶点属性指针
-            glEnableVertexAttribArray(index);
-            glVertexAttribPointer(
-                index,
-                element.GetComponentCount(),
-                ShaderDataTypeToOpenGLBaseType(element.Type),
-                element.Normalized ? GL_TRUE : GL_FALSE,
-                layout.GetStride(),
-                (const void*)(element.Offset)
-            );
-            index++;
+            switch (element.Type)
+            {
+                case ShaderDataType::Float:
+                case ShaderDataType::Float2:
+                case ShaderDataType::Float3:
+                case ShaderDataType::Float4:
+                case ShaderDataType::Int:
+                case ShaderDataType::Int2:
+                case ShaderDataType::Int3:
+                case ShaderDataType::Int4:
+                case ShaderDataType::Bool:
+                    {
+                        // 设定顶点属性指针
+                        glEnableVertexAttribArray(m_VertexBufferIndex);
+                        glVertexAttribPointer(m_VertexBufferIndex,
+                            element.GetComponentCount(),
+                            ShaderDataTypeToOpenGLBaseType(element.Type),
+                            element.Normalized ? GL_TRUE : GL_FALSE,
+                            layout.GetStride(),
+                            (const void*)element.Offset);
+                        m_VertexBufferIndex++;
+                        break;
+                    }
+                case ShaderDataType::Mat3:
+                case ShaderDataType::Mat4:
+                    {
+                        uint8_t count = element.GetComponentCount();
+                        for (uint8_t i = 0; i < count; i++)
+                        {
+                            glEnableVertexAttribArray(m_VertexBufferIndex);
+                            glVertexAttribPointer(m_VertexBufferIndex,
+                                count,
+                                ShaderDataTypeToOpenGLBaseType(element.Type),
+                                element.Normalized ? GL_TRUE : GL_FALSE,
+                                layout.GetStride(),
+                                (const void*)(sizeof(float) * count * i));
+                            // 设置实例分割参数，告诉 OpenGL 在渲染时应该如何使用顶点数据。这里设置为 1，表示每个矩阵列都是一个独立的实例
+                            glVertexAttribDivisor(m_VertexBufferIndex, 1);
+                            m_VertexBufferIndex++;
+                        }
+                        break;
+                    }
+                default:
+                    KR_CORE_ASSERT(false, "未定义的 ShaderType！");
+            }
         }
 
         m_VertexBuffers.push_back(vertexBuffer);

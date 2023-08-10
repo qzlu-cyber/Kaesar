@@ -20,6 +20,7 @@ namespace Kaesar {
 
     private:
         uint32_t m_RendererID;
+        uint32_t m_VertexBufferIndex = 0; // 顶点属性的索引
         std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers; // 多个顶点缓冲区列表
         std::shared_ptr<IndexBuffer> m_IndexBuffer; // 索引缓冲区
     };
