@@ -127,6 +127,7 @@ namespace Kaesar
     void SceneRenderer::EndScene()
     {
         s_Data->postProcessFB->Bind();
+        RenderCommand::SetState(RenderState::SRGB, true);
         RenderCommand::Clear();
         RenderCommand::DisableDepthTest();
 
@@ -134,6 +135,7 @@ namespace Kaesar
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, s_Data->mainFB->GetColorAttachmentRendererID());
         Renderer::Submit(s_Data->vertexArray, s_Data->quadShader);
+        RenderCommand::SetState(RenderState::SRGB, false);
         s_Data->postProcessFB->Unbind();
         Renderer::EndScene();
     }

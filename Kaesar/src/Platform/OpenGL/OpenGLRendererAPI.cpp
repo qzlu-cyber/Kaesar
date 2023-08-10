@@ -11,6 +11,7 @@ namespace Kaesar {
             case Kaesar::RenderState::DEPTH_TEST: return GL_DEPTH_TEST;
             case Kaesar::RenderState::BLEND:      return GL_BLEND;
             case Kaesar::RenderState::CULL:       return GL_CULL_FACE;
+            case Kaesar::RenderState::SRGB:       return GL_FRAMEBUFFER_SRGB;
         }
         KR_CORE_ASSERT(false, "…Ë÷√‰÷»æ◊¥Ã¨ ß∞‹£¨√ª”–¥À◊¥Ã¨£°");
 

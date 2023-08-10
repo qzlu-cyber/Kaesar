@@ -9,7 +9,8 @@ namespace Kaesar {
     {
         DEPTH_TEST,
         BLEND,
-        CULL
+        CULL,
+        SRGB // 支持在帧缓冲对象中进行 sRGB 颜色空间的渲染和显示
     };
 
     class RendererAPI
