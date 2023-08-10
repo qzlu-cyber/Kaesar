@@ -35,18 +35,25 @@ namespace Kaesar {
     private:
         struct CameraData
         {
-            glm::mat4 ViewProjection;
-            glm::vec3 Position;
+            glm::mat4 viewProjection;
+            glm::vec4 position;
+        };
+
+        struct TransformData
+        {
+            glm::mat4 transform;
+            glm::vec4 lightPos;
         };
 
         struct SceneData
         {
             CameraData cameraBuffer;
+            TransformData transformBuffer;
             std::shared_ptr<VertexArray> vertexArray;
             ShaderLibrary shaders;
             std::shared_ptr<Shader> basicShader, quadShader, mouseShader;
             std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB;
-            std::shared_ptr<UniformBuffer> cameraUniformBuffer;
+            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer;
 
             glm::vec3 clearColor;
         };

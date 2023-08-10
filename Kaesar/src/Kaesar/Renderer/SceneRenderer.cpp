@@ -55,6 +55,7 @@ namespace Kaesar
         s_Data->vertexArray->SetIndexBuffer(indexBuffer);
 
         s_Data->cameraUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 0);
+        s_Data->transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1);
 
         if (!s_Data->basicShader)
         {
@@ -71,10 +72,11 @@ namespace Kaesar
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
     {   
-        s_Data->cameraBuffer.ViewProjection = camera.GetViewProjection();
-        s_Data->cameraBuffer.Position = camera.GetPosition();
-
+        s_Data->cameraBuffer.viewProjection = camera.GetViewProjection();
+        s_Data->cameraBuffer.position = glm::vec4(camera.GetPosition(), 0.0f);
         s_Data->cameraUniformBuffer->SetData(&s_Data->cameraBuffer, sizeof(glm::mat4), 0);
+
+        s_Data->transformBuffer.lightPos = glm::vec4(camera.GetPosition(), 0);
 
         s_Data->mainFB->Bind();
 
@@ -93,8 +95,14 @@ namespace Kaesar
         {
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto& meshComponent = view.get<MeshComponent>(entity);
-            
-            RenderEntityColor(entity, transformComponent, meshComponent);
+
+            if (!meshComponent.path.empty())
+            {
+                s_Data->transformBuffer.transform = transformComponent.GetTransform();
+                s_Data->transformUniformBuffer->SetData(&s_Data->transformBuffer, sizeof(TransformData), 0);
+                
+                RenderEntityColor(entity, transformComponent, meshComponent);
+            }
         }
         s_Data->mainFB->Unbind();
 
@@ -107,7 +115,13 @@ namespace Kaesar
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto& meshComponent = view.get<MeshComponent>(entity);
 
-            RenderEntityID(entity, transformComponent, meshComponent);
+            if (!meshComponent.path.empty())
+            {
+                s_Data->transformBuffer.transform = transformComponent.GetTransform();
+                s_Data->transformUniformBuffer->SetData(&s_Data->transformBuffer, sizeof(TransformData), 0);
+
+                RenderEntityID(entity, transformComponent, meshComponent);
+            }
         }
         s_Data->mouseFB->Unbind();
     }
@@ -115,14 +129,12 @@ namespace Kaesar
     void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
     {
         s_Data->basicShader->Bind(); // glUseProgram
-        s_Data->basicShader->SetMat4("u_Model", transform.GetTransform());
         Renderer::Submit(mesh.model, s_Data->basicShader);
     }
 
     void SceneRenderer::RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
     {
         s_Data->mouseShader->Bind();
-        s_Data->mouseShader->SetMat4("u_Model", transform.GetTransform());
         s_Data->mouseShader->SetInt("u_ID", (uint32_t)entity);
         Renderer::Submit(mesh.model, s_Data->mouseShader);
     }

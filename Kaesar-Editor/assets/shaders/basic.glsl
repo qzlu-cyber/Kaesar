@@ -11,13 +11,17 @@ layout(std140, binding = 0) uniform camera
 	mat4 u_ViewProjection;
 };
 
-uniform mat4 u_Model;
+layout(binding = 1) uniform Transform
+{
+	 mat4 u_Transform;
+	 vec4 u_LightPos;
+} transform;
 
 out vec2 v_TexCoords;
 
 void main(){
 	v_TexCoords = a_TexCoords;
-	gl_Position = u_ViewProjection * u_Model * vec4(a_Position, 1.0);
+	gl_Position = u_ViewProjection * transform.u_Transform * vec4(a_Position, 1.0);
 }
 
 #type fragment

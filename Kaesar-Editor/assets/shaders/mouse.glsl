@@ -3,16 +3,20 @@
 
 #version 460 core
 	
-layout(location = 0) in vec3 a_pos;
-layout(location = 1) in vec2 a_uv;
-layout(location = 2) in vec3 a_normal;
+layout(location = 0) in vec3 a_Position;
+layout(location = 1) in vec2 a_TexCoords;
+layout(location = 2) in vec3 a_Normal;
 
 layout(std140, binding = 0) uniform camera
 {
 	mat4 u_ViewProjection;
 };
 
-uniform mat4 u_Model;
+layout(binding = 1) uniform Transform
+{
+	 mat4 u_Trans;
+	 vec4 u_LightPos;
+} transform;
 
 out vec3 v_pos;
 out vec2 v_uv;
@@ -20,10 +24,10 @@ out vec3 v_normal;
 
 void main()
 {
-	v_normal = mat3(transpose(inverse(u_Model))) * a_normal;
-	v_pos = vec3(u_Model * vec4(a_pos, 1.0));
-	v_uv = a_uv;
-	gl_Position = u_ViewProjection * u_Model * vec4(a_pos, 1.0);
+	v_normal = mat3(transpose(inverse(transform.u_Trans))) * a_Normal;
+	v_pos = vec3(transform.u_Trans * vec4(a_Position, 1.0));
+	v_uv = a_TexCoords;
+	gl_Position = u_ViewProjection * transform.u_Trans * vec4(a_Position, 1.0);
 }
 
 #type fragment
