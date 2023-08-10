@@ -177,6 +177,7 @@
     <ClInclude Include="src\Kaesar\Renderer\SceneRenderer.h" />
     <ClInclude Include="src\Kaesar\Renderer\Shader.h" />
     <ClInclude Include="src\Kaesar\Renderer\Texture.h" />
+    <ClInclude Include="src\Kaesar\Renderer\UniformBuffer.h" />
     <ClInclude Include="src\Kaesar\Renderer\VertexArray.h" />
     <ClInclude Include="src\Kaesar\Scene\Component.h" />
     <ClInclude Include="src\Kaesar\Scene\Entity.h" />
@@ -191,6 +192,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture2D.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
@@ -634,6 +636,7 @@
     <ClCompile Include="src\Kaesar\Renderer\SceneRenderer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Shader.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\UniformBuffer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Kaesar\Scene\Entity.cpp" />
     <ClCompile Include="src\Kaesar\Scene\Scene.cpp" />
@@ -646,6 +649,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture2D.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsUtils.cpp" />

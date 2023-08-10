@@ -5,6 +5,7 @@
 #include "Kaesar/Renderer/Buffer.h"
 #include "Kaesar/Renderer/Shader.h"
 #include "Kaesar/Renderer/FrameBuffer.h"
+#include "Kaesar/Renderer/UniformBuffer.h"
 #include "Kaesar/Scene/Component.h"
 
 #include <entt.hpp>
@@ -32,13 +33,20 @@ namespace Kaesar {
         static FramebufferSpecification GetMainFBSpec() { return s_Data->mainFB->GetSpecification(); }
 
     private:
+        struct CameraData
+        {
+            glm::mat4 ViewProjection;
+            glm::vec3 Position;
+        };
+
         struct SceneData
         {
-            std::shared_ptr<PerspectiveCamera> camera;
+            CameraData cameraBuffer;
             std::shared_ptr<VertexArray> vertexArray;
             ShaderLibrary shaders;
             std::shared_ptr<Shader> basicShader, quadShader, mouseShader;
             std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB;
+            std::shared_ptr<UniformBuffer> cameraUniformBuffer;
 
             glm::vec3 clearColor;
         };

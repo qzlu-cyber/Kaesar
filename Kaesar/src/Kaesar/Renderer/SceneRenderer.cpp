@@ -54,6 +54,8 @@ namespace Kaesar
         std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
         s_Data->vertexArray->SetIndexBuffer(indexBuffer);
 
+        s_Data->cameraUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 0);
+
         if (!s_Data->basicShader)
         {
             s_Data->shaders.Load("assets/shaders/basic.glsl");
@@ -68,8 +70,11 @@ namespace Kaesar
     }
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
-    {
-        s_Data->camera = std::make_shared<PerspectiveCamera>(camera);
+    {   
+        s_Data->cameraBuffer.ViewProjection = camera.GetViewProjection();
+        s_Data->cameraBuffer.Position = camera.GetPosition();
+
+        s_Data->cameraUniformBuffer->SetData(&s_Data->cameraBuffer, sizeof(glm::mat4), 0);
 
         s_Data->mainFB->Bind();
 
@@ -111,7 +116,6 @@ namespace Kaesar
     {
         s_Data->basicShader->Bind(); // glUseProgram
         s_Data->basicShader->SetMat4("u_Model", transform.GetTransform());
-        s_Data->basicShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
         Renderer::Submit(mesh.model, s_Data->basicShader);
     }
 
@@ -120,7 +124,6 @@ namespace Kaesar
         s_Data->mouseShader->Bind();
         s_Data->mouseShader->SetMat4("u_Model", transform.GetTransform());
         s_Data->mouseShader->SetInt("u_ID", (uint32_t)entity);
-        s_Data->mouseShader->SetMat4("u_ViewProjection", s_Data->camera->GetViewProjection());
         Renderer::Submit(mesh.model, s_Data->mouseShader);
     }
 
@@ -132,8 +135,7 @@ namespace Kaesar
         RenderCommand::DisableDepthTest();
 
         s_Data->quadShader->Bind();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, s_Data->mainFB->GetColorAttachmentRendererID());
+        Texture2D::BindTexture(s_Data->mainFB->GetColorAttachmentRendererID(), 0);
         Renderer::Submit(s_Data->vertexArray, s_Data->quadShader);
         RenderCommand::SetState(RenderState::SRGB, false);
         s_Data->postProcessFB->Unbind();

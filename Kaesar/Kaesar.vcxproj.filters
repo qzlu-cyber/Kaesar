@@ -1463,6 +1463,8 @@
     </ClInclude>
     <ClInclude Include="src\Kaesar\Utils\Math.h" />
     <ClInclude Include="src\Kaesar\Renderer\SceneRenderer.h" />
+    <ClInclude Include="src\Kaesar\Renderer\UniformBuffer.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1575,5 +1577,7 @@
     </ClCompile>
     <ClCompile Include="src\Kaesar\Utils\Math.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\SceneRenderer.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\UniformBuffer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp" />
   </ItemGroup>
 </Project>
