@@ -258,8 +258,12 @@ namespace Kaesar {
         bool entityDeleted = false;
         if (ImGui::BeginPopupContextItem()) // 如果右键点击了当前的树节点（实体）
         {
-            if (ImGui::Selectable(u8"删除实体")) // 呈现一个菜单项，允许用户删除实体
+            if (ImGui::Selectable(u8"删除")) // 呈现一个菜单项，允许用户删除实体
                 entityDeleted = true;
+            if (ImGui::Selectable(u8"复制"))
+            {
+                m_Context->DuplicateEntity(*entity);
+            }
 
             ImGui::EndPopup();
         }
@@ -380,6 +384,13 @@ namespace Kaesar {
             memset(buffer, 0, sizeof(buffer));
             strcpy_s(buffer, tag.c_str());
 
+            const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed
+                | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap
+                | ImGuiTreeNodeFlags_FramePadding;
+            ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+            // 创建一个 UI 节点，表示组件的内容，会在 UI 中显示一个可展开的节点
+            bool open = ImGui::TreeNodeEx((void*)typeid(MeshComponent).hash_code(), treeNodeFlags, u8"模型");
+
             if (ImGui::InputText(u8"路径", buffer, sizeof(buffer)))
             {
                 tag = std::string(buffer);
@@ -405,6 +416,12 @@ namespace Kaesar {
                     tag = filepath;
                     entity.GetComponent<MeshComponent>().model = Model(filepath);
                 }
+            }
+
+            // 检查 UI 节点是否被展开
+            if (open)
+            {
+                ImGui::TreePop(); // 关闭 UI 节点
             }
         }
 

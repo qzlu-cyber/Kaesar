@@ -35,6 +35,15 @@ namespace Kaesar {
             auto& duplicateEntityTrans = duplicateEntity.GetComponent<TransformComponent>();
             duplicateEntityTag.Tag = entityTag.Tag + u8"¸±±¾";
             duplicateEntityTrans = entityTrans;
+
+            if (entity.HasComponent<CameraComponent>())
+            {
+                duplicateEntity.AddComponent<CameraComponent>(entity.GetComponent<CameraComponent>());
+            }
+            if (entity.HasComponent<MeshComponent>())
+            {
+                duplicateEntity.AddComponent<MeshComponent>(entity.GetComponent<MeshComponent>());
+            }
         }
 
         return duplicateEntity;
