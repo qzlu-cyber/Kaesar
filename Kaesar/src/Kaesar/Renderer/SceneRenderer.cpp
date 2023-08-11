@@ -54,8 +54,8 @@ namespace Kaesar
         std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
         s_Data->vertexArray->SetIndexBuffer(indexBuffer);
 
-        s_Data->cameraUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 0);
-        s_Data->transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1);
+        s_Data->cameraUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 0); // 将和相机有关的数据绑定在 0 号绑定点
+        s_Data->transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1); // 将和变换有关的数据绑定在 1 号绑定点
 
         if (!s_Data->basicShader)
         {
@@ -96,12 +96,20 @@ namespace Kaesar
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto& meshComponent = view.get<MeshComponent>(entity);
 
-            if (!meshComponent.path.empty())
+            if (!meshComponent.path.empty()) // 如果有模型路径
             {
                 s_Data->transformBuffer.transform = transformComponent.GetTransform();
                 s_Data->transformUniformBuffer->SetData(&s_Data->transformBuffer, sizeof(TransformData), 0);
 
-                RenderEntityColor(entity, transformComponent, meshComponent);
+                if (scene.m_Registry.has<MaterialComponent>(entity)) // 如果有材质组件
+                {
+                    auto& materialComponent = scene.m_Registry.get<MaterialComponent>(entity);
+                    SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, materialComponent); // 使用它自身的材质组件渲染
+                }
+                else
+                {
+                    SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent); // 否则使用默认渲染
+                }
             }
         }
         s_Data->mainFB->Unbind();
@@ -131,6 +139,11 @@ namespace Kaesar
     {
         s_Data->basicShader->Bind(); // glUseProgram
         Renderer::Submit(mesh.model, s_Data->basicShader);
+    }
+
+    void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material)
+    {
+        Renderer::Submit(material.material, mesh.model);
     }
 
     void SceneRenderer::RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)

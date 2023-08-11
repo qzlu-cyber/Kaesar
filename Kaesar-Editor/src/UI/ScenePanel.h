@@ -4,6 +4,9 @@
 #include "Kaesar/Scene/Entity.h"
 #include "Kaesar/Scene/Component.h"
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
+
 namespace Kaesar {
     class ScenePanel
     {
@@ -23,6 +26,14 @@ namespace Kaesar {
     private:
         std::shared_ptr<Scene> m_Context;
         Entity m_SelectionContext;
+
+        ShaderLibrary m_Shaders;
+        std::vector<std::string> m_ShaderNames;
+
+        ImTextureID m_TextureId;
+        std::shared_ptr<Texture2D> m_EmptyTexture;
+
+        std::string m_SelectedShader;
 
         bool m_ScaleLock = true;
     };

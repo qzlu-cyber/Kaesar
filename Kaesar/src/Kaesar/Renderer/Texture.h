@@ -14,7 +14,7 @@ namespace Kaesar {
 		virtual uint32_t GetRendererID() const = 0;
 
 		virtual void Active(int index) const = 0;
-		virtual void Bind() const = 0;
+		virtual void Bind(uint32_t slot) const = 0;
 		virtual void Unbind() const = 0;
 		virtual void BindMultisample(unsigned int id) const = 0;
 		virtual void UnbindMultisample() const = 0;

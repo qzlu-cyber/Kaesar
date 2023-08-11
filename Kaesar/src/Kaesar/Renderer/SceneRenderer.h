@@ -23,6 +23,7 @@ namespace Kaesar {
         static void BeginScene(const PerspectiveCamera& camera);
         static void RenderScene(Scene& scene);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
+        static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material);
         static void RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void EndScene();
 
@@ -60,5 +61,7 @@ namespace Kaesar {
         };
 
         static SceneData* s_Data;
+
+        friend class ScenePanel;
     };
 }

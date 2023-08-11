@@ -6,20 +6,33 @@
 
 #include <filesystem>
 #include <cstring>
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Kaesar {
     ScenePanel::ScenePanel(const std::shared_ptr<Scene>& scene)
     {
         m_Context = scene;
+
+        m_Shaders = SceneRenderer::s_Data->shaders;
+        int size = m_Shaders.GetShaders().size();
+        int index = 0;
+        for (auto&& [name, shader] : m_Shaders.GetShaders())
+        {
+            m_ShaderNames.push_back(name);
+        }
+
+        m_EmptyTexture = Texture2D::Create("assets/models/cube/default.png", 0);
+        m_TextureId = reinterpret_cast<void*>(m_EmptyTexture->GetRendererID());
+        m_SelectedShader = "basic";
+
         m_SelectionContext = {};
     }
 
     void ScenePanel::OnImGuiRender()
     {
+        ImGui::Begin(u8"更改外观");
         ImGui::ShowStyleEditor(); // 打开 ImGui 样式编辑器，自定义 ImGui 界面的外观
+        ImGui::End();
 
         /// ====================== scene ========================
         ImGui::Begin(u8"场景");
@@ -224,6 +237,58 @@ namespace Kaesar {
         }
     }
 
+    /// <summary>
+    /// 一个函数模板，允许在一个统一的方式下绘制不同类型的组件的用户界面
+    /// </summary>
+    /// <typeparam name="T">组件类型</typeparam>
+    /// <param name="name">组件名称</param>
+    /// <param name="entity">要绘制的当前实体</param>
+    /// <param name="removable">此组件是否可移除</param>
+    /// <param name="removed">组件是否被移除</param>
+    /// <returns>函数返回一个布尔值，表示树节点是否展开</returns>
+    template<typename T>
+    static bool DrawComponent(const std::string& name, Entity entity, bool removable, bool* removed)
+    {
+        const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed
+            | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap
+            | ImGuiTreeNodeFlags_FramePadding;
+
+        // 判断给定实体是否拥有指定类型的组件。如果是，那么就继续绘制这个组件
+        if (entity.HasComponent<T>())
+        {
+            auto& component = entity.GetComponent<T>();
+            ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+            float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+            bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+            ImGui::PopStyleVar();
+
+            ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+
+            if (ImGui::Button("...", ImVec2{ lineHeight, lineHeight }))
+            {
+                ImGui::OpenPopup("ComponentSettings");
+            }
+
+            bool removeComponent = false;
+            if (ImGui::BeginPopup("ComponentSettings"))
+            {
+                if (removable) {
+                    if (ImGui::MenuItem(u8"删除组件"))
+                        removeComponent = true;
+                }
+                ImGui::EndPopup();
+            }
+
+            if (removeComponent)
+                *removed = true;
+
+            return open;
+        }
+        return false;
+    }
+
     void ScenePanel::DrawEntity(std::shared_ptr<Entity>& entity)
     {
         auto& tag = (*entity).GetComponent<TagComponent>();
@@ -282,114 +347,199 @@ namespace Kaesar {
 
     void ScenePanel::DrawComponents(Entity entity)
     {
-        DrawComponent<TagComponent>(u8"名称", entity, false, [](TagComponent& component)
-            {
-                auto& tag = component.Tag;
-
-                char buffer[256];
-                memset(buffer, 0, sizeof(buffer));
-                strcpy_s(buffer, tag.c_str());
-
-                ImGui::PushID("TagInput"); // 使用唯一的ID
-
-                // 呈现一个文本输入框，允许用户编辑一个实体的 tag
-                if (ImGui::InputText("", buffer, sizeof(buffer)))
-                {
-                    tag = std::string(buffer); // 更新实体的 tag
-                }
-
-                ImGui::PopID(); // 恢复ID状态
-            });
-
-        ImGui::Separator();
-
-        DrawComponent<TransformComponent>(u8"变换", entity, false, [this](TransformComponent& component)
-            {
-                DrawVec3Control(u8"位置", component.Translation);
-                ImGui::Separator();
-                DrawVec3Control(u8"旋转", component.Rotation);
-                ImGui::Separator();
-                DrawVec3Control(u8"缩放", component.Scale, 1.0f);
-            });
-
-        ImGui::Separator();
-
-        DrawComponent<CameraComponent>(u8"相机", entity, true, [this](CameraComponent& component)
-            {
-                SceneCamera& camera = component.Camera;
-
-                ImGui::Checkbox(u8"主相机", &component.Primary);
-
-                const char* projectionType[] = { "Perspective", "Orthographic" };
-                const char* currentProjectionType = projectionType[(int)camera.GetProjectionType()];
-                // 下拉菜单，用于选择相机的投影类型
-                if (ImGui::BeginCombo(u8"投影方式", currentProjectionType)) // 获取当前相机的投影类型并设置为下拉菜单的当前选择项
-                {
-                    // 使用循环绘制两个选择项，并在选择某个项时更新相机的投影类型
-                    for (int i = 0; i < 2; i++)
-                    {
-                        bool isSelected = currentProjectionType == projectionType[i];
-                        if (ImGui::Selectable(projectionType[i], isSelected))
-                        {
-                            currentProjectionType = projectionType[i];
-                            camera.SetProjectionType((SceneCamera::ProjectionType)i);
-                        }
-
-                        if (isSelected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-
-                    ImGui::EndCombo();
-                }
-
-                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
-                {
-                    float perspectiveFov = glm::degrees(camera.GetPerspectiveFOV());
-                    if (ImGui::DragFloat(u8"视野", &perspectiveFov))
-                        camera.SetPerspectiveFOV(glm::radians(perspectiveFov));
-
-                    float perspectiveNear = camera.GetPerspectiveNearClip();
-                    if (ImGui::DragFloat(u8"近平面", &perspectiveNear))
-                        camera.SetPerspectiveNearClip(perspectiveNear);
-
-                    float perspectiveFar = camera.GetPerspectiveFarClip();
-                    if (ImGui::DragFloat(u8"远平面", &perspectiveFar))
-                        camera.SetPerspectiveFarClip(perspectiveFar);
-                }
-
-                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
-                {
-                    float orthoSize = camera.GetOrthographicSize();
-                    if (ImGui::DragFloat(u8"尺寸", &orthoSize))
-                        camera.SetOrthographicSize(orthoSize);
-
-                    float orthoNear = camera.GetOrthographicNearClip();
-                    if (ImGui::DragFloat(u8"近平面", &orthoNear))
-                        camera.SetOrthographicNearClip(orthoNear);
-
-                    float orthoFar = camera.GetOrthographicFarClip();
-                    if (ImGui::DragFloat(u8"远平面", &orthoFar))
-                        camera.SetOrthographicFarClip(orthoFar);
-
-                    ImGui::Checkbox(u8"固定宽高比", &component.FixedAspectRatio);
-                }
-            });
-
-        ImGui::Separator();
-
-        if (entity.HasComponent<MeshComponent>()) {
-            auto& tag = entity.GetComponent<MeshComponent>().path;
+        static bool TagRemove = false;
+        if (DrawComponent<TagComponent>(u8"名称", entity, false, &TagRemove))
+        {
+            auto& tag = entity.GetComponent<TagComponent>().Tag;
 
             char buffer[256];
             memset(buffer, 0, sizeof(buffer));
             strcpy_s(buffer, tag.c_str());
 
-            const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed
-                | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap
-                | ImGuiTreeNodeFlags_FramePadding;
-            ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-            // 创建一个 UI 节点，表示组件的内容，会在 UI 中显示一个可展开的节点
-            bool open = ImGui::TreeNodeEx((void*)typeid(MeshComponent).hash_code(), treeNodeFlags, u8"模型");
+            // 呈现一个文本输入框，允许用户编辑一个实体的 tag
+            if (ImGui::InputText(u8"名称", buffer, sizeof(buffer)))
+            {
+                tag = std::string(buffer); // 更新实体的 tag
+            }
+
+            ImGui::TreePop();
+
+            ImGui::Separator();
+        }
+
+        static bool TransformRemove = false;
+        if (DrawComponent<TransformComponent>(u8"变换", entity, false, &TransformRemove))
+        {
+            TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
+            DrawVec3Control(u8"位置", transformComponent.Translation);
+            ImGui::Separator();
+            DrawVec3Control(u8"旋转", transformComponent.Rotation);
+            ImGui::Separator();
+            DrawVec3Control(u8"缩放", transformComponent.Scale, 1.0f);
+
+            ImGui::TreePop();
+
+            ImGui::Separator();
+        }
+
+        static bool MaterialRemove = false;
+        if (DrawComponent<MaterialComponent>(u8"材质", entity, true, &MaterialRemove))
+        {
+            auto& materialComponent = entity.GetComponent<MaterialComponent>();
+
+            ImGui::Separator();
+            ImGui::Columns(2);
+            ImGui::SetColumnWidth(0, 80);
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+            ImGui::Text("Shaders\0");
+
+            ImGui::PopStyleVar();
+            ImGui::NextColumn();
+            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+
+            static int item_current_idx = 0; // 当前选择的项的索引
+            const char* combo_label = m_SelectedShader.c_str(); // 获取当前的着色器的名称
+
+            if (ImGui::BeginCombo("shaders", combo_label))
+            {
+                for (int n = 0; n < m_ShaderNames.size(); n++)
+                {
+                    const bool is_selected = (item_current_idx == n);
+                    if (ImGui::Selectable(m_ShaderNames[n].c_str(), is_selected)) 
+                    {
+                        item_current_idx = n;
+                        materialComponent.material = Material::Create(m_Shaders.Get(m_ShaderNames[n]));
+                        m_SelectedShader = m_ShaderNames[n];
+                    }
+                    // 设置默认的焦点
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::PopItemWidth();
+            ImGui::Columns(1);
+            ImGui::Separator();
+            std::vector<Sampler>& samplers = materialComponent.material->GetSamplers();
+            auto& materialTextures = materialComponent.material->GetTextures();
+            for (auto& sampler : samplers)
+            {
+                ImGui::PushID(sampler.name.c_str());
+                int frame_padding = -1 + 0;                           // -1 == uses default padding (style.FramePadding)
+                ImVec2 size = ImVec2(64.0f, 64.0f);                  // Size of the image we want to make visible
+                ImGui::Text(sampler.name.c_str());
+                m_TextureId = reinterpret_cast<void*>(m_EmptyTexture->GetRendererID());
+                auto& texture = materialComponent.material->GetTexture(sampler);
+                if (texture)
+                {
+                    m_TextureId = reinterpret_cast<void*>(texture->GetRendererID());
+                }
+
+                ImGui::SameLine();
+                ImGui::Checkbox(u8"启用", &sampler.isUsed);
+
+                if (ImGui::ImageButton(m_TextureId, size, ImVec2{ 0, 1 }, ImVec2{ 1, 0 })) 
+                {
+                    auto path = FileDialogs::OpenFile("Kaesar Texture (*.*)\0*.*\0");
+                    if (path) 
+                    {
+                        materialTextures[sampler.binding] = Texture2D::Create(*path, 0);
+                    }
+                }
+                ImGui::PopID();
+            }
+            ImGui::TreePop();
+
+            if (MaterialRemove) {
+                entity.RemoveComponent<MaterialComponent>();
+                MaterialRemove = false;
+            }
+
+            ImGui::Separator();
+        }
+
+        static bool CameraRemove = false;
+        if (DrawComponent<CameraComponent>(u8"相机", entity, true, &CameraRemove))
+        {
+            CameraComponent& cameraComponent = entity.GetComponent<CameraComponent>();
+            SceneCamera& camera = cameraComponent.Camera;
+
+            ImGui::Checkbox(u8"主相机", &cameraComponent.Primary);
+
+            const char* projectionType[] = { "Perspective", "Orthographic" };
+            const char* currentProjectionType = projectionType[(int)camera.GetProjectionType()];
+            // 下拉菜单，用于选择相机的投影类型
+            if (ImGui::BeginCombo(u8"投影方式", currentProjectionType)) // 获取当前相机的投影类型并设置为下拉菜单的当前选择项
+            {
+                // 使用循环绘制两个选择项，并在选择某个项时更新相机的投影类型
+                for (int i = 0; i < 2; i++)
+                {
+                    bool isSelected = currentProjectionType == projectionType[i];
+                    if (ImGui::Selectable(projectionType[i], isSelected))
+                    {
+                        currentProjectionType = projectionType[i];
+                        camera.SetProjectionType((SceneCamera::ProjectionType)i);
+                    }
+
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+            {
+                float perspectiveFov = glm::degrees(camera.GetPerspectiveFOV());
+                if (ImGui::DragFloat(u8"视野", &perspectiveFov))
+                    camera.SetPerspectiveFOV(glm::radians(perspectiveFov));
+
+                float perspectiveNear = camera.GetPerspectiveNearClip();
+                if (ImGui::DragFloat(u8"近平面", &perspectiveNear))
+                    camera.SetPerspectiveNearClip(perspectiveNear);
+
+                float perspectiveFar = camera.GetPerspectiveFarClip();
+                if (ImGui::DragFloat(u8"远平面", &perspectiveFar))
+                    camera.SetPerspectiveFarClip(perspectiveFar);
+            }
+
+            if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+            {
+                float orthoSize = camera.GetOrthographicSize();
+                if (ImGui::DragFloat(u8"尺寸", &orthoSize))
+                    camera.SetOrthographicSize(orthoSize);
+
+                float orthoNear = camera.GetOrthographicNearClip();
+                if (ImGui::DragFloat(u8"近平面", &orthoNear))
+                    camera.SetOrthographicNearClip(orthoNear);
+
+                float orthoFar = camera.GetOrthographicFarClip();
+                if (ImGui::DragFloat(u8"远平面", &orthoFar))
+                    camera.SetOrthographicFarClip(orthoFar);
+
+                ImGui::Checkbox(u8"固定宽高比", &cameraComponent.FixedAspectRatio);
+            }
+
+            ImGui::TreePop();
+
+            if (CameraRemove)
+            {
+                entity.RemoveComponent<CameraComponent>();
+                CameraRemove = false;
+            }
+
+            ImGui::Separator();
+        }
+
+        static bool MeshRemove = false;
+        if (DrawComponent<MeshComponent>(u8"模型", entity, true, &MeshRemove))
+        {
+            auto& tag = entity.GetComponent<MeshComponent>().path;
+
+            char buffer[256];
+            memset(buffer, 0, sizeof(buffer));
+            strcpy_s(buffer, tag.c_str());
 
             if (ImGui::InputText(u8"路径", buffer, sizeof(buffer)))
             {
@@ -418,10 +568,10 @@ namespace Kaesar {
                 }
             }
 
-            // 检查 UI 节点是否被展开
-            if (open)
-            {
-                ImGui::TreePop(); // 关闭 UI 节点
+            ImGui::TreePop();
+            if (MeshRemove) {
+                entity.RemoveComponent<MeshComponent>();
+                MeshRemove = false;
             }
         }
 
@@ -455,6 +605,16 @@ namespace Kaesar {
             {
                 if (!m_SelectionContext.HasComponent<MeshComponent>())
                     m_SelectionContext.AddComponent<MeshComponent>();
+                else
+                    KR_CORE_WARN("组件已存在！");
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem(u8"材质"))
+            {
+                if (!m_SelectionContext.HasComponent<MaterialComponent>())
+                    m_SelectionContext.AddComponent<MaterialComponent>(m_Shaders.Get("basic"));
                 else
                     KR_CORE_WARN("组件已存在！");
 

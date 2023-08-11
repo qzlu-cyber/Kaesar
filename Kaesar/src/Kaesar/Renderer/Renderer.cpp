@@ -32,6 +32,18 @@ namespace Kaesar {
         }
     }
 
+    void Renderer::Submit(const std::shared_ptr<Material>& material, const Model& model)
+    {
+        auto& meshes = model.meshes;
+        for (auto& mesh : meshes) 
+        {
+            material->Bind();
+            auto vertexArray = mesh.GetVertexArray();
+            vertexArray->Bind();
+            RenderCommand::DrawIndexed(vertexArray);
+        }
+    }
+
     void Renderer::Submit(const Model& model, const std::shared_ptr<Shader>& shader)
     {
         auto meshs = model.meshes;

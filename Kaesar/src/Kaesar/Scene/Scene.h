@@ -31,10 +31,15 @@ namespace Kaesar {
 		std::shared_ptr<FrameBuffer> GetMouseFB() { return SceneRenderer::GetMouseFB(); }
 		FramebufferSpecification GetSpec() { return SceneRenderer::GetMainFBSpec(); }
 
+		ShaderLibrary& GetShaderLibrary() { return m_Shaders; }
+		void SetShaderLibrary(const ShaderLibrary& shaders) { m_Shaders = shaders; }
+
 	private:
 		entt::registry m_Registry; // container of all entities and components
 
 		std::vector<std::shared_ptr<Entity>> m_Entities; // container of all entities
+
+		ShaderLibrary m_Shaders; // ËùÓÐµÄ shader
 
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;

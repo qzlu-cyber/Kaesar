@@ -17,7 +17,7 @@ namespace Kaesar {
         virtual inline uint32_t GetRendererID() const override { return m_RendererID; };
 
         virtual void Active(int index) const override;
-        virtual void Bind() const override;
+        virtual void Bind(uint32_t slot) const override;
         virtual void Unbind() const override;
         virtual void BindMultisample(unsigned int id) const override;
         virtual void UnbindMultisample() const override;

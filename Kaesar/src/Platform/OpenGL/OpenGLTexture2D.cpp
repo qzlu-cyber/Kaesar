@@ -54,9 +54,9 @@ namespace Kaesar {
         glActiveTexture(GL_TEXTURE0 + index);
     }
 
-    void OpenGLTexture2D::Bind() const
+    void OpenGLTexture2D::Bind(uint32_t slot) const
     {
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        glBindTextureUnit(slot, m_RendererID);
     }
 
     void OpenGLTexture2D::Unbind() const

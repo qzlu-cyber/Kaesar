@@ -23,13 +23,16 @@ layout(binding = 1) uniform Transform
 
 layout(location = 0) out vec2 v_TexCroods;
 
-void main(){
+void main()
+{
 	v_TexCroods = a_TexCroods;
 	gl_Position = camera.u_ViewProjection * transform.u_Trans * vec4(a_Position, 1.0);
 }
 
 #type fragment
+
 #version 460
+
 layout(location = 0) out vec4 FragColor;
 
 layout(location = 0) in vec2 v_TexCroods;	

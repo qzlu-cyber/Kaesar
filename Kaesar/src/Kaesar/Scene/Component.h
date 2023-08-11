@@ -2,6 +2,8 @@
 
 #include "Kaesar/Scene/SceneCamera.h"
 #include "Kaesar/Renderer/Model.h"
+#include "Kaesar/Renderer/Shader.h"
+#include "Kaesar/Renderer/Material.h"
 
 #include <string>
 #include <glm/glm.hpp>
@@ -61,5 +63,18 @@ namespace Kaesar {
         MeshComponent(const MeshComponent&) = default;
         MeshComponent(const std::string& path)
             :path(path), model(path) {}
+    };
+
+    struct MaterialComponent
+    {
+        std::shared_ptr<Material> material;
+        std::shared_ptr<Shader> m_Shader;
+
+        MaterialComponent() = default;
+
+        MaterialComponent(std::shared_ptr<Shader> shader) {
+            m_Shader = shader;
+            material = Material::Create(shader);
+        }
     };
 }
