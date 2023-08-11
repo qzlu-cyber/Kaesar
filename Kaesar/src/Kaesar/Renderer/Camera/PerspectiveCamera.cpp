@@ -83,10 +83,16 @@ namespace Kaesar {
                 MouseRotate(delta * timestep.GetSeconds());
             else if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_RIGHT))
                 MouseZoom(delta.y * timestep.GetSeconds());
+            UpdateView();
         }
-
-        if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_RIGHT))
+        else if (Input::IsMouseButtonPressed(KR_MOUSE_BUTTON_RIGHT))
         {
+            const glm::vec2& mouse{ Input::GetMouseX(), Input::GetMouseY() };
+            glm::vec2 delta = (mouse - m_InitialMousePosition) * 2.0f;
+            m_InitialMousePosition = mouse;
+
+            MouseRotate(delta * timestep.GetSeconds());
+
             // 使用 timestep 来调整平移的速度
             float panSpeedX = PanSpeed().first * 20.0f * timestep.GetSeconds();
             float panSpeedY = PanSpeed().second * 20.0f * timestep.GetSeconds();
@@ -99,9 +105,13 @@ namespace Kaesar {
                 m_FocalPoint += GetForwardDirection() * panSpeedY;
             else if (Input::IsKeyPressed(KR_KEY_S))
                 m_FocalPoint -= GetForwardDirection() * panSpeedY;
-        }
 
-        UpdateView();
+            UpdateView();
+        }
+        else 
+        {
+            UpdateView();
+        }
     }
 
     void PerspectiveCamera::OnEvent(Event& e)
@@ -119,7 +129,8 @@ namespace Kaesar {
         return false;
     }
 
-    bool PerspectiveCamera::OnResize(WindowResizeEvent& e) {
+    bool PerspectiveCamera::OnResize(WindowResizeEvent& e)
+    {
         m_ViewportWidth  = static_cast<float>(e.GetWidth());
         m_ViewportHeight = static_cast<float>(e.GetHeight());
 
