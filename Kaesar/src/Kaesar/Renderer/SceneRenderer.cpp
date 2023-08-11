@@ -54,8 +54,9 @@ namespace Kaesar
         std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
         s_Data->vertexArray->SetIndexBuffer(indexBuffer);
 
-        s_Data->cameraUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 0); // 将和相机有关的数据绑定在 0 号绑定点
+        s_Data->cameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0); // 将和相机有关的数据绑定在 0 号绑定点
         s_Data->transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1); // 将和变换有关的数据绑定在 1 号绑定点
+        s_Data->lightUniformBuffer = UniformBuffer::Create(sizeof(LightData), 2); // 将和光照有关的数据绑定在 2 号绑定点
 
         if (!s_Data->basicShader)
         {
@@ -73,10 +74,14 @@ namespace Kaesar
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
     {   
         s_Data->cameraBuffer.viewProjection = camera.GetViewProjection();
-        s_Data->cameraBuffer.position = glm::vec4(camera.GetPosition(), 0.0f);
-        s_Data->cameraUniformBuffer->SetData(&s_Data->cameraBuffer, sizeof(glm::mat4), 0);
+        s_Data->cameraBuffer.position = camera.GetPosition();
+        s_Data->cameraUniformBuffer->SetData(&s_Data->cameraBuffer, sizeof(CameraData), 0);
 
-        s_Data->transformBuffer.lightPos = glm::vec4(camera.GetPosition(), 0);
+        s_Data->lightBuffer.position = glm::vec3(0.0f, 3.0f, 3.0f);
+        s_Data->lightBuffer.ambient  = glm::vec3(1.0f, 1.0f, 1.0f);
+        s_Data->lightBuffer.diffuse  = glm::vec3(1.0f, 1.0f, 1.0f);
+        s_Data->lightBuffer.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+        s_Data->lightUniformBuffer->SetData(&s_Data->lightBuffer, sizeof(LightData), 0);
 
         s_Data->mainFB->Bind();
 

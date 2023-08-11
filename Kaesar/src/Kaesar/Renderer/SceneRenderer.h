@@ -37,25 +37,33 @@ namespace Kaesar {
         struct CameraData
         {
             glm::mat4 viewProjection;
-            glm::vec4 position;
+            glm::vec3 position;
         };
 
         struct TransformData
         {
             glm::mat4 transform;
-            glm::vec4 lightPos;
             int id; // 记录实体的 ID，用于鼠标拾取
+        };
+
+        struct LightData
+        {
+            glm::vec3 position; // 光源位置
+            glm::vec3 ambient;
+            glm::vec3 diffuse;
+            glm::vec3 specular;
         };
 
         struct SceneData
         {
             CameraData cameraBuffer;
             TransformData transformBuffer;
+            LightData lightBuffer;
             std::shared_ptr<VertexArray> vertexArray;
             ShaderLibrary shaders;
             std::shared_ptr<Shader> basicShader, quadShader, mouseShader;
             std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB;
-            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer;
+            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, lightUniformBuffer;
 
             glm::vec3 clearColor;
         };
