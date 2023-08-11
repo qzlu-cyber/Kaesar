@@ -71,6 +71,16 @@ namespace Kaesar {
         ImGui::End();
     }
 
+    std::string LightTypeToLightName(LightType type) {
+        if (type == LightType::Directional)
+            return u8"平行光";
+        if (type == LightType::Point)
+            return u8"点光源";
+        if (type == LightType::Spot)
+            return u8"聚光";
+        return "";
+    }
+
     void ScenePanel::DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue, float columnWidth)
     {
         ImGuiIO& io = ImGui::GetIO();
@@ -575,6 +585,112 @@ namespace Kaesar {
             }
         }
 
+        static bool LightRemove = false;
+        if (DrawComponent<LightComponent>(u8"灯光", entity, true, &LightRemove))
+        {
+            auto& lightComponent = entity.GetComponent<LightComponent>();
+
+            ImGui::Separator();
+            ImGui::Columns(2);
+            ImGui::SetColumnWidth(0, 80);
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+            ImGui::Text(u8"灯光类型\0");
+
+            ImGui::PopStyleVar();
+            ImGui::NextColumn();
+            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+            std::string label = LightTypeToLightName(lightComponent.type);
+
+            static int item_current_idx = 0;
+            const char* combo_label = label.c_str();
+            if (ImGui::BeginCombo(u8"##灯光", combo_label))
+            {
+                for (int n = 0; n < 3; n++)
+                {
+                    const bool is_selected = (item_current_idx == n);
+
+                    if (ImGui::Selectable(LightTypeToLightName((LightType)n).c_str(), is_selected)) {
+                        lightComponent.type = (LightType)n;
+                        if (lightComponent.type == LightType::Point) {
+                            lightComponent.light = std::make_shared<PointLight>(lightComponent.light->GetColor());
+                        }
+                        if (lightComponent.type == LightType::Directional) {
+                            lightComponent.light = std::make_shared<DirectionalLight>(lightComponent.light->GetColor());
+                        }
+                        if (lightComponent.type == LightType::Spot) {
+                            lightComponent.light = std::make_shared<SpotLight>(lightComponent.light->GetColor());
+                        }
+                    }
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopItemWidth();
+            ImGui::Columns(1);
+
+            ImGui::Separator();
+
+            auto& ambient = lightComponent.light->GetAmbient();
+            auto& diffuse = lightComponent.light->GetDiffuse();
+            auto& specular = lightComponent.light->GetSpecular();
+
+            ImGui::SetNextItemWidth(60);
+            ImGui::Text(u8"环境光\0");
+            ImGui::SameLine();
+            ImGui::ColorEdit3(u8"##环境光颜色", glm::value_ptr(ambient));
+            ImGui::Text(u8"漫反射\0");
+            ImGui::SameLine();
+            ImGui::ColorEdit3(u8"##漫反射颜色", glm::value_ptr(diffuse));
+            ImGui::Text(u8"镜面光\0");
+            ImGui::SameLine();
+            ImGui::ColorEdit3(u8"##高光颜色", glm::value_ptr(specular));
+
+            lightComponent.light->SetAmbient(ambient);
+            lightComponent.light->SetDiffuse(diffuse);
+            lightComponent.light->SetSpecular(specular);
+
+            if (lightComponent.type == LightType::Directional) 
+            {
+                auto p = dynamic_cast<DirectionalLight*>(lightComponent.light.get());
+                auto dir = p->GetDirection();
+                ImGui::SetNextItemWidth(60);
+                ImGui::Text(u8"方   向\0");
+                ImGui::SameLine();
+                ImGui::SliderFloat3(u8"##方向", glm::value_ptr(dir), -1.0, 1.0, "%.3f");
+                p->SetDirection(dir);
+            }
+
+            if (lightComponent.type == LightType::Point)
+            {
+                auto p = dynamic_cast<PointLight*>(lightComponent.light.get());
+                float linear = p->GetLinear();
+                float quadratic = p->GetQuadratic();
+                ImGui::DragFloat(u8"一次系数", &linear);
+                ImGui::DragFloat(u8"二次系数", &quadratic);
+                p->SetLinear(linear);
+                p->SetQuadratic(quadratic);
+            }
+
+            if (lightComponent.type == LightType::Spot)
+            {
+                auto p = dynamic_cast<SpotLight*>(lightComponent.light.get());
+                float iCut = p->GetInnerCutOff();
+                float oCut = p->GetOuterCutOff();
+                ImGui::DragFloat(u8"内径", &iCut);
+                ImGui::DragFloat(u8"外径", &oCut);
+                p->SetInnerCutOff(iCut);
+                p->SetOuterCutOff(oCut);
+            }
+
+            ImGui::TreePop();
+
+            if (LightRemove) {
+                entity.RemoveComponent<LightComponent>();
+                LightRemove = false;
+            }
+        }
+
         ImGui::Separator();
         float buttonSz = 100;
         ImGui::PushItemWidth(buttonSz);
@@ -615,6 +731,16 @@ namespace Kaesar {
             {
                 if (!m_SelectionContext.HasComponent<MaterialComponent>())
                     m_SelectionContext.AddComponent<MaterialComponent>(m_Shaders.Get("basic"));
+                else
+                    KR_CORE_WARN("组件已存在！");
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem(u8"灯光"))
+            {
+                if (!m_SelectionContext.HasComponent<LightComponent>())
+                    m_SelectionContext.AddComponent<LightComponent>();
                 else
                     KR_CORE_WARN("组件已存在！");
 

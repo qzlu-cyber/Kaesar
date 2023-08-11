@@ -1476,6 +1476,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\Kaesar\Renderer\Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">

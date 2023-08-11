@@ -4,6 +4,7 @@
 #include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Renderer/Shader.h"
 #include "Kaesar/Renderer/Material.h"
+#include "Kaesar/Renderer/Light.h"
 
 #include <string>
 #include <glm/glm.hpp>
@@ -76,5 +77,19 @@ namespace Kaesar {
             m_Shader = shader;
             material = Material::Create(shader);
         }
+    };
+
+    struct LightComponent
+    {
+        std::shared_ptr<Light> light;
+        LightType type; // µ∆π‚¿‡–Õ
+
+        LightComponent() 
+        {
+            type = LightType::Directional;
+            light = std::make_shared<DirectionalLight>();
+        };
+
+        LightComponent(const LightComponent&) = default;
     };
 }

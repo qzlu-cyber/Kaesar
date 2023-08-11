@@ -169,6 +169,7 @@
     <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\FrameBuffer.h" />
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Light.h" />
     <ClInclude Include="src\Kaesar\Renderer\Material.h" />
     <ClInclude Include="src\Kaesar\Renderer\Mesh.h" />
     <ClInclude Include="src\Kaesar\Renderer\Model.h" />

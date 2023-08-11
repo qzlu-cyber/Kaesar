@@ -77,12 +77,6 @@ namespace Kaesar
         s_Data->cameraBuffer.position = camera.GetPosition();
         s_Data->cameraUniformBuffer->SetData(&s_Data->cameraBuffer, sizeof(CameraData), 0);
 
-        s_Data->lightBuffer.position = glm::vec3(0.0f, 3.0f, 3.0f);
-        s_Data->lightBuffer.ambient  = glm::vec3(1.0f, 1.0f, 1.0f);
-        s_Data->lightBuffer.diffuse  = glm::vec3(1.0f, 1.0f, 1.0f);
-        s_Data->lightBuffer.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-        s_Data->lightUniformBuffer->SetData(&s_Data->lightBuffer, sizeof(LightData), 0);
-
         s_Data->mainFB->Bind();
 
         RenderCommand::SetClearColor(glm::vec4(s_Data->clearColor, 1.0f));
