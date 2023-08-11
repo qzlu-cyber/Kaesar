@@ -7,24 +7,27 @@
 #include <glm/gtx/transform.hpp>
 
 namespace Kaesar {
+	// 推送常量的成员
+	// 推送常量是一种特殊的常量数据，可以在渲染管线中快速访问，通常用于在着色器程序中传递常量数据
 	struct PCMember {
-		std::string name;
-		size_t size;
+		std::string name; // 推送常量成员的名称
+		size_t size; // 推送常量成员的大小
 	};
-
+	// 推送常量
 	struct PushConstant
 	{
 		std::string name;
 		uint32_t size;
 		std::vector<PCMember> members;
 	};
-
+	// 采样器
+	// 在纹理渲染中用来获取纹理数据
 	struct Sampler
 	{
-		std::string name;
-		uint32_t set;
-		uint32_t binding;
-		bool isUsed;
+		std::string name; // 采样器的名称
+		uint32_t set; // 采样器的集合
+		uint32_t binding; // 采样器在着色器中绑定的位置
+		bool isUsed; // 采样器是否被使用
 	};
 
 	class Shader

@@ -9,5 +9,7 @@ bin-int/
 *.srctrlprj
 
 Kaesar/vendor/VulkanSDK
+Kaesar/vendor/shaderc
+Kaesar/vendor/SPIVR-Cross
 Kaesar-Editor/assets/cache
 scripts/__pycache__

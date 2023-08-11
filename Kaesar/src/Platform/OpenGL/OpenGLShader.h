@@ -45,7 +45,6 @@ namespace Kaesar {
 
 		void CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources);
 		void CompileOrGetOpenGLBinaries();
-		void CreateProgram();
 		void Reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
 
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
@@ -54,12 +53,12 @@ namespace Kaesar {
 		std::string m_FilePath;
 		std::string m_Name;
 
-		std::vector<PushConstant> m_PushConstants;
-		std::vector<Sampler> m_Samplers;
+		std::vector<PushConstant> m_PushConstants; // 着色器中的推送常量
+		std::vector<Sampler> m_Samplers; // 着色器中的采样器
 
-		std::unordered_map<GLenum, std::vector<uint32_t>> m_VulkanSPIRV;
-		std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSPIRV;
+		std::unordered_map<GLenum, std::vector<uint32_t>> m_VulkanSPIRV; // Vulkan SPIR-V 二进制代码
+		std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSPIRV; // OpenGL SPIR-V 二进制代码
 
-		std::unordered_map<GLenum, std::string> m_OpenGLSourceCode;
+		std::unordered_map<GLenum, std::string> m_OpenGLSourceCode; // OpenGL Shader 源代码
     };
 }

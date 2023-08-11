@@ -16,7 +16,7 @@ namespace Kaesar {
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
 
-		KR_CORE_ASSERT(false, "Unknown shader type!");
+		KR_CORE_ASSERT(false, "未知的 Shader 类型！");
 		return 0;
 	}
 
@@ -24,10 +24,11 @@ namespace Kaesar {
 	{
 		switch (stage)
 		{
-		case GL_VERTEX_SHADER:   return shaderc_glsl_vertex_shader;
-		case GL_FRAGMENT_SHADER: return shaderc_glsl_fragment_shader;
+			case GL_VERTEX_SHADER:   return shaderc_glsl_vertex_shader;
+			case GL_FRAGMENT_SHADER: return shaderc_glsl_fragment_shader;
 		}
-		KR_CORE_ASSERT(false, "Unknown shader type!");
+
+		KR_CORE_ASSERT(false, "未知的 Shader 类型！");
 		return (shaderc_shader_kind)0;
 	}
 
@@ -35,10 +36,11 @@ namespace Kaesar {
 	{
 		switch (stage)
 		{
-		case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
-		case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+			case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
+			case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
 		}
-		KR_CORE_ASSERT(false, "Unknown shader stage!");
+
+		KR_CORE_ASSERT(false, "未知的 Shader 类型！");
 		return nullptr;
 	}
 
@@ -58,10 +60,11 @@ namespace Kaesar {
 	{
 		switch (stage)
 		{
-		case GL_VERTEX_SHADER:    return ".cached_opengl.vert";
-		case GL_FRAGMENT_SHADER:  return ".cached_opengl.frag";
+			case GL_VERTEX_SHADER:    return ".cached_opengl.vert";
+			case GL_FRAGMENT_SHADER:  return ".cached_opengl.frag";
 		}
-		KR_CORE_ASSERT(false, "Unknown shader stage!");
+
+		KR_CORE_ASSERT(false, "未知的 Shader 类型！");
 		return "";
 	}
 
@@ -69,10 +72,11 @@ namespace Kaesar {
 	{
 		switch (stage)
 		{
-		case GL_VERTEX_SHADER:    return ".cached_vulkan.vert";
-		case GL_FRAGMENT_SHADER:  return ".cached_vulkan.frag";
+			case GL_VERTEX_SHADER:    return ".cached_vulkan.vert";
+			case GL_FRAGMENT_SHADER:  return ".cached_vulkan.frag";
 		}
-		KR_CORE_ASSERT(false, "Unknown shader stage!");
+
+		KR_CORE_ASSERT(false, "未知的 Shader 类型！");
 		return "";
 	}
 
@@ -84,7 +88,7 @@ namespace Kaesar {
 		std::string source = ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
 
-		// Extract name from filepath
+		// 得到 shader 的名称
 		auto lastSlash = filepath.find_last_of("/\\");
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 		auto lastDot = filepath.rfind('.');
@@ -127,12 +131,12 @@ namespace Kaesar {
 			}
 			else
 			{
-				KR_CORE_ERROR("Could not read from file '{0}'", filepath);
+				KR_CORE_ERROR("文件 '{0}' 无法打开！", filepath);
 			}
 		}
 		else
 		{
-			KR_CORE_ERROR("Could not open file '{0}'", filepath);
+			KR_CORE_ERROR("文件 '{0}' 无法打开！'", filepath);
 		}
 
 		return result;
@@ -144,25 +148,30 @@ namespace Kaesar {
 
 		const char* typeToken = "#type";
 		size_t typeTokenLength = strlen(typeToken);
-		size_t pos = source.find(typeToken, 0); //Start of shader type declaration line
+		size_t pos = source.find(typeToken, 0); // 从头开始查找，返回找到的起始位置
 		while (pos != std::string::npos)
 		{
-			size_t eol = source.find_first_of("\r\n", pos); //End of shader type declaration line
-			KR_CORE_ASSERT(eol != std::string::npos, "Syntax error");
-			size_t begin = pos + typeTokenLength + 1; //Start of shader type name (after "#type " keyword)
+			size_t eol = source.find_first_of("\r\n", pos); // 查找 #type 后的第一个换行符，返回找到的第一个匹配字符的位置
+			KR_CORE_ASSERT(eol != std::string::npos, "Shader 语法错误！");
+			size_t begin = pos + typeTokenLength + 1; // 从 typeToken 之后开始检查 shader 类型
 			std::string type = source.substr(begin, eol - begin);
-			KR_CORE_ASSERT(ShaderTypeFromString(type), "Invalid shader type specified");
+			KR_CORE_ASSERT(ShaderTypeFromString(type), "Kaesar 不支持此类着色器！");
 
-			size_t nextLinePos = source.find_first_not_of("\r\n", eol); //Start of shader code after shader type declaration line
-			KR_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error");
-			pos = source.find(typeToken, nextLinePos); //Start of next shader type declaration line
+			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // 查找 shader type 后的第一个非换行符字符，返回找到的第一个匹配字符的位置
+			KR_CORE_ASSERT(nextLinePos != std::string::npos, "Shader 语法错误！");
+			pos = source.find(typeToken, nextLinePos); // 查找是否还有其他 shader 类型
 
-			shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+			shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) 
+				? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
 		}
 
 		return shaderSources;
 	}
 
+	/// <summary>
+	/// 编译或获取 Vulkan 着色器的 SPIR-V 字节码，并在此过程中调用 Reflect 函数来提取资源信息
+	/// </summary>
+	/// <param name="shaderSources">shader 源代码</param>
 	void OpenGLShader::CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
@@ -180,11 +189,12 @@ namespace Kaesar {
 		shaderData.clear();
 		for (auto&& [stage, source] : shaderSources)
 		{
+			// 根据着色器类型和文件路径构建缓存文件路径
 			std::filesystem::path shaderFilePath = m_FilePath;
 			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + GLShaderStageCachedVulkanFileExtension(stage));
 
 			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
-			if (in.is_open())
+			if (in.is_open()) // 如果缓存文件存在，从缓存中读取 SPIR-V 字节码
 			{
 				in.seekg(0, std::ios::end);
 				auto size = in.tellg();
@@ -194,13 +204,12 @@ namespace Kaesar {
 				data.resize(size / sizeof(uint32_t));
 				in.read((char*)data.data(), size);
 			}
-			else
+			else // 如果缓存文件不存在，编译源代码为 SPIR-V 字节码，将其保存到缓存文件
 			{
 				shaderc::SpvCompilationResult mod = compiler.CompileGlslToSpv(source, GLShaderStageToShaderC(stage), m_FilePath.c_str(), options);
 				if (mod.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
 					KR_CORE_ERROR(mod.GetErrorMessage());
-					//KR_CORE_ASSERT(false);
 				}
 
 				shaderData[stage] = std::vector<uint32_t>(mod.cbegin(), mod.cend());
@@ -215,12 +224,16 @@ namespace Kaesar {
 				}
 			}
 		}
+
 		KR_CORE_WARN("=================================={0} Shader=======================================", m_Name);
 		for (auto&& [stage, data] : shaderData)
 			Reflect(stage, data);
 		KR_CORE_WARN("===================================================================================");
 	}
 
+	/// <summary>
+	/// 将从 Vulkan 着色器源代码编译而来的 SPIR-V 字节码，转换为 OpenGL 着色器源代码并编译
+	/// </summary>
 	void OpenGLShader::CompileOrGetOpenGLBinaries()
 	{
 		auto& shaderData = m_OpenGLSPIRV;
@@ -239,9 +252,15 @@ namespace Kaesar {
 
 			m_OpenGLSourceCode[stage] = glsl.compile();
 		}
+
 		Compile(m_OpenGLSourceCode);
 	}
 
+	/// <summary>
+	/// 对指定类型的 OpenGL 着色器进行反射，从 SPIR-V 字节码中提取有关 Uniform 缓冲、采样器和推送常量等资源的信息
+	/// </summary>
+	/// <param name="stage">shader 类型</param>
+	/// <param name="shaderData">此类型的 SPIR-V 字节码</param>
 	void OpenGLShader::Reflect(GLenum stage, const std::vector<uint32_t>& shaderData)
 	{
 		spirv_cross::Compiler compiler(shaderData);
@@ -251,6 +270,7 @@ namespace Kaesar {
 		KR_CORE_TRACE("    {0} samplers", resources.sampled_images.size());
 		KR_CORE_TRACE("    {0} push constants", resources.push_constant_buffers.size());
 
+		// 读取 Uniform 缓冲信息
 		KR_CORE_TRACE("Uniform buffers:");
 		for (const auto& resource : resources.uniform_buffers)
 		{
@@ -270,6 +290,7 @@ namespace Kaesar {
 			}
 		}
 		KR_CORE_WARN("=======================================");
+		// 读取采样器信息
 		KR_CORE_TRACE("Samplers:");
 		for (const auto& resource : resources.sampled_images)
 		{
@@ -285,6 +306,7 @@ namespace Kaesar {
 			);
 		}
 		KR_CORE_WARN("=======================================");
+		// 读取推送常量信息
 		KR_CORE_TRACE("Push constants:");
 		for (const auto& resource : resources.push_constant_buffers)
 		{
@@ -299,7 +321,6 @@ namespace Kaesar {
 			std::vector<PCMember> members;
 			for (const auto& member : compiler.get_active_buffer_ranges(resource.id))
 			{
-				//members.push_back({ compiler.get_member_name(resource.base_type_id, member.index) , });
 				KR_CORE_TRACE("        member {0} : {1} size = {2}"
 					, member.index
 					, compiler.get_member_name(resource.base_type_id, member.index)
@@ -315,7 +336,7 @@ namespace Kaesar {
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
-		KR_CORE_ASSERT(shaderSources.size() < 3, "Kaesar only supports 2 shaders for now");
+		KR_CORE_ASSERT(shaderSources.size() < 3, "Kaesar 目前仅支持 2 种着色器！");
 		std::array<GLenum, 2> glShaderIDs;
 		int glShaderIDIndex = 0;
 		for (auto& kv : shaderSources)
@@ -330,6 +351,7 @@ namespace Kaesar {
 
 			glCompileShader(shader);
 
+			// 处理编译错误
 			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
 			if (isCompiled == GL_FALSE)
@@ -343,7 +365,7 @@ namespace Kaesar {
 				glDeleteShader(shader);
 
 				KR_CORE_ERROR("{0}", infoLog.data());
-				KR_CORE_ASSERT(false, "Shader compilation failure!");
+				KR_CORE_ASSERT(false, "着色器编译失败！");
 				break;
 			}
 
@@ -353,10 +375,9 @@ namespace Kaesar {
 
 		m_RendererID = program;
 
-		// Link our program
 		glLinkProgram(program);
 
-		// Note the different functions here: glGetProgram* instead of glGetShader*.
+		// 处理链接错误
 		GLint isLinked = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
 		if (isLinked == GL_FALSE)
@@ -364,18 +385,16 @@ namespace Kaesar {
 			GLint maxLength = 0;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			// The maxLength includes the NULL character
 			std::vector<GLchar> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
 
-			// We don't need the program anymore.
 			glDeleteProgram(program);
 
 			for (auto id : glShaderIDs)
 				glDeleteShader(id);
 
 			KR_CORE_ERROR("{0}", infoLog.data());
-			KR_CORE_ASSERT(false, "Shader link failure!");
+			KR_CORE_ASSERT(false, "着色器链接失败！");
 			return;
 		}
 

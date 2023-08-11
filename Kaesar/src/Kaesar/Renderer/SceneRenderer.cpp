@@ -59,14 +59,10 @@ namespace Kaesar
 
         if (!s_Data->basicShader)
         {
-            //s_Data->shaders.Load("assets/shaders/aa.glsl");
             s_Data->shaders.Load("assets/shaders/basic.glsl");
             s_Data->shaders.Load("assets/shaders/quad.glsl");
             s_Data->shaders.Load("assets/shaders/mouse.glsl");
         }
-        //s_Data->quadShader = Shader::Create("assets/shaders/quad.glsl");
-        //s_Data->basicShader = Shader::Create("assets/shaders/diffuse.glsl");
-        //s_Data->mouseShader = Shader::Create("assets/shaders/mouse.glsl");
         s_Data->basicShader = s_Data->shaders.Get("basic");
         s_Data->mouseShader = s_Data->shaders.Get("mouse");
         s_Data->quadShader = s_Data->shaders.Get("quad");
