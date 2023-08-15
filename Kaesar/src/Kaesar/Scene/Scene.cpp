@@ -13,7 +13,8 @@ namespace Kaesar {
 
     Scene::~Scene() {}
 
-    Entity Scene::CreateEntity(const std::string& name) {
+    Entity Scene::CreateEntity(const std::string& name) 
+    {
         Entity entity = { m_Registry.create() };
         m_Entities.push_back(std::make_shared<Entity>(entity));
 
@@ -24,29 +25,34 @@ namespace Kaesar {
         return entity;
     }
 
-    Entity Scene::DuplicateEntity(Entity entity)
+    std::shared_ptr<Entity> Scene::CreateEntity(Entity other)
     {
-        Entity duplicateEntity = CreateEntity();
-        if (duplicateEntity)
-        {
-            auto& entityTag = entity.GetComponent<TagComponent>();
-            auto& entityTrans = entity.GetComponent<TransformComponent>();
-            auto& duplicateEntityTag = duplicateEntity.GetComponent<TagComponent>();
-            auto& duplicateEntityTrans = duplicateEntity.GetComponent<TransformComponent>();
-            duplicateEntityTag.Tag = entityTag.Tag + u8"副本";
-            duplicateEntityTrans = entityTrans;
+        Entity entity = { m_Registry.create() };
+        std::shared_ptr<Entity> ent = std::make_shared<Entity>(entity);
 
-            if (entity.HasComponent<CameraComponent>())
-            {
-                duplicateEntity.AddComponent<CameraComponent>(entity.GetComponent<CameraComponent>());
-            }
-            if (entity.HasComponent<MeshComponent>())
-            {
-                duplicateEntity.AddComponent<MeshComponent>(entity.GetComponent<MeshComponent>());
-            }
+        ent->AddComponent<TagComponent>(other.GetComponent<TagComponent>().Tag + u8"副本");
+        ent->AddComponent<TransformComponent>(other.GetComponent<TransformComponent>());
+
+        if (other.HasComponent<CameraComponent>()) 
+        {
+            ent->AddComponent<CameraComponent>(other.GetComponent<CameraComponent>());
+        }
+        if (other.HasComponent<MeshComponent>()) 
+        {
+            ent->AddComponent<MeshComponent>(other.GetComponent<MeshComponent>());
+        }
+        if (other.HasComponent<MaterialComponent>())
+        {
+            ent->AddComponent<MaterialComponent>(other.GetComponent<MaterialComponent>());
+        }
+        if (other.HasComponent<LightComponent>())
+        {
+            ent->AddComponent<LightComponent>(other.GetComponent<LightComponent>());
         }
 
-        return duplicateEntity;
+        m_Entities.push_back(ent);
+
+        return ent;
     }
 
     entt::entity Scene::FindEntity(uint32_t id)

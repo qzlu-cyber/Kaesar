@@ -36,6 +36,7 @@ namespace Kaesar {
         std::string m_SelectedShader;
 
         bool m_ScaleLock = true;
+        bool m_EntityCreated = false;
     };
 }
 

@@ -157,7 +157,7 @@ namespace Kaesar {
                 {
                     if (m_SelectedEntity)
                     {
-                        m_ActiveScene->DuplicateEntity(m_SelectedEntity);
+                        m_ActiveScene->CreateEntity(m_SelectedEntity);
                     }
                     else
                     {

@@ -18,7 +18,7 @@ namespace Kaesar {
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
-		Entity DuplicateEntity(Entity entity);
+		std::shared_ptr<Entity> Scene::CreateEntity(Entity other);
 		entt::entity FindEntity(uint32_t id);
 
 		void DestroyEntity(Entity entity);

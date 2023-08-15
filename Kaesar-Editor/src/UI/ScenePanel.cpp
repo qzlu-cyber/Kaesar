@@ -43,6 +43,12 @@ namespace Kaesar {
                 DrawEntity(entity);
         }
 
+        if (m_EntityCreated) 
+        {
+            m_Context->CreateEntity(m_SelectionContext);
+            m_EntityCreated = false;
+        }
+
         // 如果鼠标左键点击了当前的窗口，并且当前的窗口是悬停的
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
             m_SelectionContext = {}; // 清空选中的实体
@@ -338,7 +344,8 @@ namespace Kaesar {
                 entityDeleted = true;
             if (ImGui::Selectable(u8"复制"))
             {
-                m_Context->DuplicateEntity(*entity);
+                m_SelectionContext = *entity;
+                m_EntityCreated = true;
             }
 
             ImGui::EndPopup();
