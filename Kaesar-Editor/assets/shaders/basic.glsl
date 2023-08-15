@@ -53,36 +53,134 @@ layout(binding = 0) uniform Camera
 	vec3 u_CameraPos;
 } camera;
 
-layout(binding = 2) uniform Light
+layout(binding = 1) uniform Transform
 {
-	vec3 position;
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-} light;
+    mat4 u_Trans;
+	int u_ID;
+} transform;
+
+struct DLight
+{
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PLight
+{
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct SLight
+{
+    vec3 position; 
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct LightsParams
+{
+    float pointLinear;
+    float pointQuadratic;
+
+    float spotLinear;
+    float spotQuadratic;
+    float innerCutOff;
+    float outerCutOff;
+};
+
+layout(binding = 2) uniform Lights
+{
+    PLight pointLight;
+    SLight spotLight;
+    DLight directionalLight;
+} lights;
+
+layout(binding = 3) uniform Params
+{
+    float pointLinear;
+    float pointQuadratic;
+
+    float spotLinear;
+    float spotQuadratic;
+    float innerCutOff;
+    float outerCutOff;
+} params;
+
+vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir);
+vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir);
+vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir);
 
 void main()
 {	
-	// ambient
-	vec3 ambient = light.ambient * texture(texture_diffuse, v_TexCroods).rgb;
-
-	// diffuse
 	vec3 normal = normalize(v_Normal);
-	vec3 lightDir = normalize(light.position - v_FragPos);
-	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse = light.diffuse * diff * texture(texture_diffuse, v_TexCroods).rgb;
+    vec3 viewDir = normalize(camera.u_CameraPos - v_FragPos);
 
-	// specular
-	vec3 viewDir = normalize(camera.u_CameraPos - v_FragPos);
-	vec3 halfwayDir = normalize(lightDir + viewDir);
-	// Phone 光照模型
-	//vec3 reflectDir = reflect(-lightDir, normal);
-	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), 150);
-	// Blinn-Phone 光照模型
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), 150);
-	vec3 specular = light.specular * spec * texture(texture_specular, v_TexCroods).rgb;
+    vec3 result = vec3(0);
+	result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir);
+    result += CaculatePointLight(lights.pointLight, normal, viewDir);
+    result += CaculateSpotLight(lights.spotLight, normal, viewDir);
 
-	vec3 color = ambient + diffuse + specular;
+	FragColor = vec4(result, 1.0);
+}
 
-	FragColor = vec4(color, 1.0);
+vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir)
+{
+    vec3 ambient = 0.05 * vec3(texture(texture_diffuse, v_TexCroods));
+
+    vec3 lightDir = normalize(-light.direction);
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * 0.4 * vec3(texture(texture_diffuse, v_TexCroods));
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    vec3 specular = spec * 0.5 * vec3(texture(texture_specular, v_TexCroods));
+
+    return (ambient + diffuse + specular);
+}
+
+vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir)
+{
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, v_TexCroods));
+
+    vec3 lightDir = normalize(light.position - v_FragPos);
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, v_TexCroods));
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    vec3 specular = spec * light.specular * vec3(texture(texture_specular, v_TexCroods));
+
+    float dist = length(light.position - v_FragPos);
+    float attenuation = 1.0 / (1.0 + (params.pointLinear * dist) + (params.pointQuadratic * dist * dist));
+
+    return (ambient + diffuse + specular) * attenuation;
+}
+
+vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir)
+{
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, v_TexCroods));
+
+    vec3 lightDir = normalize(light.position - v_FragPos);
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, v_TexCroods));
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    vec3 specular = spec * light.specular * vec3(texture(texture_specular, v_TexCroods));
+
+    float dist = length(light.position - v_FragPos);
+    float attenuation = 1.0 / (1.0 + (params.spotLinear * dist) + (params.spotQuadratic * dist * dist));
+
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = params.innerCutOff - params.outerCutOff;
+    float intensity = clamp((theta - params.outerCutOff) / epsilon, 0.0, 1.0);
+
+    return (ambient + diffuse + specular) * attenuation * intensity;
 }

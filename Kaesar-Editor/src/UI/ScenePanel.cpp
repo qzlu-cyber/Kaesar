@@ -589,6 +589,7 @@ namespace Kaesar {
         if (DrawComponent<LightComponent>(u8"灯光", entity, true, &LightRemove))
         {
             auto& lightComponent = entity.GetComponent<LightComponent>();
+            auto& transformComponent = entity.GetComponent<TransformComponent>();
 
             ImGui::Separator();
             ImGui::Columns(2);
@@ -609,16 +610,20 @@ namespace Kaesar {
                 {
                     const bool is_selected = (item_current_idx == n);
 
-                    if (ImGui::Selectable(LightTypeToLightName((LightType)n).c_str(), is_selected)) {
+                    if (ImGui::Selectable(LightTypeToLightName((LightType)n).c_str(), is_selected)) 
+                    {
                         lightComponent.type = (LightType)n;
-                        if (lightComponent.type == LightType::Point) {
-                            lightComponent.light = std::make_shared<PointLight>(lightComponent.light->GetColor());
+                        if (lightComponent.type == LightType::Point) 
+                        {
+                            lightComponent.light = std::make_shared<PointLight>();
                         }
-                        if (lightComponent.type == LightType::Directional) {
-                            lightComponent.light = std::make_shared<DirectionalLight>(lightComponent.light->GetColor());
+                        if (lightComponent.type == LightType::Directional) 
+                        {
+                            lightComponent.light = std::make_shared<DirectionalLight>();
                         }
-                        if (lightComponent.type == LightType::Spot) {
-                            lightComponent.light = std::make_shared<SpotLight>(lightComponent.light->GetColor());
+                        if (lightComponent.type == LightType::Spot) 
+                        {
+                            lightComponent.light = std::make_shared<SpotLight>();
                         }
                     }
                     if (is_selected)
@@ -639,7 +644,7 @@ namespace Kaesar {
             ImGui::Text(u8"环境光\0");
             ImGui::SameLine();
             ImGui::ColorEdit3(u8"##环境光颜色", glm::value_ptr(ambient));
-            ImGui::Text(u8"漫反射\0");
+            ImGui::Text(u8"漫反射");
             ImGui::SameLine();
             ImGui::ColorEdit3(u8"##漫反射颜色", glm::value_ptr(diffuse));
             ImGui::Text(u8"镜面光\0");
@@ -652,35 +657,55 @@ namespace Kaesar {
 
             if (lightComponent.type == LightType::Directional) 
             {
-                auto p = dynamic_cast<DirectionalLight*>(lightComponent.light.get());
-                auto dir = p->GetDirection();
+                auto light = dynamic_cast<DirectionalLight*>(lightComponent.light.get());
+                auto& dir = light->GetDirection();
                 ImGui::SetNextItemWidth(60);
                 ImGui::Text(u8"方   向\0");
                 ImGui::SameLine();
                 ImGui::SliderFloat3(u8"##方向", glm::value_ptr(dir), -1.0, 1.0, "%.3f");
-                p->SetDirection(dir);
+                light->SetDirection(dir);
             }
 
             if (lightComponent.type == LightType::Point)
             {
-                auto p = dynamic_cast<PointLight*>(lightComponent.light.get());
-                float linear = p->GetLinear();
-                float quadratic = p->GetQuadratic();
-                ImGui::DragFloat(u8"一次系数", &linear);
-                ImGui::DragFloat(u8"二次系数", &quadratic);
-                p->SetLinear(linear);
-                p->SetQuadratic(quadratic);
+                auto light = dynamic_cast<PointLight*>(lightComponent.light.get());
+                auto& position = transformComponent.Translation;
+                ImGui::Text(u8"位   置\0");
+                ImGui::SameLine();
+                ImGui::SliderFloat3(u8"##点光源位置", glm::value_ptr(position), -300.0f, 300.0f, "%1.f");
+                light->SetPosition(position);
+                float linear = light->GetLinear();
+                float quadratic = light->GetQuadratic();
+                ImGui::SliderFloat(u8"一次系数", &linear, 0.0f, 1.0f);
+                light->SetLinear(linear);
+                ImGui::SliderFloat(u8"二次系数", &quadratic, 0.0f, 1.0f);
+                light->SetQuadratic(quadratic);
             }
 
             if (lightComponent.type == LightType::Spot)
             {
-                auto p = dynamic_cast<SpotLight*>(lightComponent.light.get());
-                float iCut = p->GetInnerCutOff();
-                float oCut = p->GetOuterCutOff();
-                ImGui::DragFloat(u8"内径", &iCut);
-                ImGui::DragFloat(u8"外径", &oCut);
-                p->SetInnerCutOff(iCut);
-                p->SetOuterCutOff(oCut);
+                auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
+                auto& position = transformComponent.Translation;
+                ImGui::Text(u8"位   置\0");
+                ImGui::SameLine();
+                ImGui::SliderFloat3(u8"##聚光位置", glm::value_ptr(position), -300.0f, 300.0f, "%1.f");
+                light->SetPosition(position);
+                auto& spotDirection = transformComponent.Rotation;
+                ImGui::Text(u8"方   向\0");
+                ImGui::SameLine();
+                ImGui::SliderFloat3(u8"##聚光方向", glm::value_ptr(spotDirection), -300.0f, 300.0f, "%1.f");
+                light->SetDirection(spotDirection);
+                float iCut = light->GetInnerCutOff();
+                float oCut = light->GetOuterCutOff();
+                float linear = light->GetLinear();
+                float quadratic = light->GetQuadratic();
+                ImGui::SliderFloat(u8"内径", &iCut, 0.0f, 180.0f, "%.3f");
+                ImGui::SliderFloat(u8"外径", &oCut, 0.0f, 180.0f, "%.3f");
+                ImGui::SliderFloat(u8"一次系数", &linear, 0.0f, 1.0f);
+                ImGui::SliderFloat(u8"二次系数", &quadratic, 0.0f, 1.0f);
+                light->SetCutOff(iCut, oCut);
+                light->SetLinear(linear);
+                light->SetQuadratic(quadratic);
             }
 
             ImGui::TreePop();

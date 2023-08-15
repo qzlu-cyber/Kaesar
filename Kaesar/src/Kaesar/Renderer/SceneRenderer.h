@@ -46,24 +46,62 @@ namespace Kaesar {
             int id; // 记录实体的 ID，用于鼠标拾取
         };
 
-        struct LightData
+        struct DirectionalLightData
         {
-            glm::vec3 position; // 光源位置
+            glm::vec3 direction; // 平行光照射方向
             glm::vec3 ambient;
             glm::vec3 diffuse;
             glm::vec3 specular;
+        };
+
+        struct PointLightData
+        {
+            glm::vec3 position; // 点光源位置
+            glm::vec3 ambient;
+            glm::vec3 diffuse;
+            glm::vec3 specular;
+        };
+
+        struct SpotLightData
+        {
+            glm::vec3 position; // 聚光灯位置
+            glm::vec3 direction; // 聚光灯方向
+            glm::vec3 ambient;
+            glm::vec3 diffuse;
+            glm::vec3 specular;
+        };
+
+        struct LightsParams
+        {
+            float pointLinear;
+            float pointQuadratic;
+
+            float spotLinear;
+            float spotQuadratic;
+            float innerCutOff;
+            float outerCutOff;
         };
 
         struct SceneData
         {
             CameraData cameraBuffer;
             TransformData transformBuffer;
-            LightData lightBuffer;
+
+            DirectionalLightData directionalLightBuffer;
+            PointLightData pointLightBuffer;
+            SpotLightData spotLightBuffer;
+            LightsParams lightsParamsBuffer;
+
             std::shared_ptr<VertexArray> vertexArray;
+
             ShaderLibrary shaders;
-            std::shared_ptr<Shader> basicShader, quadShader, mouseShader;
+
+            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader;
+
             std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB;
-            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, lightUniformBuffer;
+
+            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, 
+                                           lightsUniformBuffer, lightsParamsUniformBuffer;
 
             glm::vec3 clearColor;
         };

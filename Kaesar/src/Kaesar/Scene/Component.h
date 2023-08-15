@@ -73,7 +73,8 @@ namespace Kaesar {
 
         MaterialComponent() = default;
 
-        MaterialComponent(std::shared_ptr<Shader> shader) {
+        MaterialComponent(std::shared_ptr<Shader> shader) 
+        {
             m_Shader = shader;
             material = Material::Create(shader);
         }

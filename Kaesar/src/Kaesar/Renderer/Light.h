@@ -10,105 +10,115 @@ namespace Kaesar {
         Spot
     };
 
-    class Light
-    {
-    public:
-        Light() = default;
-        Light(const glm::vec3& color)
-            : m_Color(color)
-        {}
+	class Light 
+	{
+	public:
+		Light() = default;
+		Light(const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular)
+            : m_Ambient(ambient), m_Diffuse(diffuse), m_Specular(specular) 
+		{}
 
-        glm::vec3& GetPosition() { return m_Position; }
-        void SetPosition(const glm::vec3& position) { m_Position = position; }
+		virtual ~Light() = default;
 
-        glm::vec3& GetAmbient() { return m_Ambient; }
-        void SetAmbient(const glm::vec3& ambient) { m_Ambient = ambient; }
+		void SetAmbient(const glm::vec3& ambient) { m_Ambient = ambient; }
+		glm::vec3 GetAmbient() const { return m_Ambient; }
 
-        glm::vec3& GetDiffuse() { return m_Diffuse; }
-        void SetDiffuse(const glm::vec3& diffuse) { m_Diffuse = diffuse; }
+		void SetDiffuse(const glm::vec3& diffuse) { m_Diffuse = diffuse; }
+		glm::vec3 GetDiffuse() const { return m_Diffuse; }
 
-        glm::vec3& GetSpecular() { return m_Specular; }
-        void SetSpecular(const glm::vec3& specular) { m_Specular = specular; }
+		void SetSpecular(const glm::vec3& specular) { m_Specular = specular; }
+		glm::vec3 GetSpecular() const { return m_Specular; }
 
-        glm::vec3 GetColor() const { return m_Color; }
-        void SetColor(const glm::vec3& color) { m_Color = color; }
+	private:
+		glm::vec3 m_Ambient;
+		glm::vec3 m_Diffuse;
+		glm::vec3 m_Specular;
+	};
 
-        virtual ~Light() = default;
 
-    private:
-        glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 m_Ambient  = { 1.0f, 1.0f, 1.0f };
-        glm::vec3 m_Diffuse  = { 1.0f, 1.0f, 1.0f };
-        glm::vec3 m_Specular = { 1.0f, 1.0f, 1.0f };
+	class DirectionalLight : public Light 
+	{
+	public:
+		DirectionalLight()
+			: Light(glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f))
+		{}
+		DirectionalLight(const glm::vec3& dir)
+			: m_Direction(dir) {}
 
-        glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f };
-    };
+		virtual ~DirectionalLight() = default;
 
-    class DirectionalLight : public Light
-    {
-    public:
-        DirectionalLight() = default;
-        DirectionalLight(const glm::vec3& direction)
-            : m_Direction(direction)
-        {}
+		void SetDirection(const glm::vec3& dir) { m_Direction = dir; }
+		glm::vec3 GetDirection() const { return m_Direction; }
 
-        const glm::vec3& GetDirection() const { return m_Direction; }
-        void SetDirection(const glm::vec3& direction) { m_Direction = direction; }
+	private:
+		glm::vec3 m_Direction = { 1.0f, 1.0f, 1.0f };
+	};
 
-        ~DirectionalLight() = default;
 
-    private:
-        glm::vec3 m_Direction = { 10.0f, 10.0f, 10.0f };
-    };
+	class PointLight : public Light 
+	{
+	public:
+		PointLight() 
+			: Light(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
+		{}
+		PointLight(const glm::vec3& pos)
+			: m_Position(pos) {}
+		PointLight(const glm::vec3& pos, float linear, float quadratic)
+			: m_Position(pos), m_Linear(linear), m_Quadratic(quadratic) {}
 
-    class PointLight : public Light
-    {
-    public:
-        PointLight(const glm::vec3& color)
-            : Light(color)
-        {}
+		virtual ~PointLight() = default;
 
-        float GetConstant() const { return m_Constant; }
-        void SetConstant(float constant) { m_Constant = constant; }
+		void SetPosition(const glm::vec3& pos) { m_Position = pos; }
+		glm::vec3 GetPosition() const { return m_Position; }
 
-        float GetLinear() const { return m_Linear; }
-        void SetLinear(float linear) { this->m_Linear = linear; }
+		void SetLinear(float linear) { m_Linear = linear; }
+		float GetLinear() const { return m_Linear; }
 
-        float GetQuadratic() const { return m_Quadratic; }
-        void SetQuadratic(float quadratic) { m_Quadratic = quadratic; }
+		void SetQuadratic(float quadratic) { m_Quadratic = quadratic; }
+		float GetQuadratic() const { return m_Quadratic; }
 
-        ~PointLight() = default;
+	private:
+		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
+		float m_Linear = 0.09f;
+		float m_Quadratic = 0.032f;
+	};
 
-    private:
-        float m_Constant = 1.0f; // 常数项
-        float m_Linear = 0.0f; // 一次衰减项
-        float m_Quadratic = 0.0f; // 二次衰减项
-    };
 
-    class SpotLight : public Light
-    {
-    public:
-        SpotLight(const glm::vec3& color) 
-            : Light(color)
-        {}
-        SpotLight(const glm::vec3& position, const glm::vec3& spotDirection)
-            : Light(position), m_SpotDirection(spotDirection)
-        {}
+	class SpotLight : public Light 
+{
+	public:
+		SpotLight()
+			: Light(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
+		{}
+		SpotLight(const glm::vec3& pos, const glm::vec3& dir, float cutOff, float outerCutOff)
+			: m_Position(pos), m_Direction(dir), m_CutOff(cutOff), m_OuterCutOff(outerCutOff) {}
 
-        const glm::vec3& GetSpotDirection() const { return m_SpotDirection; }
-        void SetSpotDirection(const glm::vec3& spotDirection) { m_SpotDirection = spotDirection; }
+		virtual ~SpotLight() = default;
 
-        float GetInnerCutOff() const { return m_CutOff; }
-        void SetInnerCutOff(float cutOff) { m_CutOff = cutOff; }
+		void SetPosition(const glm::vec3& pos) { m_Position = pos; }
+		glm::vec3 GetPosition() const { return m_Position; }
 
-        float GetOuterCutOff() const { return m_OuterCutOff; }
-        void SetOuterCutOff(float outerCutOff) { m_OuterCutOff = outerCutOff; }
+		void SetDirection(const glm::vec3& dir) { m_Direction = dir; }
+		glm::vec3 GetDirection() const { return m_Direction; }
 
-        ~SpotLight() = default;
+		void SetLinear(float linear) { m_Linear = linear; }
+		float GetLinear() const { return m_Linear; }
 
-    private:
-        glm::vec3 m_SpotDirection = { 1.0f, 1.0f, 1.0f };
-        float m_CutOff = 0.0f; // 切光角
-        float m_OuterCutOff = 0.0f; // 外切光角
-    };
+		void SetQuadratic(float quadratic) { m_Quadratic = quadratic; }
+		float GetQuadratic() const { return m_Quadratic; }
+
+		void SetCutOff(float cutOff, float outerCutOff) { m_CutOff = cutOff; m_OuterCutOff = outerCutOff; }
+		float GetInnerCutOff() const { return m_CutOff; }
+		float GetOuterCutOff() const { return m_OuterCutOff; }
+
+	private:
+		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_Direction = { -1.0f, 0.0f, 0.0f };
+
+		float m_Linear = 0.09f;
+		float m_Quadratic = 0.032f;
+
+		float m_CutOff = 12.5f;
+		float m_OuterCutOff = 15.0f;
+	};
 }
