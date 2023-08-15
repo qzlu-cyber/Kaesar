@@ -109,5 +109,6 @@ namespace Kaesar {
         static SceneData* s_Data;
 
         friend class ScenePanel;
+        friend class SceneSerializer;
     };
 }

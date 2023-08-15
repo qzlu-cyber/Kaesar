@@ -17,6 +17,8 @@ namespace Kaesar {
         std::shared_ptr<Texture2D> GetTexture(const Sampler& sampler);
         std::unordered_map<uint32_t, std::shared_ptr<Texture2D>>& GetTextures() { return m_Textures; }
 
+        std::shared_ptr<Shader> GetShader() { return m_Shader; }
+
         std::vector<PushConstant>& GetPushConstants() { return m_PushConstants; }
         std::vector<Sampler>& GetSamplers() { return m_Samplers; }
 

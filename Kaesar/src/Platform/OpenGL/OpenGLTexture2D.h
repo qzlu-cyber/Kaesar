@@ -24,6 +24,8 @@ namespace Kaesar {
 
         virtual bool operator==(const Texture& other) const override;
 
+        virtual std::string GetPath() const override { return m_Filepath; }
+
         static void BindTexture(uint32_t rendererID, uint32_t slot);
 
     private:

@@ -71,7 +71,8 @@ namespace Kaesar {
         ImGui::End();
     }
 
-    std::string LightTypeToLightName(LightType type) {
+    static std::string LightTypeToLightName(LightType type)
+    {
         if (type == LightType::Directional)
             return u8"Æ½ÐÐ¹â";
         if (type == LightType::Point)

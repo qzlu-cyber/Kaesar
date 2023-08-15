@@ -5,6 +5,7 @@
 
 namespace Kaesar {
     OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath, bool vertical)
+        : m_Filepath(filepath)
     {
         glGenTextures(1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);

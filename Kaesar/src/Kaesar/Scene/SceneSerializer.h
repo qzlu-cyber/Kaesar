@@ -13,5 +13,6 @@ namespace Kaesar {
 
     private:
         std::shared_ptr<Scene> m_Scene;
+        ShaderLibrary m_Shaders;
     };
 }

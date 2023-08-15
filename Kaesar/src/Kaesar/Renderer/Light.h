@@ -3,12 +3,12 @@
 #include <glm/glm.hpp>
 
 namespace Kaesar {
-    enum class LightType
-    {
-        Directional,
-        Point,
-        Spot
-    };
+	enum class LightType
+	{
+		Directional = 0,
+		Point,
+		Spot
+	};
 
 	class Light 
 	{
@@ -42,8 +42,9 @@ namespace Kaesar {
 		DirectionalLight()
 			: Light(glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f))
 		{}
-		DirectionalLight(const glm::vec3& dir)
-			: m_Direction(dir) {}
+		DirectionalLight(const glm::vec3& dir, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular)
+            : Light(ambient, diffuse, specular), m_Direction(dir)
+        {}
 
 		virtual ~DirectionalLight() = default;
 
@@ -61,10 +62,10 @@ namespace Kaesar {
 		PointLight() 
 			: Light(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
 		{}
-		PointLight(const glm::vec3& pos)
-			: m_Position(pos) {}
-		PointLight(const glm::vec3& pos, float linear, float quadratic)
-			: m_Position(pos), m_Linear(linear), m_Quadratic(quadratic) {}
+		PointLight(const glm::vec3& pos, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular,
+				   float linear, float quadratic)
+            : Light(ambient, diffuse, specular), m_Position(pos), m_Linear(linear), m_Quadratic(quadratic)
+        {}
 
 		virtual ~PointLight() = default;
 
@@ -90,8 +91,12 @@ namespace Kaesar {
 		SpotLight()
 			: Light(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
 		{}
-		SpotLight(const glm::vec3& pos, const glm::vec3& dir, float cutOff, float outerCutOff)
-			: m_Position(pos), m_Direction(dir), m_CutOff(cutOff), m_OuterCutOff(outerCutOff) {}
+		SpotLight(const glm::vec3& pos, const glm::vec3& dir, 
+				  const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular,
+				  float linear, float quadratic, float cutOff, float outerCutOff)
+            : Light(ambient, diffuse, specular), m_Position(pos), m_Direction(dir), 
+			  m_Linear(linear), m_Quadratic(quadratic), m_CutOff(cutOff), m_OuterCutOff(outerCutOff)
+        {}
 
 		virtual ~SpotLight() = default;
 
