@@ -104,6 +104,8 @@ layout(binding = 2) uniform Lights
 
 layout(binding = 3) uniform Params
 {
+    float dirIntensity;
+
     float pointLinear;
     float pointQuadratic;
 
@@ -123,7 +125,7 @@ void main()
     vec3 viewDir = normalize(camera.u_CameraPos - v_FragPos);
 
     vec3 result = vec3(0);
-	result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir);
+    result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir);
     result += CaculatePointLight(lights.pointLight, normal, viewDir);
     result += CaculateSpotLight(lights.spotLight, normal, viewDir);
 
@@ -132,15 +134,15 @@ void main()
 
 vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 ambient = 0.05 * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 ambient = params.dirIntensity * 0.05 * vec3(texture(texture_diffuse, v_TexCroods));
 
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * 0.4 * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 diffuse = diff * params.dirIntensity * 0.4 * vec3(texture(texture_diffuse, v_TexCroods));
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
-    vec3 specular = spec * 0.5 * vec3(texture(texture_specular, v_TexCroods));
+    vec3 specular = spec * params.dirIntensity * 0.5 * vec3(texture(texture_specular, v_TexCroods));
 
     return (ambient + diffuse + specular);
 }

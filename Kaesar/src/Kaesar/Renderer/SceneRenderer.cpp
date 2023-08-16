@@ -99,6 +99,7 @@ namespace Kaesar
         s_Data->spotLightBuffer.diffuse   = glm::vec3(0.0f, 0.0f, 0.0f);
         s_Data->spotLightBuffer.specular  = glm::vec3(0.0f, 0.0f, 0.0f);
 
+        s_Data->lightsParamsBuffer.dirIntensity   = 0.0f;
         s_Data->lightsParamsBuffer.pointLinear    = 0.0f;
         s_Data->lightsParamsBuffer.pointQuadratic = 0.0f;
         s_Data->lightsParamsBuffer.spotLinear     = 0.0f;
@@ -129,7 +130,9 @@ namespace Kaesar
                 s_Data->directionalLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
                 s_Data->directionalLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
                 s_Data->directionalLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
-                s_Data->directionalLightBuffer.direction = light->GetDirection() * light->GetIntensity();
+                s_Data->directionalLightBuffer.direction = light->GetDirection();
+
+                s_Data->lightsParamsBuffer.dirIntensity = light->GetIntensity();
             }
             if (lightComponent.type == LightType::Point)
             {

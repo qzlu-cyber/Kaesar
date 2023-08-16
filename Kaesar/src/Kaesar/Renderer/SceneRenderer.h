@@ -75,6 +75,8 @@ namespace Kaesar {
 
         struct LightsParams
         {
+            float dirIntensity;
+
             float pointLinear;
             float pointQuadratic;
 
