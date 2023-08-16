@@ -23,6 +23,11 @@ layout(location = 0) in vec2 v_TexCoords;
 
 layout(binding = 0) uniform sampler2DMS u_ScreenTexture;
 
+layout(push_constant) uniform pushConstants
+{
+	float exposure;
+} pc;
+
 void main()
 {
     ivec2 texturePosition = ivec2(gl_FragCoord.x, gl_FragCoord.y);
@@ -33,5 +38,13 @@ void main()
 
 	vec4 antialiased = (colorSample0 + colorSample1 + colorSample2 + colorSample3) / 4.0f;
 
-    FragColor = antialiased;
+    float gamma = 2.2f;
+    vec3 hdrColor = antialiased.rgb;
+
+    // Reinhard 色调映射
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * pc.exposure);
+    // gamma 矫正 
+    // mapped = pow(mapped, vec3(1.0 / gamma));
+
+    FragColor = vec4(mapped, 1.0);
 }

@@ -96,7 +96,7 @@ namespace Kaesar {
         //TODO: Implement OnUpdateRuntime
     }
 
-    void Scene::OnUpdateEditor(Timestep ts) 
+    void Scene::OnUpdateEditor(Timestep ts)
     {
         SceneRenderer::BeginScene(*m_Camera);
         SceneRenderer::RenderScene(*this);

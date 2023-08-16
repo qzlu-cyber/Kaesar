@@ -64,7 +64,7 @@ namespace Kaesar {
         }
         else
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, internalFormat == GL_RGBA16F ? GL_FLOAT : GL_UNSIGNED_BYTE, nullptr);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -133,6 +133,7 @@ namespace Kaesar {
         switch (format)
         {
             case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
+            case FramebufferTextureFormat::RGBA16F:     return GL_RGB16F; // 用于创建浮点帧缓冲，实现 HDR 渲染
             case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
         }
 
@@ -203,12 +204,15 @@ namespace Kaesar {
 
                 switch (m_ColorAttachmentSpecifications[i].TextureFormat)
                 {
-                case FramebufferTextureFormat::RGBA8:
-                    AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
-                    break;
-                case FramebufferTextureFormat::RED_INTEGER:
-                    AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
-                    break;
+                    case FramebufferTextureFormat::RGBA8:
+                        AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
+                        break;
+                    case FramebufferTextureFormat::RGBA16F:
+                        AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGB16F, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
+                        break;
+                    case FramebufferTextureFormat::RED_INTEGER:
+                        AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
+                        break;
                 }
             }
         }

@@ -14,11 +14,12 @@ namespace Kaesar
     void SceneRenderer::Initialize()
     {
         FramebufferSpecification fspc;
-        fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
+        fspc.Attachments = { FramebufferTextureFormat::RGBA16F, FramebufferTextureFormat::DEPTH24STENCIL8 };
         fspc.Width = 1920;
         fspc.Height = 1080;
         fspc.Samples = 4;
         s_Data->mainFB = FrameBuffer::Create(fspc);
+        fspc.Attachments = { FramebufferTextureFormat::RGBA8 , FramebufferTextureFormat::DEPTH24STENCIL8 };
         fspc.Samples = 1;
         s_Data->postProcessFB = FrameBuffer::Create(fspc);
         fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::DEPTH24STENCIL8 };
@@ -70,6 +71,8 @@ namespace Kaesar
         s_Data->mouseShader = s_Data->shaders.Get("mouse");
         s_Data->quadShader = s_Data->shaders.Get("quad");
         s_Data->lightShader = s_Data->shaders.Get("light");
+
+        s_Data->exposure = 0.2f;
 
         s_Data->clearColor = glm::vec3(0.196f, 0.196f, 0.196f);
     }
@@ -233,6 +236,7 @@ namespace Kaesar
         RenderCommand::DisableDepthTest();
 
         s_Data->quadShader->Bind();
+        s_Data->quadShader->SetFloat("pc.exposure", s_Data->exposure);
         Texture2D::BindTexture(s_Data->mainFB->GetColorAttachmentRendererID(), 0);
         Renderer::Submit(s_Data->vertexArray, s_Data->quadShader);
         RenderCommand::SetState(RenderState::SRGB, false);
