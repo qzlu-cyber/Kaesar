@@ -30,6 +30,7 @@ namespace Kaesar {
         static void OnViewportResize(uint32_t width, uint32_t height);
 
         static void SetExposure(float exposure) { s_Data->exposure = exposure; }
+        static void SetGamma(float gamma) { s_Data->gamma = gamma; }
 
         static uint32_t GetTextureID(int index) { return s_Data->postProcessFB->GetColorAttachmentRendererID(index); }
         static std::shared_ptr<FrameBuffer> GetMouseFB() { return s_Data->mouseFB; }
@@ -92,6 +93,7 @@ namespace Kaesar {
             TransformData transformBuffer;
 
             float exposure; // ÆØ¹â¶È
+            float gamma; // gamma ½ÃÕý
             DirectionalLightData directionalLightBuffer;
             PointLightData pointLightBuffer;
             SpotLightData spotLightBuffer;

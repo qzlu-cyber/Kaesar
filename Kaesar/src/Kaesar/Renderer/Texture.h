@@ -29,6 +29,7 @@ namespace Kaesar {
 	class Texture2D : public Texture
 	{
 	public:
-		static std::shared_ptr<Texture2D> Create(const std::string& filepath, bool vertical);
+		static std::shared_ptr<Texture2D> Create(const std::string& filepath, bool vertical, bool sRGB = false); // sRGB 标明是否创建一个 sRGB 纹理
+		static std::shared_ptr<Texture2D> Create(uint32_t width, uint32_t height, const unsigned char* data, bool vertical, bool sRGB = false);
 	};
 }

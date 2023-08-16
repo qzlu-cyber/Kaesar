@@ -26,6 +26,7 @@ layout(binding = 0) uniform sampler2DMS u_ScreenTexture;
 layout(push_constant) uniform pushConstants
 {
 	float exposure;
+    float gamma;
 } pc;
 
 void main()
@@ -38,13 +39,12 @@ void main()
 
 	vec4 antialiased = (colorSample0 + colorSample1 + colorSample2 + colorSample3) / 4.0f;
 
-    float gamma = 2.2f;
     vec3 hdrColor = antialiased.rgb;
 
     // Reinhard 色调映射
     vec3 mapped = vec3(1.0) - exp(-hdrColor * pc.exposure);
     // gamma 矫正 
-    // mapped = pow(mapped, vec3(1.0 / gamma));
+    mapped = pow(mapped, vec3(1.0 / pc.gamma));
 
     FragColor = vec4(mapped, 1.0);
 }

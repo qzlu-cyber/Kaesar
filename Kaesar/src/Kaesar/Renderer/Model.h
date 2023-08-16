@@ -26,6 +26,7 @@ namespace Kaesar {
 		std::vector<MeshTexture> LoadMaterialtextures(aiMaterial* material, aiTextureType type, const std::string& typeName);
 
 	public:
+		const aiScene* m_Scene;
 		std::vector<Mesh> meshes;
 		std::vector<std::shared_ptr<Texture2D>> textures;
 		std::vector<MeshTexture> textures_loaded;

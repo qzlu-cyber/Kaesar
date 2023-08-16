@@ -4,7 +4,7 @@
 #include "stb_image.h"
 
 namespace Kaesar {
-    OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath, bool vertical)
+    OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath, bool vertical, bool sRGB)
         : m_Filepath(filepath)
     {
         glGenTextures(1, &m_RendererID);
@@ -21,12 +21,12 @@ namespace Kaesar {
         GLenum internalFormat = 0, dataFormat = 0;
         if (channels == 4)
         {
-            internalFormat = GL_RGBA8;
+            internalFormat = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
             dataFormat = GL_RGBA;
         }
         else if (channels == 3)
         {
-            internalFormat = GL_RGB8;
+            internalFormat = sRGB ? GL_SRGB8 : GL_RGB8;
             dataFormat = GL_RGB;
         }
 
@@ -43,6 +43,52 @@ namespace Kaesar {
         glGenerateMipmap(GL_TEXTURE_2D);
 
         stbi_image_free(data);
+    }
+
+    OpenGLTexture2D::OpenGLTexture2D(uint32_t mWidth, uint32_t mHeight, const unsigned char* data, bool vertical, bool sRGB)
+    {
+        glGenTextures(1, &m_RendererID);
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+
+        int width, height, channels;
+        unsigned char* mdata = nullptr;
+        if (mHeight == 0)
+        {
+            mdata = stbi_load_from_memory(data, mWidth, &width, &height, &channels, 0);
+        }
+        else
+        {
+            mdata = stbi_load_from_memory(data, mWidth * mHeight, &width, &height, &channels, 0);
+        }
+
+        m_Width = width;
+        m_Height = height;
+
+        GLenum internalFormat = 0, dataFormat = 0;
+        if (channels == 4)
+        {
+            internalFormat = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+            dataFormat = GL_RGBA;
+        }
+        else if (channels == 3)
+        {
+            internalFormat = sRGB ? GL_SRGB8 : GL_RGB8;
+            dataFormat = GL_RGB;
+        }
+
+        m_InternalFormat = internalFormat;
+        m_DataFormat = dataFormat;
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        stbi_image_free(mdata);
     }
 
     OpenGLTexture2D::~OpenGLTexture2D()

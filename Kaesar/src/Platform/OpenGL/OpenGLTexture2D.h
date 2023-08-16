@@ -8,7 +8,8 @@ namespace Kaesar {
     class OpenGLTexture2D : public Texture2D
     {
     public:
-        OpenGLTexture2D(const std::string& filepath, bool vertical);
+        OpenGLTexture2D(const std::string& filepath, bool vertical, bool sRGB);
+        OpenGLTexture2D(uint32_t width, uint32_t height, const unsigned char* data, bool vertical, bool sRGB);
 
         virtual ~OpenGLTexture2D();
 

@@ -462,7 +462,8 @@ namespace Kaesar {
                     auto path = FileDialogs::OpenFile("Kaesar Texture (*.*)\0*.*\0");
                     if (path) 
                     {
-                        materialTextures[sampler.binding] = Texture2D::Create(*path, 0);
+                        // 内嵌纹理默认为漫反射贴图，绑定点为 0 就是漫反射贴图，将其设置为 sRGB 颜色空间
+                        materialTextures[sampler.binding] = Texture2D::Create(*path, 0, sampler.binding == 0);
                     }
                 }
                 ImGui::PopID();
@@ -625,7 +626,7 @@ namespace Kaesar {
                         {
                             lightComponent.light = std::make_shared<PointLight>();
                         }
-                        if (lightComponent.type == LightType::Directional) 
+                        if (lightComponent.type == LightType::Directional)
                         {
                             lightComponent.light = std::make_shared<DirectionalLight>();
                         }
@@ -709,7 +710,7 @@ namespace Kaesar {
                 float oCut = light->GetOuterCutOff();
                 float linear = light->GetLinear();
                 float quadratic = light->GetQuadratic();
-                ImGui::SliderFloat(u8"内径", &iCut, 0.0f, 180.0f, "%.3f");
+                ImGui::SliderFloat(u8"内径", &iCut, 0.0f, light->GetOuterCutOff() - 0.01f, "%.3f");
                 ImGui::SliderFloat(u8"外径", &oCut, 0.0f, 180.0f, "%.3f");
                 ImGui::SliderFloat(u8"一次系数", &linear, 0.0f, 1.0f);
                 ImGui::SliderFloat(u8"二次系数", &quadratic, 0.0f, 1.0f);

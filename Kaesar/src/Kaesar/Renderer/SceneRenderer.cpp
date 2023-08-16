@@ -73,6 +73,7 @@ namespace Kaesar
         s_Data->lightShader = s_Data->shaders.Get("light");
 
         s_Data->exposure = 0.2f;
+        s_Data->gamma = 2.2f;
 
         s_Data->clearColor = glm::vec3(0.196f, 0.196f, 0.196f);
     }
@@ -216,13 +217,17 @@ namespace Kaesar
 
     void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
     {
+        RenderCommand::SetState(RenderState::CULL, false);
         s_Data->basicShader->Bind(); // glUseProgram
         Renderer::Submit(mesh.model, s_Data->basicShader);
+        RenderCommand::SetState(RenderState::CULL, true);
     }
 
     void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material)
     {
+        RenderCommand::SetState(RenderState::CULL, false);
         Renderer::Submit(material.material, mesh.model);
+        RenderCommand::SetState(RenderState::CULL, true);
     }
 
     void SceneRenderer::RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
@@ -240,6 +245,7 @@ namespace Kaesar
 
         s_Data->quadShader->Bind();
         s_Data->quadShader->SetFloat("pc.exposure", s_Data->exposure);
+        s_Data->quadShader->SetFloat("pc.gamma", s_Data->gamma);
         Texture2D::BindTexture(s_Data->mainFB->GetColorAttachmentRendererID(), 0);
         Renderer::Submit(s_Data->vertexArray, s_Data->quadShader);
         RenderCommand::SetState(RenderState::SRGB, false);

@@ -33,6 +33,7 @@ namespace Kaesar {
     {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs);
+        m_Scene = scene;
 
         if ((!scene) || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || (!scene->mRootNode))
         {
@@ -156,13 +157,26 @@ namespace Kaesar {
                 MeshTexture texture;
                 std::string filename = str.C_Str();
                 filename = directory + '\\' + filename;
-                auto tex = Texture2D::Create(filename, 0);
-                textures.push_back(tex);
-                texture.id = tex->GetRendererID();
-                texture.type = typeName;
-                texture.path = str.C_Str();
-                tmpTextures.push_back(texture);
-                textures_loaded.push_back(texture); // add to loaded textures
+                std::shared_ptr<Texture2D> tex;
+                if (m_Scene->GetEmbeddedTexture(str.C_Str())) // 如果是内嵌的纹理
+                {
+                    auto width = m_Scene->GetEmbeddedTexture(str.C_Str())->mWidth;
+                    auto height = m_Scene->GetEmbeddedTexture(str.C_Str())->mHeight;
+
+                    tex = Texture2D::Create(width, height,
+                        reinterpret_cast<unsigned char*>(m_Scene->GetEmbeddedTexture(str.C_Str())->pcData), 
+                        0, type == aiTextureType_DIFFUSE); // 内嵌纹理默认为漫反射贴图
+                }
+                else
+                {
+                    auto tex = Texture2D::Create(filename, 0, type == aiTextureType_DIFFUSE);
+                    textures.push_back(tex);
+                    texture.id = tex->GetRendererID();
+                    texture.type = typeName;
+                    texture.path = str.C_Str();
+                    tmpTextures.push_back(texture);
+                    textures_loaded.push_back(texture); // add to loaded textures
+                }
             }
         }
 
