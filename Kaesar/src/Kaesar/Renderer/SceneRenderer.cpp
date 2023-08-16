@@ -126,19 +126,19 @@ namespace Kaesar
             if (lightComponent.type == LightType::Directional)
             {
                 auto light = dynamic_cast<DirectionalLight*>(lightComponent.light.get());
-                s_Data->directionalLightBuffer.ambient = light->GetAmbient();
-                s_Data->directionalLightBuffer.diffuse = light->GetDiffuse();
-                s_Data->directionalLightBuffer.specular = light->GetSpecular();
-                s_Data->directionalLightBuffer.direction = light->GetDirection();
+                s_Data->directionalLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
+                s_Data->directionalLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
+                s_Data->directionalLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
+                s_Data->directionalLightBuffer.direction = light->GetDirection() * light->GetIntensity();
             }
             if (lightComponent.type == LightType::Point)
             {
                 auto light = dynamic_cast<PointLight*>(lightComponent.light.get());
                 s_Data->pointLightBuffer.position = transformComponent.Translation;
 
-                s_Data->pointLightBuffer.ambient = light->GetAmbient();
-                s_Data->pointLightBuffer.diffuse = light->GetDiffuse();
-                s_Data->pointLightBuffer.specular = light->GetSpecular();
+                s_Data->pointLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
+                s_Data->pointLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
+                s_Data->pointLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
 
                 s_Data->lightsParamsBuffer.pointLinear = light->GetLinear();
                 s_Data->lightsParamsBuffer.pointQuadratic = light->GetQuadratic();
@@ -148,9 +148,9 @@ namespace Kaesar
                 auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
                 s_Data->spotLightBuffer.position = transformComponent.Translation;
                 s_Data->spotLightBuffer.direction = transformComponent.Rotation;
-                s_Data->spotLightBuffer.ambient = light->GetAmbient();
-                s_Data->spotLightBuffer.diffuse = light->GetDiffuse();
-                s_Data->spotLightBuffer.specular = light->GetSpecular();
+                s_Data->spotLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
+                s_Data->spotLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
+                s_Data->spotLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
 
                 s_Data->lightsParamsBuffer.spotLinear = light->GetLinear();
                 s_Data->lightsParamsBuffer.spotQuadratic = light->GetQuadratic();

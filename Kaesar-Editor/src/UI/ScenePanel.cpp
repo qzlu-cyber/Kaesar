@@ -648,20 +648,31 @@ namespace Kaesar {
             auto& diffuse = lightComponent.light->GetDiffuse();
             auto& specular = lightComponent.light->GetSpecular();
 
+            ImGuiColorEditFlags colorFlags = ImGuiColorEditFlags_HDR;
+
             ImGui::SetNextItemWidth(60);
             ImGui::Text(u8"环境光\0");
             ImGui::SameLine();
-            ImGui::ColorEdit3(u8"##环境光颜色", glm::value_ptr(ambient));
+            ImGui::ColorEdit3(u8"##环境光颜色", glm::value_ptr(ambient), colorFlags);
             ImGui::Text(u8"漫反射");
             ImGui::SameLine();
-            ImGui::ColorEdit3(u8"##漫反射颜色", glm::value_ptr(diffuse));
+            ImGui::ColorEdit3(u8"##漫反射颜色", glm::value_ptr(diffuse), colorFlags);
             ImGui::Text(u8"镜面光\0");
             ImGui::SameLine();
-            ImGui::ColorEdit3(u8"##高光颜色", glm::value_ptr(specular));
+            ImGui::ColorEdit3(u8"##高光颜色", glm::value_ptr(specular), colorFlags);
 
             lightComponent.light->SetAmbient(ambient);
             lightComponent.light->SetDiffuse(diffuse);
             lightComponent.light->SetSpecular(specular);
+
+            //light's intensity
+            float intensity = lightComponent.light->GetIntensity();
+            ImGui::Text(u8"光   强\0");
+            ImGui::SameLine();
+            ImGui::DragFloat("##Intensity", &intensity, 0.1, 0, 100);
+            lightComponent.light->SetIntensity(intensity);
+
+            auto PI = glm::pi<float>();
 
             if (lightComponent.type == LightType::Directional) 
             {
@@ -670,7 +681,7 @@ namespace Kaesar {
                 ImGui::SetNextItemWidth(60);
                 ImGui::Text(u8"方   向\0");
                 ImGui::SameLine();
-                ImGui::SliderFloat3(u8"##方向", glm::value_ptr(dir), -1.0, 1.0, "%.3f");
+                ImGui::SliderFloat3(u8"##方向", glm::value_ptr(dir), -2 * PI, 2 * PI, "%.3f");
                 light->SetDirection(dir);
             }
 
@@ -678,30 +689,21 @@ namespace Kaesar {
             {
                 auto light = dynamic_cast<PointLight*>(lightComponent.light.get());
                 auto& position = transformComponent.Translation;
-                ImGui::Text(u8"位   置\0");
-                ImGui::SameLine();
-                ImGui::SliderFloat3(u8"##点光源位置", glm::value_ptr(position), -300.0f, 300.0f, "%1.f");
-                light->SetPosition(position);
                 float linear = light->GetLinear();
                 float quadratic = light->GetQuadratic();
-                ImGui::SliderFloat(u8"一次系数", &linear, 0.0f, 1.0f);
+                ImGui::SliderFloat(u8"一次衰减系数", &linear, 0.0f, 1.0f);
                 light->SetLinear(linear);
-                ImGui::SliderFloat(u8"二次系数", &quadratic, 0.0f, 1.0f);
+                ImGui::SliderFloat(u8"二次衰减系数", &quadratic, 0.0f, 1.0f);
                 light->SetQuadratic(quadratic);
             }
 
             if (lightComponent.type == LightType::Spot)
             {
                 auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
-                auto& position = transformComponent.Translation;
-                ImGui::Text(u8"位   置\0");
-                ImGui::SameLine();
-                ImGui::SliderFloat3(u8"##聚光位置", glm::value_ptr(position), -300.0f, 300.0f, "%1.f");
-                light->SetPosition(position);
                 auto& spotDirection = transformComponent.Rotation;
                 ImGui::Text(u8"方   向\0");
                 ImGui::SameLine();
-                ImGui::SliderFloat3(u8"##聚光方向", glm::value_ptr(spotDirection), -300.0f, 300.0f, "%1.f");
+                ImGui::SliderFloat3(u8"##聚光方向", glm::value_ptr(spotDirection), -2 * PI, 2 * PI, "%1.f");
                 light->SetDirection(spotDirection);
                 float iCut = light->GetInnerCutOff();
                 float oCut = light->GetOuterCutOff();

@@ -14,8 +14,8 @@ namespace Kaesar {
 	{
 	public:
 		Light() = default;
-		Light(const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular)
-            : m_Ambient(ambient), m_Diffuse(diffuse), m_Specular(specular) 
+		Light(const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float intensity)
+            : m_Ambient(ambient), m_Diffuse(diffuse), m_Specular(specular), m_Intensity(intensity)
 		{}
 
 		virtual ~Light() = default;
@@ -29,10 +29,15 @@ namespace Kaesar {
 		void SetSpecular(const glm::vec3& specular) { m_Specular = specular; }
 		glm::vec3 GetSpecular() const { return m_Specular; }
 
+		void SetIntensity(float intensity) { m_Intensity = intensity; }
+		float GetIntensity() { return m_Intensity; }
+
 	private:
 		glm::vec3 m_Ambient;
 		glm::vec3 m_Diffuse;
 		glm::vec3 m_Specular;
+
+		float m_Intensity = 1;
 	};
 
 
@@ -40,10 +45,10 @@ namespace Kaesar {
 	{
 	public:
 		DirectionalLight()
-			: Light(glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f))
+			: Light(glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f)
 		{}
-		DirectionalLight(const glm::vec3& dir, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular)
-            : Light(ambient, diffuse, specular), m_Direction(dir)
+		DirectionalLight(const glm::vec3& dir, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float intensity)
+            : Light(ambient, diffuse, specular, intensity), m_Direction(dir)
         {}
 
 		virtual ~DirectionalLight() = default;
@@ -60,11 +65,11 @@ namespace Kaesar {
 	{
 	public:
 		PointLight() 
-			: Light(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
+			: Light(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f)
 		{}
 		PointLight(const glm::vec3& pos, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular,
-				   float linear, float quadratic)
-            : Light(ambient, diffuse, specular), m_Position(pos), m_Linear(linear), m_Quadratic(quadratic)
+				   float intensity, float linear, float quadratic)
+            : Light(ambient, diffuse, specular, intensity), m_Position(pos), m_Linear(linear), m_Quadratic(quadratic)
         {}
 
 		virtual ~PointLight() = default;
@@ -89,12 +94,12 @@ namespace Kaesar {
 {
 	public:
 		SpotLight()
-			: Light(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
+			: Light(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f)
 		{}
 		SpotLight(const glm::vec3& pos, const glm::vec3& dir, 
-				  const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular,
+				  const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float intensity,
 				  float linear, float quadratic, float cutOff, float outerCutOff)
-            : Light(ambient, diffuse, specular), m_Position(pos), m_Direction(dir), 
+            : Light(ambient, diffuse, specular, intensity), m_Position(pos), m_Direction(dir), 
 			  m_Linear(linear), m_Quadratic(quadratic), m_CutOff(cutOff), m_OuterCutOff(outerCutOff)
         {}
 
