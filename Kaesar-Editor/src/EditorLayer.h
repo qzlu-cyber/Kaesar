@@ -30,8 +30,6 @@ namespace Kaesar {
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
 
-        PerspectiveCamera* m_Camera;
-
         int m_GizmoType = -1;
 
         glm::vec2 m_ViewportSize = { 200.0f, 200.0f };

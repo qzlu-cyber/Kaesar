@@ -9,9 +9,14 @@ namespace Kaesar {
     {
         Entity::s_Scene = this;
         SceneRenderer::Initialize();
+
+        m_Camera = new PerspectiveCamera(45.0f, 1.778f, 0.1f, 100.0f);
     }
 
-    Scene::~Scene() {}
+    Scene::~Scene() 
+    {
+        delete m_Camera;
+    }
 
     Entity Scene::CreateEntity(const std::string& name) 
     {
@@ -57,20 +62,25 @@ namespace Kaesar {
 
     entt::entity Scene::FindEntity(uint32_t id)
     {
-        for (auto& e : m_Entities) {
-            if (*e == (entt::entity)id) {
+        for (auto& e : m_Entities) 
+        {
+            if (*e == (entt::entity)id) 
+            {
                 return *e;
             }
         }
         return {};
     }
 
-    void Scene::DestroyEntity(Entity entity) {
+    void Scene::DestroyEntity(Entity entity) 
+    {
         m_Registry.destroy(entity); // Ïú»Ù entity
 
         // ´Ó m_Entities ÖÐÒÆ³ý entity
-        for (auto& e : m_Entities) {
-            if (*e == entity) {
+        for (auto& e : m_Entities) 
+        {
+            if (*e == entity) 
+            {
                 auto it = std::find(m_Entities.begin(), m_Entities.end(), e);
                 if (it != m_Entities.end()) {
                     m_Entities.erase(it);
@@ -80,21 +90,26 @@ namespace Kaesar {
         }
     }
 
-    void Scene::OnUpdateRuntime(Timestep ts) {
+    void Scene::OnUpdateRuntime(Timestep ts) 
+    {
         //TODO: Implement OnUpdateRuntime
     }
 
-    void Scene::OnUpdateEditor(Timestep ts, PerspectiveCamera& camera) {
-        SceneRenderer::BeginScene(camera);
+    void Scene::OnUpdateEditor(Timestep ts) 
+    {
+        SceneRenderer::BeginScene(*m_Camera);
         SceneRenderer::RenderScene(*this);
         SceneRenderer::EndScene();
     }
 
-    void Scene::OnViewportResize(uint32_t width, uint32_t height) {
+    void Scene::OnViewportResize(uint32_t width, uint32_t height) 
+    {
         m_ViewportWidth = width;
         m_ViewportHeight = height;
 
         SceneRenderer::OnViewportResize(width, height);
+
+        m_Camera->SetViewportSize(width, height);
 
         auto view = m_Registry.view<CameraComponent>();
         for (auto& entity : view)

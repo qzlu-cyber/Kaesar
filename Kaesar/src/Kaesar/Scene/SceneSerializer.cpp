@@ -236,6 +236,19 @@ namespace Kaesar {
         out << YAML::BeginMap;
 
         out << YAML::Key << "Scene" << YAML::Value << u8"Î´ÃüÃû";
+
+        // Camera
+        out << YAML::Key << "Camera" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "FOV" << YAML::Value << m_Scene->m_Camera->GetFOV();
+        out << YAML::Key << "Near" << YAML::Value << m_Scene->m_Camera->GetNear();
+        out << YAML::Key << "Far" << YAML::Value << m_Scene->m_Camera->GetFar();
+        out << YAML::Key << "Yaw" << YAML::Value << m_Scene->m_Camera->GetYaw();
+        out << YAML::Key << "Pitch" << YAML::Value << m_Scene->m_Camera->GetPitch();
+        out << YAML::Key << "Position" << YAML::Value << m_Scene->m_Camera->GetPosition();
+        out << YAML::Key << "FocalPoint" << YAML::Value << m_Scene->m_Camera->GetFocalPoint();
+        out << YAML::Key << "Distance" << YAML::Value << m_Scene->m_Camera->GetDistance();
+        out << YAML::EndMap;
+
         out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
       
         for (auto& entity : m_Scene->m_Entities)
@@ -263,6 +276,22 @@ namespace Kaesar {
         auto entities = data["Entities"];
         if (entities)
         {
+            auto camera = data["Camera"];
+            auto fov = camera["FOV"].as<float>();
+            auto nearClip = camera["Near"].as<float>();
+            auto farClip = camera["Far"].as<float>();
+            auto yaw = camera["Yaw"].as<float>();
+            auto pitch = camera["Pitch"].as<float>();
+            auto focalPoint = camera["FocalPoint"].as<glm::vec3>();
+            auto distance = camera["Distance"].as<float>();
+
+            m_Scene->m_Camera->SetFov(fov);
+            m_Scene->m_Camera->SetNearClip(nearClip);
+            m_Scene->m_Camera->SetFarClip(farClip);
+            m_Scene->m_Camera->SetYawPitch(yaw, pitch);
+            m_Scene->m_Camera->SetFocalPoint(focalPoint);
+            m_Scene->m_Camera->SetDistance(distance);
+
             for (auto entity : entities)
             {
                 uint64_t uuid = entity["Entity"].as<uint64_t>();

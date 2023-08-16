@@ -16,21 +16,21 @@ namespace Kaesar {
     {
         RenderCommand::Init();
         m_Info = RenderCommand::Info();
-        m_Camera = new PerspectiveCamera(45.0f, 1.778f, 0.1f, 100.0f);
     }
 
     EditorLayer::~EditorLayer()
     {
-        delete m_Camera;
+        
     }
 
     void EditorLayer::OnAttach()
     {
         auto& app = Application::Get();
-        m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
         m_ActiveScene = std::make_shared<Scene>();
         m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+
+        m_ActiveScene->m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
         FramebufferSpecification fspc;
         fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
@@ -51,16 +51,15 @@ namespace Kaesar {
             m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
             (spec.Width != (uint32_t)m_ViewportSize.x || spec.Height != (uint32_t)m_ViewportSize.y))
         {
-            m_Camera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
             m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         }
 
-        m_ActiveScene->OnUpdateEditor(timestep, *m_Camera);
+        m_ActiveScene->OnUpdateEditor(timestep);
         m_SelectedEntity = m_ScenePanel->GetSelectedContext();
 
         if (m_ViewportFocused) // 只有窗口聚焦时才更新相机
         {
-            m_Camera->OnUpdate(timestep);
+            m_ActiveScene->m_Camera->OnUpdate(timestep);
         }
     }
 
@@ -217,8 +216,8 @@ namespace Kaesar {
                     m_ViewportBounds[1].x - m_ViewportBounds[0].x, 
                    m_ViewportBounds[1].y - m_ViewportBounds[0].y);
 
-        const glm::mat4& cameraProjection = m_Camera->GetProjection();
-        glm::mat4 cameraView = m_Camera->GetViewMatrix();
+        const glm::mat4& cameraProjection = m_ActiveScene->m_Camera->GetProjection();
+        glm::mat4 cameraView = m_ActiveScene->m_Camera->GetViewMatrix();
         ImGuizmo::DrawGrid(glm::value_ptr(cameraView), 
                            glm::value_ptr(cameraProjection),
                      glm::value_ptr(glm::mat4(1.0f)), 7);
@@ -265,20 +264,20 @@ namespace Kaesar {
         if (camerSettings) {
             ImGui::Begin(u8"相机", &camerSettings);
             //Fov
-            float fov = m_Camera->GetFOV();
+            float fov = m_ActiveScene->m_Camera->GetFOV();
             if (ImGui::SliderFloat(u8"视野", &fov, 10, 180)) {
-                m_Camera->SetFov(fov);
+                m_ActiveScene->m_Camera->SetFov(fov);
             }
             ImGui::Separator();
             //near-far clip
-            float nearClip = m_Camera->GetNear();
-            float farClip = m_Camera->GetFar();
+            float nearClip = m_ActiveScene->m_Camera->GetNear();
+            float farClip = m_ActiveScene->m_Camera->GetFar();
             if (ImGui::SliderFloat(u8"远平面", &farClip, 10, 10000)) {
-                m_Camera->SetFarClip(farClip);
+                m_ActiveScene->m_Camera->SetFarClip(farClip);
             }
             ImGui::Separator();
             if (ImGui::SliderFloat(u8"近平面", &nearClip, 0.0001, 1)) {
-                m_Camera->SetNearClip(nearClip);
+                m_ActiveScene->m_Camera->SetNearClip(nearClip);
             }
             ImGui::End();
         }
@@ -286,7 +285,7 @@ namespace Kaesar {
 
     void EditorLayer::OnEvent(Event& event)
     {
-        m_Camera->OnEvent(event);
+        m_ActiveScene->m_Camera->OnEvent(event);
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
         dispatcher.Dispatch<MouseButtonPressedEvent>(KR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
@@ -312,7 +311,7 @@ namespace Kaesar {
             case KR_KEY_R: if (!ImGuizmo::IsUsing()) m_GizmoType = ImGuizmo::OPERATION::SCALE; break;
             // 聚焦实体
             case KR_KEY_F: if (m_ScenePanel->GetSelectedContext())
-                                m_Camera->SetFocalPoint(m_ScenePanel->GetSelectedContext().GetComponent<TransformComponent>().Translation);
+                m_ActiveScene->m_Camera->SetFocalPoint(m_ScenePanel->GetSelectedContext().GetComponent<TransformComponent>().Translation);
                 break;
             case KR_KEY_ESCAPE: Application::Get().CloseApp(); break;
         }

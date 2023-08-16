@@ -24,7 +24,7 @@ namespace Kaesar {
 		void DestroyEntity(Entity entity);
 
 		void OnUpdateRuntime(Timestep ts);
-		void OnUpdateEditor(Timestep ts, PerspectiveCamera& camera);
+		void OnUpdateEditor(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		uint32_t GetMainTextureID() { return SceneRenderer::GetTextureID(0); }
@@ -41,6 +41,8 @@ namespace Kaesar {
 
 		ShaderLibrary m_Shaders; // 所有的 shader
 
+		PerspectiveCamera* m_Camera; // 主摄像机
+
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;
 
@@ -48,5 +50,6 @@ namespace Kaesar {
 		friend class ScenePanel;
 		friend class SceneSerializer;
 		friend class SceneRenderer;
+		friend class EditorLayer;
 	};
 }
