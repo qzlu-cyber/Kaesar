@@ -374,6 +374,8 @@ namespace Kaesar {
 
             SceneSerializer serializer(m_ActiveScene);
             serializer.Deserializer(*filepath); // 解引用获取存储在 std::optional<std::string> 类型中的实际字符串值
+
+            Application::Get().GetWindow().SetWindowTitle("Kaesar Rendering Engine - " + m_ActiveScene->m_Name + " scene");
         }
     }
 

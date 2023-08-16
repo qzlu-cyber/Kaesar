@@ -14,7 +14,7 @@ namespace Kaesar {
 	class Scene
 	{
 	public:
-		Scene();
+		Scene(const std::string& name = u8"未命名");
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
@@ -42,6 +42,8 @@ namespace Kaesar {
 		ShaderLibrary m_Shaders; // 所有的 shader
 
 		PerspectiveCamera* m_Camera; // 主摄像机
+
+		std::string m_Name; // 场景名称
 
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;

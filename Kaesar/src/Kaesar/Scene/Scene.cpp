@@ -5,7 +5,8 @@
 #include "Kaesar/Scene/Component.h"
 
 namespace Kaesar {
-    Scene::Scene() 
+    Scene::Scene(const std::string& name)
+        : m_Name(name)
     {
         Entity::s_Scene = this;
         SceneRenderer::Initialize();

@@ -233,9 +233,13 @@ namespace Kaesar {
     void SceneSerializer::Serializer(const std::string& filepath)
     {
         YAML::Emitter out;
+
+        auto nameWithPost = filepath.substr(filepath.find_last_of("\\") + 1);
+        auto name = nameWithPost.substr(0, nameWithPost.find("."));
+
         out << YAML::BeginMap;
 
-        out << YAML::Key << "Scene" << YAML::Value << u8"Œ¥√¸√˚";
+        out << YAML::Key << "Scene" << YAML::Value << name;
 
         // Camera
         out << YAML::Key << "Camera" << YAML::Value << YAML::BeginMap;
@@ -271,6 +275,7 @@ namespace Kaesar {
             return false;
 
         std::string sceneName = data["Scene"].as<std::string>();
+        m_Scene->m_Name = sceneName;
         KR_CORE_TRACE("∂¡»°≥°æ∞ '{0}'", sceneName);
 
         auto entities = data["Entities"];

@@ -28,6 +28,11 @@ namespace Kaesar {
         Shutdown();
     }
 
+    void WindowsWindow::SetWindowTitle(const std::string& title)
+    {
+        glfwSetWindowTitle(m_Window, title.c_str());
+    }
+
     void WindowsWindow::Init(const WindowProps& props) {
         m_Data.Title = props.Title;
         m_Data.Width = props.Width;

@@ -40,6 +40,8 @@ namespace Kaesar {
 
         virtual void* GetNativeWindow() const = 0; // 为了在外部使用 GLFWwindow* m_Window; 的成员变量，所以要获取到这个成员变量。
 
+        virtual void SetWindowTitle(const std::string& title) = 0;
+
         // 在每个平台上被实现
         static Window* Create(const WindowProps& props = WindowProps());
     };
