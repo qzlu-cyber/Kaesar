@@ -416,7 +416,7 @@ namespace Kaesar {
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
             static int item_current_idx = 0; // 当前选择的项的索引
-            const char* combo_label = m_SelectedShader.c_str(); // 获取当前的着色器的名称
+            const char* combo_label = materialComponent.shader->GetName().c_str(); // 获取当前的着色器的名称
 
             if (ImGui::BeginCombo("shaders", combo_label))
             {
