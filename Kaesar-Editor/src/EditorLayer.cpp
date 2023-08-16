@@ -206,6 +206,8 @@ namespace Kaesar {
         /// ====================== viewport ========================
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         ImGui::Begin(u8"视口");
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        const ImGuiID id = window->GetID(u8"视口");
 
         auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
         auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
@@ -234,9 +236,6 @@ namespace Kaesar {
 
         const glm::mat4& cameraProjection = m_ActiveScene->m_Camera->GetProjection();
         glm::mat4 cameraView = m_ActiveScene->m_Camera->GetViewMatrix();
-        ImGuizmo::DrawGrid(glm::value_ptr(cameraView), 
-                           glm::value_ptr(cameraProjection),
-                     glm::value_ptr(glm::mat4(1.0f)), 7);
 
         Entity selectedEntity = m_ScenePanel->GetSelectedContext();
         if (selectedEntity && m_GizmoType != -1)

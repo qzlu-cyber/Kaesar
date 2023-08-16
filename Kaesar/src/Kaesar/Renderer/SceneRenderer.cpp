@@ -25,6 +25,14 @@ namespace Kaesar
         fspc.Attachments = { FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::DEPTH24STENCIL8 };
         s_Data->mouseFB = FrameBuffer::Create(fspc);
 
+        // 创建阴影帧缓冲
+        FramebufferSpecification shadowSpec;
+        shadowSpec.Attachments = { FramebufferTextureFormat::DEPTH32 };
+        shadowSpec.Width = 1024;
+        shadowSpec.Height = 1024;
+        shadowSpec.Samples = 1;
+        s_Data->shadowFB = FrameBuffer::Create(shadowSpec);
+
         float quad[] = {
             // positions   // texCoords
            -1.0f,  1.0f,  0.0f, 1.0f,
@@ -59,6 +67,7 @@ namespace Kaesar
         s_Data->transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1); // 将和变换有关的数据绑定在 1 号绑定点
         s_Data->lightsUniformBuffer = UniformBuffer::Create(sizeof(s_Data->pointLightBuffer) + sizeof(s_Data->spotLightBuffer) + sizeof(s_Data->directionalLightBuffer), 2);
         s_Data->lightsParamsUniformBuffer = UniformBuffer::Create(sizeof(s_Data->lightsParamsBuffer), 3);
+        s_Data->shadowUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 4);
 
         if (!s_Data->basicShader)
         {
@@ -66,14 +75,18 @@ namespace Kaesar
             s_Data->shaders.Load("assets/shaders/quad.glsl");
             s_Data->shaders.Load("assets/shaders/mouse.glsl");
             s_Data->shaders.Load("assets/shaders/light.glsl");
+            s_Data->shaders.Load("assets/shaders/depth.glsl");
         }
         s_Data->basicShader = s_Data->shaders.Get("basic");
         s_Data->mouseShader = s_Data->shaders.Get("mouse");
         s_Data->quadShader = s_Data->shaders.Get("quad");
         s_Data->lightShader = s_Data->shaders.Get("light");
+        s_Data->depthShader = s_Data->shaders.Get("depth");
 
         s_Data->exposure = 0.2f;
         s_Data->gamma = 2.2f;
+
+        s_Data->lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 500.0f);
 
         s_Data->clearColor = glm::vec3(0.196f, 0.196f, 0.196f);
     }
@@ -133,6 +146,11 @@ namespace Kaesar
                 s_Data->directionalLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
                 s_Data->directionalLightBuffer.direction = light->GetDirection();
 
+                // shadow
+                s_Data->lightView = glm::lookAt(-(glm::vec3(s_Data->directionalLightBuffer.direction) * 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                s_Data->shadowBuffer.lightViewProjection = s_Data->lightProjection * s_Data->lightView;
+                s_Data->shadowUniformBuffer->SetData(&s_Data->shadowBuffer, sizeof(glm::mat4));
+
                 s_Data->lightsParamsBuffer.dirIntensity = light->GetIntensity();
             }
             if (lightComponent.type == LightType::Point)
@@ -170,7 +188,27 @@ namespace Kaesar
 
         auto view = scene.m_Registry.view<TransformComponent, MeshComponent>();
 
+        // 渲染深度贴图
+        s_Data->shadowFB->Bind();
+        RenderCommand::SetState(RenderState::DEPTH_TEST, true);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        for (auto& entity : view)
+        {
+            auto& transformComponent = view.get<TransformComponent>(entity);
+            auto& meshComponent = view.get<MeshComponent>(entity);
+
+            if (!meshComponent.path.empty())
+            {
+                s_Data->depthShader->Bind();
+                s_Data->depthShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
+                SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data->depthShader);
+            }
+        }
+        s_Data->shadowFB->Unbind();
+
         s_Data->mainFB->Bind();
+        RenderCommand::SetState(RenderState::DEPTH_TEST, true);
+        RenderCommand::Clear();
         for (auto entity : view)
         {
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -188,6 +226,7 @@ namespace Kaesar
                 }
                 else
                 {
+                    Texture2D::BindTexture(s_Data->shadowFB->GetDepthAttachmentRendererID(), 3);
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent); // 否则使用默认渲染
                 }
             }
@@ -227,6 +266,14 @@ namespace Kaesar
     {
         RenderCommand::SetState(RenderState::CULL, false);
         Renderer::Submit(material.material, mesh.model);
+        RenderCommand::SetState(RenderState::CULL, true);
+    }
+
+    void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& tc, MeshComponent& mc, const std::shared_ptr<Shader>& shader)
+    {
+        RenderCommand::SetState(RenderState::CULL, false);
+        shader->Bind();
+        Renderer::Submit(mc.model, shader);
         RenderCommand::SetState(RenderState::CULL, true);
     }
 

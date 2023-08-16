@@ -15,6 +15,7 @@ namespace Kaesar {
 
         // Depth/stencil
         DEPTH24STENCIL8,
+        DEPTH32
     };
 
     struct FramebufferTextureSpecification
@@ -63,6 +64,7 @@ namespace Kaesar {
 
         virtual uint32_t GetRendererID() const = 0;
         virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
+        virtual uint32_t GetDepthAttachmentRendererID() const = 0;
         virtual void ClearAttachment(uint32_t index, int value) = 0;
 
         virtual const FramebufferSpecification& GetSpecification() const = 0;

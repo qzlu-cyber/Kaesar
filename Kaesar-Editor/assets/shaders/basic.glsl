@@ -21,15 +21,27 @@ layout(binding = 1) uniform Transform
 	int u_ID;
 } transform;
 
-layout(location = 0) out vec3 v_FragPos;
-layout(location = 1) out vec3 v_Normal;
-layout(location = 2) out vec2 v_TexCroods;
+layout(binding = 4) uniform Shadow
+{
+	mat4 u_LightViewProjection;
+} shadow;
+
+struct VS_OUT 
+{
+	vec3 v_FragPos;
+	vec3 v_Normal;
+	vec2 v_TexCroods;
+	vec4 v_FragPosLightSpace;
+};
+
+layout(location = 0) out VS_OUT vs_out;
 
 void main()
 {
-	v_FragPos = vec3(transform.u_Trans * vec4(a_Position, 1.0));
-	v_Normal = mat3(transpose(inverse(transform.u_Trans))) * a_Normal;
-	v_TexCroods = a_TexCroods;
+	vs_out.v_FragPos = vec3(transform.u_Trans * vec4(a_Position, 1.0));
+	vs_out.v_Normal = mat3(transpose(inverse(transform.u_Trans))) * a_Normal;
+	vs_out.v_TexCroods = a_TexCroods;
+    vs_out.v_FragPosLightSpace = shadow.u_LightViewProjection * vec4(vs_out.v_FragPos, 1.0); // 将顶点从世界空间转换到光空间
 	gl_Position = camera.u_ViewProjection * transform.u_Trans * vec4(a_Position, 1.0);
 }
 
@@ -39,13 +51,10 @@ void main()
 
 layout(location = 0) out vec4 FragColor;
 
-layout(location = 0) in vec3 v_FragPos;
-layout(location = 1) in vec3 v_Normal;
-layout(location = 2) in vec2 v_TexCroods;
-
 layout(binding = 0) uniform sampler2D texture_diffuse;
 layout(binding = 1) uniform sampler2D texture_specular;
 layout(binding = 2) uniform sampler2D texture_normal;
+layout(binding = 3) uniform sampler2D shadowMap;
 
 layout(binding = 0) uniform Camera
 {
@@ -115,14 +124,25 @@ layout(binding = 3) uniform Params
     float outerCutOff;
 } params;
 
+struct VS_OUT 
+{
+	vec3 v_FragPos;
+	vec3 v_Normal;
+	vec2 v_TexCroods;
+	vec4 v_FragPosLightSpace;
+};
+
+layout(location = 0) in VS_OUT fs_in;
+
+float ShadowCalculation(vec4 fragPosLightSpace);
 vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir);
 vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir);
 vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir);
 
 void main()
 {	
-	vec3 normal = normalize(v_Normal);
-    vec3 viewDir = normalize(camera.u_CameraPos - v_FragPos);
+	vec3 normal = normalize(fs_in.v_Normal);
+    vec3 viewDir = normalize(camera.u_CameraPos - fs_in.v_FragPos);
 
     vec3 result = vec3(0);
     result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir);
@@ -134,32 +154,38 @@ void main()
 
 vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 ambient = params.dirIntensity * 0.05 * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 color = vec3(texture(texture_diffuse, fs_in.v_TexCroods));
+    vec3 lightColor = vec3(1.0);
+
+    vec3 ambient = 0.3 * color;
 
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * params.dirIntensity * 0.4 * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 diffuse = diff * lightColor;
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
-    vec3 specular = spec * params.dirIntensity * 0.5 * vec3(texture(texture_specular, v_TexCroods));
+    vec3 specular = spec * lightColor;
 
-    return (ambient + diffuse + specular);
+    float shadow = ShadowCalculation(fs_in.v_FragPosLightSpace);       
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color; 
+
+    return lighting;
 }
 
 vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
 
-    vec3 lightDir = normalize(light.position - v_FragPos);
+    vec3 lightDir = normalize(light.position - fs_in.v_FragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
-    vec3 specular = spec * light.specular * vec3(texture(texture_specular, v_TexCroods));
+    vec3 specular = spec * light.specular * vec3(texture(texture_specular, fs_in.v_TexCroods));
 
-    float dist = length(light.position - v_FragPos);
+    float dist = length(light.position - fs_in.v_FragPos);
     float attenuation = 1.0 / (1.0 + (params.pointLinear * dist) + (params.pointQuadratic * dist * dist));
 
     return (ambient + diffuse + specular) * attenuation;
@@ -167,17 +193,17 @@ vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir)
 
 vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
 
-    vec3 lightDir = normalize(light.position - v_FragPos);
+    vec3 lightDir = normalize(light.position - fs_in.v_FragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, v_TexCroods));
+    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
-    vec3 specular = spec * light.specular * vec3(texture(texture_specular, v_TexCroods));
+    vec3 specular = spec * light.specular * vec3(texture(texture_specular, fs_in.v_TexCroods));
 
-    float dist = length(light.position - v_FragPos);
+    float dist = length(light.position - fs_in.v_FragPos);
     float attenuation = 1.0 / (1.0 + (params.spotLinear * dist) + (params.spotQuadratic * dist * dist));
 
     float theta = dot(lightDir, normalize(-light.direction));
@@ -185,4 +211,24 @@ vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir)
     float intensity = clamp((theta - params.outerCutOff) / epsilon, 0.0, 1.0);
 
     return (ambient + diffuse + specular) * attenuation * intensity;
+}
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // 执行透视除法，转为 NDC 坐标
+    // 当在顶点着色器输出一个裁切空间顶点位置到 gl_Position 时，OpenGL 自动进行透视除法，将裁切空间坐标的范围 -w 到 w 转为 -1 到 1。
+    // 由于裁切空间的 FragPosLightSpace 并不会通过 gl_Position 传到片段着色器里，所以必须自己做透视除法
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // 转为 [0, 1] 范围的坐标
+    projCoords = projCoords * 0.5 + 0.5;
+    // 取得最近点的深度（使用 [0, 1] 范围的坐标对深度贴图采样）
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    // 取得当前片段在光源视角下的深度
+    float currentDepth = projCoords.z;
+
+    // 检查当前片段是否在阴影中
+    float bias = 0.005;
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
 }

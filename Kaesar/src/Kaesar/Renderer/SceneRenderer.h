@@ -24,6 +24,7 @@ namespace Kaesar {
         static void RenderScene(Scene& scene);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material);
+        static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, const std::shared_ptr<Shader>& shader);
         static void RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void EndScene();
 
@@ -87,6 +88,11 @@ namespace Kaesar {
             float outerCutOff;
         };
 
+        struct ShadowData
+        {
+            glm::mat4 lightViewProjection;
+        };
+
         struct SceneData
         {
             CameraData cameraBuffer;
@@ -99,16 +105,21 @@ namespace Kaesar {
             SpotLightData spotLightBuffer;
             LightsParams lightsParamsBuffer;
 
+            glm::mat4 lightProjection;
+            glm::mat4 lightView;
+            ShadowData shadowBuffer;
+
             std::shared_ptr<VertexArray> vertexArray;
 
             ShaderLibrary shaders;
 
-            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader;
+            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader, depthShader;
 
-            std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB;
+            std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB, shadowFB;
 
             std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, 
-                                           lightsUniformBuffer, lightsParamsUniformBuffer;
+                                           lightsUniformBuffer, lightsParamsUniformBuffer,
+                                           shadowUniformBuffer;
 
             glm::vec3 clearColor;
         };

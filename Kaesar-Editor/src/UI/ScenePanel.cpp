@@ -682,7 +682,7 @@ namespace Kaesar {
                 ImGui::SetNextItemWidth(60);
                 ImGui::Text(u8"方   向\0");
                 ImGui::SameLine();
-                ImGui::SliderFloat3(u8"##方向", glm::value_ptr(dir), -2 * PI, 2 * PI, "%.3f");
+                ImGui::DragFloat3(u8"##方向", glm::value_ptr(dir), 0.01f, -2 * PI, 2 * PI, "%.3f");
                 light->SetDirection(dir);
             }
 

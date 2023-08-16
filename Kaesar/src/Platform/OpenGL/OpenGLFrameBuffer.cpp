@@ -147,6 +147,7 @@ namespace Kaesar {
         switch (format)
         {
             case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
+            case FramebufferTextureFormat::DEPTH32:          return true;
         }
 
         return false;
@@ -224,12 +225,16 @@ namespace Kaesar {
             BindTexture(multisample, m_DepthAttachment);
             switch (m_DepthAttachmentSpecification.TextureFormat)
             {
-            case FramebufferTextureFormat::DEPTH24STENCIL8:
-                //AttachRenderBuffer(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
-                AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, 
-                    GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, 
-                          m_Specification.Width, m_Specification.Height);
-                break;
+                case FramebufferTextureFormat::DEPTH24STENCIL8:
+                    //AttachRenderBuffer(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
+                    AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, 
+                        GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, 
+                              m_Specification.Width, m_Specification.Height);
+                    break;
+                case FramebufferTextureFormat::DEPTH32:
+                    AttachDepthTexture(m_DepthAttachment, m_Specification.Samples,
+                        GL_DEPTH_COMPONENT32, GL_DEPTH_ATTACHMENT,
+                              m_Specification.Width, m_Specification.Height);
             }
         }
 
@@ -243,8 +248,10 @@ namespace Kaesar {
         }
         else if (m_ColorAttachments.empty())
         {
-            // Only depth-pass
+            // 需要的只是在从光的透视图下渲染场景的时候深度信息，所以颜色缓冲没有用。然而，不包含颜色缓冲的帧缓冲对象是不完整的，
+            // 所以要显式告诉 OpenGL 不适用任何颜色数据进行渲染。通过将调用 glDrawBuffer 和 glReadBuffer 把读和绘制缓冲设置为 GL_NONE 来实现
             glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
         }
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
