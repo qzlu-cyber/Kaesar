@@ -288,7 +288,6 @@ namespace Kaesar
     void SceneRenderer::EndScene()
     {
         s_Data->postProcessFB->Bind();
-        RenderCommand::SetState(RenderState::SRGB, true);
         RenderCommand::Clear();
         RenderCommand::DisableDepthTest();
 
@@ -297,7 +296,6 @@ namespace Kaesar
         s_Data->quadShader->SetFloat("pc.gamma", s_Data->gamma);
         Texture2D::BindTexture(s_Data->mainFB->GetColorAttachmentRendererID(), 0);
         Renderer::Submit(s_Data->vertexArray, s_Data->quadShader);
-        RenderCommand::SetState(RenderState::SRGB, false);
         s_Data->postProcessFB->Unbind();
         Renderer::EndScene();
     }

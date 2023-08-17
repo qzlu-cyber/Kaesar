@@ -3,11 +3,11 @@ Camera:
   FOV: 45
   Near: 0.100000001
   Far: 100
-  Yaw: 19.4832458
-  Pitch: 0.510983825
-  Position: [-9.69759083, 9.18216515, 13.1979246]
+  Yaw: 6.34435892
+  Pitch: 0.531964421
+  Position: [-0.436987191, 4.20693111, 7.13447952]
   FocalPoint: [0, 0, 0]
-  Distance: 18.7760658
+  Distance: 8.29397488
 Entities:
   - Entity: 0
     TagComponent:
@@ -54,22 +54,22 @@ Entities:
       Ambient: [0.0500000007, 0.0500000007, 0.0500000007]
       Diffuse: [0.400000006, 0.400000006, 0.400000006]
       Specular: [0.5, 0.5, 0.5]
-      Direction: [4, 2, 1]
-  - Entity: 3
+      Direction: [2, 1.5, 2]
+  - Entity: 1048579
     TagComponent:
       Tag: 点光源
     TransformComponent:
-      Translation: [0.954266965, 2.6560936, 1.25501323]
-      Rotation: [3.14159226, 0, 3.14159226]
+      Translation: [2.20000005, 2.29999995, 2.5999999]
+      Rotation: [0, 0, 0]
       Scale: [0.200000003, 0.200000003, 0.200000003]
     MeshComponent:
-      Path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\cube\cube.obj
+      Path: \assets\models\cube\cube.obj
     LightComponent:
       Type: 1
-      Intensity: 1
+      Intensity: 0.200000003
       Ambient: [1, 1, 1]
       Diffuse: [1, 1, 1]
       Specular: [1, 1, 1]
-      Position: [0.954266965, 2.6560936, 1.29904044]
-      Linear: 0.150000006
-      Quadratic: 0.0890000015
+      Position: [0, 0, 0]
+      Linear: 0.0900000036
+      Quadratic: 0.0320000015

@@ -170,6 +170,9 @@ namespace Kaesar {
                 else
                 {
                     auto tex = Texture2D::Create(filename, 0, type == aiTextureType_DIFFUSE);
+                }
+                if (tex)
+                {
                     textures.push_back(tex);
                     texture.id = tex->GetRendererID();
                     texture.type = typeName;

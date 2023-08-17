@@ -428,8 +428,9 @@ namespace Kaesar {
                     if (ImGui::Selectable(m_ShaderNames[n].c_str(), is_selected)) 
                     {
                         item_current_idx = n;
-                        materialComponent.material = Material::Create(m_Shaders.Get(m_ShaderNames[n]));
                         m_SelectedShader = m_ShaderNames[n];
+                        materialComponent.material = Material::Create(m_Shaders.Get(m_SelectedShader));
+                        materialComponent.shader = m_Shaders.Get(m_SelectedShader);
                     }
                     // 设置默认的焦点
                     if (is_selected)

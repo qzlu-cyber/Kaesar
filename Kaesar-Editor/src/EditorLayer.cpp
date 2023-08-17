@@ -363,6 +363,8 @@ namespace Kaesar {
         m_ActiveScene = std::make_shared<Scene>();
         m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
         m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+
+        Application::Get().GetWindow().SetWindowTitle("Kaesar Rendering Engine - new scene");
     }
 
     void EditorLayer::OpenScene()
