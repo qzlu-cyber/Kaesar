@@ -179,20 +179,7 @@ namespace Kaesar {
         m_ScenePanel->OnImGuiRender();
 
         /// ====================== Scene Setting ========================
-        ImGui::Begin(u8"场景设置");
-
-        static float exposure = 1.0f;
-        ImGui::DragFloat(u8"曝光度", &exposure, 0.001f, -2, 4);
-        SceneRenderer::SetExposure(exposure);
-
-        static float gamma = 1.0f;
-        ImGui::DragFloat("gamma", &gamma, 0.01f, 0, 4);
-        SceneRenderer::SetGamma(gamma);
-
-        static bool vSync = true;
-        ImGui::Checkbox(u8"垂直同步", &vSync);
-        Application::Get().GetWindow().SetVSync(vSync);
-        ImGui::End();
+        SceneRenderer::OnImGuiUpdate();
 
         /// ====================== Renderer info ========================
         ImGui::Begin("Renderer info");

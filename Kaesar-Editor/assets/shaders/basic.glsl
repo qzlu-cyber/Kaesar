@@ -134,7 +134,7 @@ struct VS_OUT
 
 layout(location = 0) in VS_OUT fs_in;
 
-float ShadowCalculation(vec4 fragPosLightSpace);
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir);
 vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir);
 vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir);
 vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir);
@@ -157,17 +157,17 @@ vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir)
     vec3 color = vec3(texture(texture_diffuse, fs_in.v_TexCroods));
     vec3 lightColor = vec3(1.0);
 
-    vec3 ambient = 0.3 * color;
+    vec3 ambient = 0.3 * params.dirIntensity * color;
 
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 diffuse = diff * params.dirIntensity * lightColor;
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
-    vec3 specular = spec * lightColor;
+    vec3 specular = spec * params.dirIntensity * lightColor;
 
-    float shadow = ShadowCalculation(fs_in.v_FragPosLightSpace);       
+    float shadow = ShadowCalculation(fs_in.v_FragPosLightSpace, normal, lightDir);       
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color; 
 
     return lighting;
@@ -213,7 +213,7 @@ vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir)
     return (ambient + diffuse + specular) * attenuation * intensity;
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
     // 执行透视除法，转为 NDC 坐标
     // 当在顶点着色器输出一个裁切空间顶点位置到 gl_Position 时，OpenGL 自动进行透视除法，将裁切空间坐标的范围 -w 到 w 转为 -1 到 1。
@@ -226,9 +226,25 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // 取得当前片段在光源视角下的深度
     float currentDepth = projCoords.z;
 
-    // 检查当前片段是否在阴影中
+    float shadow = 0.0;
+    // textureSize 返回一个给定采样器纹理的 0 级 mipmap 的 vec2 类型的宽和高
+    // 用 1 除以它返回一个单独纹理像素的大小
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
     float bias = 0.005;
-    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            // 检查当前片段周围 9 个片段的深度值
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+
+    // 取平均值
+    shadow /= 9.0;
 
     return shadow;
 }

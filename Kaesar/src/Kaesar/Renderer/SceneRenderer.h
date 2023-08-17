@@ -28,6 +28,8 @@ namespace Kaesar {
         static void RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void EndScene();
 
+        static void OnImGuiUpdate();
+
         static void OnViewportResize(uint32_t width, uint32_t height);
 
         static void SetExposure(float exposure) { s_Data->exposure = exposure; }

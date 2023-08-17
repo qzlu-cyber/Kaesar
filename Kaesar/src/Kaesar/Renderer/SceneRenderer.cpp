@@ -4,8 +4,10 @@
 #include "Kaesar/Scene/Scene.h"
 #include "Kaesar/Renderer/RenderCommand.h"
 #include "Kaesar/Renderer/Renderer.h"
+#include "Kaesar/Core/Application.h"
 
 #include <glad/glad.h>
+#include "imgui.h"
 
 namespace Kaesar
 {
@@ -298,6 +300,37 @@ namespace Kaesar
         RenderCommand::SetState(RenderState::SRGB, false);
         s_Data->postProcessFB->Unbind();
         Renderer::EndScene();
+    }
+
+    void SceneRenderer::OnImGuiUpdate()
+    {
+        /// ====================== Scene Setting ========================
+        ImGui::Begin(u8"场景设置");
+
+        ImGui::DragFloat(u8"曝光度", &s_Data->exposure, 0.001f, -2, 4);
+
+        ImGui::DragFloat("gamma", &s_Data->gamma, 0.01f, 0, 4);
+
+        static bool vSync = true;
+        ImGui::Checkbox(u8"垂直同步", &vSync);
+        Application::Get().GetWindow().SetVSync(vSync);
+
+        //DepthMap
+        static bool showDepth = false;
+        if (ImGui::Button(u8"深度贴图"))
+        {
+            showDepth = !showDepth;
+        }
+
+        ImGui::End();
+
+        if (showDepth) 
+        {
+            ImGui::Begin(u8"深度贴图");
+            ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+            ImGui::Image(reinterpret_cast<void*>(s_Data->shadowFB->GetDepthAttachmentRendererID()), viewportPanelSize);
+            ImGui::End();
+        }
     }
 
     void SceneRenderer::OnViewportResize(uint32_t width, uint32_t height)
