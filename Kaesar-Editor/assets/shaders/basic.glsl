@@ -174,7 +174,7 @@ float SearchWidth(float uvLightSize, float receiverDistance)
 /// params uvLightSize 表示光源的大小，通常在纹理坐标中定义
 /// params bias 表示阴影映射中的偏移量
 /// return 遮挡距离
-float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvLightSize,float bias)
+float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvLightSize, float bias)
 {
 	int blockers = 0; // 遮挡者的数量
 	float avgBlockerDistance = 0; // 遮挡者的深度值
@@ -188,8 +188,8 @@ float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2DShadow sh
         // 计算用于采样的纹理坐标，使用了 RandomDirection 将随机方向与光源大小结合，以便在光源区域内随机采样
 		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution0, i / float(push.numPCFSamples)) * uvLightSize, (shadowCoords.z - bias));
 		float z = texture(shadowMap, uvc); // 从阴影贴图中获取遮挡者的深度
-		// 如果深度大于 0.5，表示该位置有遮挡者
-        if (z > 0.5) 
+		
+        if (z < 0.5) // 如果遮挡者的深度小于当前片段的深度，则表示该片段被遮挡，但是如果和 (shadowCoords.z - bias) 比较，阴影走样很严重😅 和 0.5 比较结果要好得多😅 Why? 🤔
 		{
 			blockers++;
 			avgBlockerDistance += z;
