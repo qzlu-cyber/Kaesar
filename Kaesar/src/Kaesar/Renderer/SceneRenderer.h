@@ -102,6 +102,7 @@ namespace Kaesar {
 
             float exposure; // 曝光度
             float gamma; // gamma 矫正
+            float lightSize;
             DirectionalLightData directionalLightBuffer;
             PointLightData pointLightBuffer;
             SpotLightData spotLightBuffer;
@@ -112,6 +113,8 @@ namespace Kaesar {
             ShadowData shadowBuffer;
 
             std::shared_ptr<VertexArray> vertexArray;
+
+            std::shared_ptr<Texture1D> distributionSampler, distributionSampler0, distributionSampler1; // 用于 PCF 阴影采样
 
             ShaderLibrary shaders;
 

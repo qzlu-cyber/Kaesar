@@ -96,29 +96,21 @@ namespace Kaesar {
         glDeleteTextures(1, &m_RendererID);
     }
 
-    void OpenGLTexture2D::Active(int index = 0) const
-    {
-        glActiveTexture(GL_TEXTURE0 + index);
-    }
-
     void OpenGLTexture2D::Bind(uint32_t slot) const
     {
         glBindTextureUnit(slot, m_RendererID);
     }
 
-    void OpenGLTexture2D::Unbind() const
+    void OpenGLTexture2D::UnBind() const
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void OpenGLTexture2D::BindMultisample(unsigned int id) const
+    void OpenGLTexture2D::SetData(void* data, uint32_t size)
     {
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, id);
-    }
-
-    void OpenGLTexture2D::UnbindMultisample() const
-    {
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+        uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+        KR_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+        glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
     }
 
     bool OpenGLTexture2D::operator==(const Texture& other) const

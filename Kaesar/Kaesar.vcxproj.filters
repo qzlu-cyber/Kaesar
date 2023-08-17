@@ -1477,6 +1477,8 @@
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="src\Kaesar\Renderer\Light.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture1D.h" />
+    <ClInclude Include="src\Kaesar\Utils\PoissonGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1602,5 +1604,6 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture1D.cpp" />
   </ItemGroup>
 </Project>

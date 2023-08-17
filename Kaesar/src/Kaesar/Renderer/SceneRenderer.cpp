@@ -5,6 +5,7 @@
 #include "Kaesar/Renderer/RenderCommand.h"
 #include "Kaesar/Renderer/Renderer.h"
 #include "Kaesar/Core/Application.h"
+#include "Kaesar/Utils/PoissonGenerator.h"
 
 #include <glad/glad.h>
 #include "imgui.h"
@@ -12,6 +13,36 @@
 namespace Kaesar
 {
     SceneRenderer::SceneData* SceneRenderer::s_Data = new SceneRenderer::SceneData;
+
+    void GeneratePoissonDisk(std::shared_ptr<Texture1D>& sampler, size_t numSamples) 
+    {
+        PoissonGenerator::DefaultPRNG PRNG; // 生成 Poisson-disc 分布的随机数生成器
+        size_t attempts = 0; // 生成 Poisson-disc 分布的尝试次数
+        // 使用 Poisson Disk Sampling 方法生成 numSamples * 2 个点，并将结果保存在 points 中
+        auto points = PoissonGenerator::generatePoissonPoints(numSamples * 2, PRNG);
+
+        // 如果生成的点数量不足 numSamples 个，则再次生成
+        while (points.size() < numSamples && ++attempts < 100)
+            auto points = PoissonGenerator::generatePoissonPoints(numSamples * 2, PRNG);
+
+        // 如果尝试次数达到 100 次仍然无法生成足够的点，则报错
+        if (attempts == 100)
+        {
+            KR_CORE_ERROR("无法生成 {0} 个 Poisson-disc 分布样本点！", numSamples);
+            numSamples = points.size();
+        }
+
+        std::vector<float> data(numSamples * 2); // 用于保存样本点的数据
+        for (auto i = 0, j = 0; i < numSamples; i++, j += 2)
+        {
+            auto& point = points[i];
+            // 将样本点的 x, y 坐标保存在 data 中
+            data[j] = point.x;
+            data[j + 1] = point.y;
+        }
+
+        sampler = Texture1D::Create(numSamples, &data[0]);
+    }
 
     void SceneRenderer::Initialize()
     {
@@ -87,6 +118,10 @@ namespace Kaesar
 
         s_Data->exposure = 0.2f;
         s_Data->gamma = 2.2f;
+        s_Data->lightSize = 0.001f;
+        
+        GeneratePoissonDisk(s_Data->distributionSampler0, 32);
+        GeneratePoissonDisk(s_Data->distributionSampler1, 32);
 
         s_Data->lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 500.0f);
 
@@ -211,6 +246,12 @@ namespace Kaesar
         s_Data->mainFB->Bind();
         RenderCommand::SetState(RenderState::DEPTH_TEST, true);
         RenderCommand::Clear();
+
+        s_Data->basicShader->Bind();
+        Texture2D::BindTexture(s_Data->shadowFB->GetDepthAttachmentRendererID(), 3);
+        Texture1D::BindTexture(s_Data->distributionSampler0->GetRendererID(), 4);
+        Texture1D::BindTexture(s_Data->distributionSampler1->GetRendererID(), 5);
+        s_Data->basicShader->SetFloat("push.size", s_Data->lightSize);
         for (auto entity : view)
         {
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -228,7 +269,6 @@ namespace Kaesar
                 }
                 else
                 {
-                    Texture2D::BindTexture(s_Data->shadowFB->GetDepthAttachmentRendererID(), 3);
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent); // 否则使用默认渲染
                 }
             }
@@ -305,9 +345,11 @@ namespace Kaesar
         /// ====================== Scene Setting ========================
         ImGui::Begin(u8"场景设置");
 
-        ImGui::DragFloat(u8"曝光度", &s_Data->exposure, 0.001f, -2, 4);
+        ImGui::DragFloat(u8"曝   光", &s_Data->exposure, 0.001f, -2, 4);
 
-        ImGui::DragFloat("gamma", &s_Data->gamma, 0.01f, 0, 4);
+        ImGui::DragFloat(u8"gamma值", &s_Data->gamma, 0.01f, 0, 4);
+
+        ImGui::DragFloat(u8"光源大小", &s_Data->lightSize, 0.0001, 0, 100);
 
         static bool vSync = true;
         ImGui::Checkbox(u8"垂直同步", &vSync);

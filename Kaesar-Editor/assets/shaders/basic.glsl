@@ -54,7 +54,9 @@ layout(location = 0) out vec4 FragColor;
 layout(binding = 0) uniform sampler2D texture_diffuse;
 layout(binding = 1) uniform sampler2D texture_specular;
 layout(binding = 2) uniform sampler2D texture_normal;
-layout(binding = 3) uniform sampler2D shadowMap;
+layout(binding = 3) uniform sampler2DShadow shadowMap;
+layout(binding = 4) uniform sampler1D distribution0;
+layout(binding = 5) uniform sampler1D distribution1;
 
 layout(binding = 0) uniform Camera
 {
@@ -124,6 +126,11 @@ layout(binding = 3) uniform Params
     float outerCutOff;
 } params;
 
+layout(push_constant) uniform pc
+{
+	float size;
+} push;
+
 struct VS_OUT 
 {
 	vec3 v_FragPos;
@@ -134,10 +141,131 @@ struct VS_OUT
 
 layout(location = 0) in VS_OUT fs_in;
 
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir);
+const int numPCFSamples = 32; // 阴影映射中的 PCF 样本数
+const int numBlockerSearchSamples = 32; // 阴影映射中的阴影搜索样本数
+
 vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir);
 vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir);
 vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir);
+
+// 通过在指定的分布中进行采样，生成一个在二维平面上的随机方向向量
+vec2 RandomDirection(sampler1D distribution, float u)
+{
+    // 从采样器 sampler1D 中使用参数 u 进行采样，返回一个二维向量，其中 x 分量和 y 分量分别存储了从采样器中获取的数据
+    // 将提取的二维向量的每个分量都乘以 2，从而将分量的范围从 [0, 1] 映射到 [0, 2]
+    // 将得到的向量的每个分量都减去 1，将范围从 [0, 2] 映射到 [-1, 1]
+   return texture(distribution, u).xy * 2 - vec2(1);
+}
+
+/// 计算在某个光源到接收器之间搜索宽度
+/// params uvLightSize 表示光源的大小，通常在纹理坐标中定义
+/// params receiverDistance 表示接收器（通常是相机或物体）与光源之间的距离
+/// return 搜索宽度
+float SearchWidth(float uvLightSize, float receiverDistance)
+{
+	return uvLightSize * (receiverDistance - 1.0) / receiverDistance;
+}
+
+/// 计算平行光源下阴影映射中的遮挡距离
+/// params shadowCoords 表示从片段着色器中计算出的阴影坐标
+/// params shadowMap 阴影贴图的采样器，用于从贴图中获取深度信息
+/// params uvLightSize 表示光源的大小，通常在纹理坐标中定义
+/// params bias 表示阴影映射中的偏移量
+/// return 遮挡距离
+float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvLightSize,float bias)
+{
+	int blockers = 0; // 遮挡者的数量
+	float avgBlockerDistance = 0; // 遮挡者的深度值
+
+    // 计算搜索宽度，用于确定在阴影贴图中搜索遮挡者的范围
+	float searchWidth = SearchWidth(uvLightSize, shadowCoords.z);
+
+    // 从阴影贴图中搜索遮挡者
+	for (int i = 0; i < numBlockerSearchSamples; i++)
+	{
+        // 计算用于采样的纹理坐标，使用了 RandomDirection 将随机方向与光源大小结合，以便在光源区域内随机采样
+		vec3 uvc =  vec3(shadowCoords.xy + RandomDirection(distribution0, i / float(numPCFSamples)) * uvLightSize, (shadowCoords.z - bias));
+		float z = texture(shadowMap, uvc); // 从阴影贴图中获取遮挡者的深度
+		// 如果深度大于 0.5，表示该位置有遮挡者
+        if (z > 0.5) 
+		{
+			blockers++;
+			avgBlockerDistance += z;
+		}
+	}
+
+	if (blockers > 0)
+		return avgBlockerDistance / blockers;
+	else
+		return -1;
+}
+
+/// 计算平行光源下阴影映射中的 PCF 阴影
+/// params shadowCoords 表示从片段着色器中计算出的阴影坐标
+/// params shadowMap 阴影贴图的采样器，用于从贴图中获取深度信息
+/// params uvRadius 表示光源的半径，通常在纹理坐标中定义
+/// params bias 表示阴影映射中的偏移量
+float PCF_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvRadius, float bias)
+{
+	float sum = 0; // 存储多个采样点的深度之和
+
+    // 在阴影贴图中进行多次采样，以计算平均深度
+	for (int i = 0; i < numPCFSamples; i++)
+	{
+        // 在光源区域内随机采样
+		vec3 uvc =  vec3(shadowCoords.xy + RandomDirection(distribution1, i / float(numPCFSamples)) * uvRadius, (shadowCoords.z - bias));
+		float z = texture(shadowMap, uvc);
+		sum += z;
+	}
+
+	return sum / numPCFSamples;
+}
+
+/// 计算平行光源下阴影映射中的 PCSS 阴影
+/// params shadowCoords 表示从片段着色器中计算出的阴影坐标
+/// params shadowMap 阴影贴图的采样器，用于从贴图中获取深度信息
+/// params uvLightSize 表示光源的大小，通常在纹理坐标中定义
+/// params bias 表示阴影映射中的偏移量
+float PCSS_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvLightSize, float bias)
+{
+	// Blocker search
+	float blockerDistance = FindBlockerDistance_DirectionalLight(shadowCoords, shadowMap, uvLightSize, bias);
+
+	if (blockerDistance == -1) // 没有遮挡者，不存在阴影
+		return 0;		
+
+	// Penumbra estimation
+	float penumbraWidth = (shadowCoords.z - blockerDistance) / blockerDistance;
+
+	// PCF
+	float uvRadius = penumbraWidth * uvLightSize * 1.0 / shadowCoords.z; // 计算用于 PCF 采样的半径
+
+	return PCF_DirectionalLight(shadowCoords, shadowMap, uvRadius, bias);
+}
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // 执行透视除法，转为 NDC 坐标
+    // 当在顶点着色器输出一个裁切空间顶点位置到 gl_Position 时，OpenGL 自动进行透视除法，将裁切空间坐标的范围 -w 到 w 转为 -1 到 1。
+    // 由于裁切空间的 FragPosLightSpace 并不会通过 gl_Position 传到片段着色器里，所以必须自己做透视除法
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // 转为 [0, 1] 范围的坐标
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // 取得当前片段在光源视角下的深度
+    float currentDepth = projCoords.z;
+
+    vec3 normal = normalize(fs_in.v_Normal);
+    vec3 lightDir = normalize(-lights.directionalLight.direction);
+    float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001); 
+
+    float shadow = PCSS_DirectionalLight(projCoords, shadowMap, push.size, bias);
+    
+    if(projCoords.z > 1.0) // 超出光源视锥，不考虑阴影
+        shadow = 0.0;
+
+    return shadow;
+}
 
 void main()
 {	
@@ -167,7 +295,7 @@ vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
     vec3 specular = spec * params.dirIntensity * lightColor;
 
-    float shadow = ShadowCalculation(fs_in.v_FragPosLightSpace, normal, lightDir);       
+    float shadow = ShadowCalculation(fs_in.v_FragPosLightSpace);
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color; 
 
     return lighting;
@@ -211,40 +339,4 @@ vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir)
     float intensity = clamp((theta - params.outerCutOff) / epsilon, 0.0, 1.0);
 
     return (ambient + diffuse + specular) * attenuation * intensity;
-}
-
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
-{
-    // 执行透视除法，转为 NDC 坐标
-    // 当在顶点着色器输出一个裁切空间顶点位置到 gl_Position 时，OpenGL 自动进行透视除法，将裁切空间坐标的范围 -w 到 w 转为 -1 到 1。
-    // 由于裁切空间的 FragPosLightSpace 并不会通过 gl_Position 传到片段着色器里，所以必须自己做透视除法
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // 转为 [0, 1] 范围的坐标
-    projCoords = projCoords * 0.5 + 0.5;
-    // 取得最近点的深度（使用 [0, 1] 范围的坐标对深度贴图采样）
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-    // 取得当前片段在光源视角下的深度
-    float currentDepth = projCoords.z;
-
-    float shadow = 0.0;
-    // textureSize 返回一个给定采样器纹理的 0 级 mipmap 的 vec2 类型的宽和高
-    // 用 1 除以它返回一个单独纹理像素的大小
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-
-    float bias = 0.005;
-
-    for (int x = -1; x <= 1; ++x)
-    {
-        for (int y = -1; y <= 1; ++y)
-        {
-            // 检查当前片段周围 9 个片段的深度值
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-        }
-    }
-
-    // 取平均值
-    shadow /= 9.0;
-
-    return shadow;
 }
