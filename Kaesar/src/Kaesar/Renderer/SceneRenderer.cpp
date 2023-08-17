@@ -147,7 +147,7 @@ namespace Kaesar
                 s_Data->directionalLightBuffer.direction = light->GetDirection();
 
                 // shadow
-                s_Data->lightView = glm::lookAt(-(glm::vec3(s_Data->directionalLightBuffer.direction) * 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                s_Data->lightView = glm::lookAt(glm::vec3(s_Data->directionalLightBuffer.direction), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 s_Data->shadowBuffer.lightViewProjection = s_Data->lightProjection * s_Data->lightView;
                 s_Data->shadowUniformBuffer->SetData(&s_Data->shadowBuffer, sizeof(glm::mat4));
 

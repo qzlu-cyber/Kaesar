@@ -391,7 +391,9 @@ namespace Kaesar {
             TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
             DrawVec3Control(u8"位置", transformComponent.Translation);
             ImGui::Separator();
-            DrawVec3Control(u8"旋转", transformComponent.Rotation);
+            glm::vec3 Rot = glm::degrees(transformComponent.Rotation);
+            DrawVec3Control(u8"旋转", Rot);
+            transformComponent.Rotation = glm::radians(Rot);
             ImGui::Separator();
             DrawVec3Control(u8"缩放", transformComponent.Scale, 1.0f);
 

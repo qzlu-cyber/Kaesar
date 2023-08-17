@@ -2,7 +2,6 @@
 bin/
 bin-int/
 
-*.kaesar
 *.user
 *.json
 *.srctrlbm

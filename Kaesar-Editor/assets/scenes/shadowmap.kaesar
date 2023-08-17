@@ -1,0 +1,75 @@
+Scene: shadowmap
+Camera:
+  FOV: 45
+  Near: 0.100000001
+  Far: 100
+  Yaw: 19.4832458
+  Pitch: 0.510983825
+  Position: [-9.69759083, 9.18216515, 13.1979246]
+  FocalPoint: [0, 0, 0]
+  Distance: 18.7760658
+Entities:
+  - Entity: 0
+    TagComponent:
+      Tag: 地板
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [-3.14159274, 0, 0]
+      Scale: [10, 10, 10]
+    MeshComponent:
+      Path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\plane\plane.obj
+    MaterialComponent:
+      Shader: basic
+      Textures:
+        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\cube\default.png}
+        - {binding: 1, path: ""}
+        - {binding: 2, path: ""}
+        - {binding: 3, path: ""}
+  - Entity: 1
+    TagComponent:
+      Tag: Marry
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0.785398185, 0]
+      Scale: [1, 1, 1]
+    MeshComponent:
+      Path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\marry\Marry.obj
+    MaterialComponent:
+      Shader: basic
+      Textures:
+        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\marry\MC003_Kozakura_Mari.png}
+        - {binding: 1, path: ""}
+        - {binding: 2, path: ""}
+        - {binding: 3, path: ""}
+  - Entity: 2
+    TagComponent:
+      Tag: 平行光
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    LightComponent:
+      Type: 0
+      Intensity: 1
+      Ambient: [0.0500000007, 0.0500000007, 0.0500000007]
+      Diffuse: [0.400000006, 0.400000006, 0.400000006]
+      Specular: [0.5, 0.5, 0.5]
+      Direction: [4, 2, 1]
+  - Entity: 3
+    TagComponent:
+      Tag: 点光源
+    TransformComponent:
+      Translation: [0.954266965, 2.6560936, 1.25501323]
+      Rotation: [3.14159226, 0, 3.14159226]
+      Scale: [0.200000003, 0.200000003, 0.200000003]
+    MeshComponent:
+      Path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\cube\cube.obj
+    LightComponent:
+      Type: 1
+      Intensity: 1
+      Ambient: [1, 1, 1]
+      Diffuse: [1, 1, 1]
+      Specular: [1, 1, 1]
+      Position: [0.954266965, 2.6560936, 1.29904044]
+      Linear: 0.150000006
+      Quadratic: 0.0890000015
