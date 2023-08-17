@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <glm/glm.hpp>
 
 namespace Kaesar {
     // 帧缓冲纹理附件的格式
@@ -44,6 +45,7 @@ namespace Kaesar {
         uint32_t Width = 0, Height = 0;
         uint32_t Samples; // 多重采样样本数
         FramebufferAttachmentSpecification Attachments;
+        glm::vec4 ClearColor;
     };
 
     class FrameBuffer

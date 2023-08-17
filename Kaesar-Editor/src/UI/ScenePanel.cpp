@@ -13,7 +13,7 @@ namespace Kaesar {
     {
         m_Context = scene;
 
-        m_Shaders = SceneRenderer::s_Data->shaders;
+        m_Shaders = SceneRenderer::GetShaderLibrary();
         int size = m_Shaders.GetShaders().size();
         int index = 0;
         for (auto&& [name, shader] : m_Shaders.GetShaders())

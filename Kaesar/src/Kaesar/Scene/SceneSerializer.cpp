@@ -228,7 +228,7 @@ namespace Kaesar {
     SceneSerializer::SceneSerializer(const std::shared_ptr<Scene>& scene)
         : m_Scene(scene)
     {
-        m_Shaders = SceneRenderer::s_Data->shaders; // 获取到所有的 shader
+        m_Shaders = SceneRenderer::GetShaderLibrary(); // 获取到所有的 shader
     }
 
     void SceneSerializer::Serializer(const std::string& filepath)

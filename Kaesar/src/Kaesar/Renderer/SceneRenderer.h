@@ -7,6 +7,7 @@
 #include "Kaesar/Renderer/FrameBuffer.h"
 #include "Kaesar/Renderer/UniformBuffer.h"
 #include "Kaesar/Scene/Component.h"
+#include "Kaesar/Renderer/RenderPass.h"
 
 #include <entt.hpp>
 #include <memory>
@@ -20,6 +21,7 @@ namespace Kaesar {
     {
     public:
         static void Initialize();
+        static void UpdateLights(Scene& scene);
         static void BeginScene(const PerspectiveCamera& camera);
         static void RenderScene(Scene& scene);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
@@ -32,14 +34,13 @@ namespace Kaesar {
 
         static void OnViewportResize(uint32_t width, uint32_t height);
 
-        static void SetExposure(float exposure) { s_Data->exposure = exposure; }
-        static void SetGamma(float gamma) { s_Data->gamma = gamma; }
+        static uint32_t GetTextureID(int index);
+        static std::shared_ptr<FrameBuffer> GetMouseFB();
+        static FramebufferSpecification GetMainFBSpec();
 
-        static uint32_t GetTextureID(int index) { return s_Data->postProcessFB->GetColorAttachmentRendererID(index); }
-        static std::shared_ptr<FrameBuffer> GetMouseFB() { return s_Data->mouseFB; }
-        static FramebufferSpecification GetMainFBSpec() { return s_Data->mainFB->GetSpecification(); }
+        static ShaderLibrary& GetShaderLibrary();
 
-    private:
+    public:
         struct CameraData
         {
             glm::mat4 viewProjection;
@@ -95,11 +96,19 @@ namespace Kaesar {
             glm::mat4 lightViewProjection;
         };
 
+        struct DrawCall 
+        {
+            entt::entity id;
+            TransformComponent transformComponent;
+            MeshComponent meshComponent;
+        };
+
         struct SceneData
         {
             CameraData cameraBuffer;
             TransformData transformBuffer;
 
+            // lights
             float exposure; // 曝光度
             float gamma; // gamma 矫正
             float lightSize;
@@ -108,19 +117,25 @@ namespace Kaesar {
             SpotLightData spotLightBuffer;
             LightsParams lightsParamsBuffer;
 
+            // shadow
+            bool softShadow = true;
+            float numPCF = 32;
+            float numBlocker = 32;
             glm::mat4 lightProjection;
             glm::mat4 lightView;
             ShadowData shadowBuffer;
 
             std::shared_ptr<VertexArray> vertexArray;
 
-            std::shared_ptr<Texture1D> distributionSampler, distributionSampler0, distributionSampler1; // 用于 PCF 阴影采样
+            // Poisson-disk Distribution
+            std::shared_ptr<Texture1D> distributionSampler0, distributionSampler1; // 用于 PCF 阴影采样
 
+            // shader
             ShaderLibrary shaders;
-
             std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader, depthShader;
 
-            std::shared_ptr<FrameBuffer> mainFB, mouseFB, postProcessFB, shadowFB;
+            // FrameBuffers
+            std::shared_ptr<RenderPass> mainPass, shadowPass, mousePass, postPass;
 
             std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, 
                                            lightsUniformBuffer, lightsParamsUniformBuffer,
@@ -128,8 +143,6 @@ namespace Kaesar {
 
             glm::vec3 clearColor;
         };
-
-        static SceneData* s_Data;
 
         friend class ScenePanel;
         friend class SceneSerializer;
