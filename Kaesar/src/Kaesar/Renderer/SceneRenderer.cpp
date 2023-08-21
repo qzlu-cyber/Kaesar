@@ -50,10 +50,11 @@ namespace Kaesar
         FramebufferSpecification GeoFbSpec;
         GeoFbSpec.Attachments =
         {
-            FramebufferTextureFormat::RGBA16F,			// Position texture attachment
-            FramebufferTextureFormat::RGBA16F,			// Normal texture attachment
-            FramebufferTextureFormat::RGBA16F,			// Albedo-specular texture attachment
-            FramebufferTextureFormat::DEPTH24STENCIL8	// default depth map
+            FramebufferTextureFormat::RGBA16F,			// 坐标颜色缓冲
+            FramebufferTextureFormat::RGBA16F,			// 法线颜色缓冲
+            FramebufferTextureFormat::RGBA16F,			// 颜色 + 高光颜色缓冲
+            FramebufferTextureFormat::RED_INTEGER,      // 物体 ID 缓冲
+            FramebufferTextureFormat::DEPTH24STENCIL8	// 深度 + 模板缓冲
         };
         GeoFbSpec.Width = 1920;
         GeoFbSpec.Height = 1080;
@@ -289,6 +290,7 @@ namespace Kaesar
         s_Data.geoPass->BindTargetFrameBuffer();
         RenderCommand::SetState(RenderState::DEPTH_TEST, true);
         RenderCommand::SetClearColor(s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().ClearColor);
+        s_Data.geoPass->GetSpecification().TargetFrameBuffer->ClearAttachment(3, -1);
         s_Data.geoShader->Bind();
         RenderCommand::Clear();
         for (auto entity : view)
@@ -304,10 +306,15 @@ namespace Kaesar
                 if (scene.m_Registry.has<MaterialComponent>(entity)) // 如果有材质组件
                 {
                     auto& materialComponent = scene.m_Registry.get<MaterialComponent>(entity);
+                    s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
+                    s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, materialComponent); // 使用它自身的材质组件渲染
                 }
                 else
                 {
+                    s_Data.geoShader->SetInt("pc.HasDiffuseMap", 1);
+                    s_Data.geoShader->SetInt("pc.HasNormalMap", 0);
+                    s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
                     s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.geoShader); // 否则使用默认渲染
                 }

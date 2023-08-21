@@ -411,34 +411,13 @@ namespace Kaesar {
             ImGui::Columns(2);
             ImGui::SetColumnWidth(0, 80);
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
-            ImGui::Text("Shaders\0");
+            ImGui::Text("Shader\0");
 
             ImGui::PopStyleVar();
             ImGui::NextColumn();
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-
-            static int item_current_idx = 0; // 当前选择的项的索引
-            const char* combo_label = materialComponent.shader->GetName().c_str(); // 获取当前的着色器的名称
-
-            if (ImGui::BeginCombo("shaders", combo_label))
-            {
-                for (int n = 0; n < m_ShaderNames.size(); n++)
-                {
-                    const bool is_selected = (item_current_idx == n);
-                    if (ImGui::Selectable(m_ShaderNames[n].c_str(), is_selected)) 
-                    {
-                        item_current_idx = n;
-                        m_SelectedShader = m_ShaderNames[n];
-                        materialComponent.material = Material::Create(m_Shaders.Get(m_SelectedShader));
-                        materialComponent.shader = m_Shaders.Get(m_SelectedShader);
-                    }
-                    // 设置默认的焦点
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
+            
+            ImGui::Text("PBR shader\0");
             ImGui::PopItemWidth();
             ImGui::Columns(1);
             ImGui::Separator();
@@ -459,6 +438,16 @@ namespace Kaesar {
 
                 ImGui::SameLine();
                 ImGui::Checkbox(u8"启用", &sampler.isUsed);
+
+                //Diffuse
+                if (sampler.binding == 0)
+                {
+                    static glm::vec4 color;
+                    ImGui::ColorEdit4("Color", glm::value_ptr(color));
+                    materialComponent.shader->Bind();
+                    materialComponent.shader->SetFloat4("pc.material.color", color);
+                    materialComponent.shader->Unbind();
+                }
 
                 if (ImGui::ImageButton(m_TextureId, size, ImVec2{ 0, 1 }, ImVec2{ 1, 0 })) 
                 {
@@ -754,7 +743,7 @@ namespace Kaesar {
             if (ImGui::MenuItem(u8"材质"))
             {
                 if (!m_SelectionContext.HasComponent<MaterialComponent>())
-                    m_SelectionContext.AddComponent<MaterialComponent>(m_Shaders.Get("basic"));
+                    m_SelectionContext.AddComponent<MaterialComponent>(m_Shaders.Get("GeometryPass"));
                 else
                     KR_CORE_WARN("组件已存在！");
 

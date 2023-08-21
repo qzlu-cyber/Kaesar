@@ -49,7 +49,6 @@ namespace Kaesar {
         struct TransformData
         {
             glm::mat4 transform;
-            int id; // 记录实体的 ID，用于鼠标拾取
         };
 
         struct DirectionalLightData

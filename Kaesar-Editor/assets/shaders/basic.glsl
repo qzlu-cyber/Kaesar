@@ -18,7 +18,6 @@ layout(binding = 0) uniform Camera
 layout(binding = 1) uniform Transform
 {
 	mat4 u_Trans;
-	int u_ID;
 } transform;
 
 layout(binding = 4) uniform Shadow
@@ -67,7 +66,6 @@ layout(binding = 0) uniform Camera
 layout(binding = 1) uniform Transform
 {
     mat4 u_Trans;
-	int u_ID;
 } transform;
 
 struct DLight
