@@ -23,7 +23,7 @@ namespace Kaesar {
 		void LoadModel(const std::string& filepath);
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-		std::vector<MeshTexture> LoadMaterialtextures(aiMaterial* material, aiTextureType type, const std::string& typeName);
+		std::vector<MeshTexture> LoadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& typeName);
 
 	public:
 		const aiScene* m_Scene;

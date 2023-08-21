@@ -313,8 +313,6 @@ void main()
         result += CaculatePointLight(lights.pointLight[i], normal, viewDir, params.lightsParams[i], color.rgb);
         result += CaculateSpotLight(lights.spotLight[i], normal, viewDir, params.lightsParams[i], color.rgb);
     }
-    // result += CaculatePointLight(lights.pointLight, normal, viewDir, color.rgb);
-    // result += CaculateSpotLight(lights.spotLight, normal, viewDir, color.rgb);
 
     float shadow = 0;
     if (push.softShadow == 1)

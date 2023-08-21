@@ -24,10 +24,8 @@ namespace Kaesar {
         static void UpdateLights(Scene& scene);
         static void BeginScene(const PerspectiveCamera& camera);
         static void RenderScene(Scene& scene);
-        static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, const std::shared_ptr<Shader>& shader);
-        static void RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh);
         static void EndScene();
 
         static void OnImGuiUpdate();
@@ -35,8 +33,9 @@ namespace Kaesar {
         static void OnViewportResize(uint32_t width, uint32_t height);
 
         static uint32_t GetTextureID(int index);
-        static std::shared_ptr<FrameBuffer> GetMouseFB();
-        static FramebufferSpecification GetMainFBSpec();
+
+        static FramebufferSpecification GetMainFrameSpec();
+        static std::shared_ptr<FrameBuffer> GetGeoFrameBuffer();
 
         static ShaderLibrary& GetShaderLibrary();
 
@@ -124,10 +123,11 @@ namespace Kaesar {
 
             // shader
             ShaderLibrary shaders;
-            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader, depthShader;
+            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader, depthShader, geoShader, deferredLightingShader;
 
             // FrameBuffers
-            std::shared_ptr<RenderPass> mainPass, shadowPass, mousePass, postPass;
+            int textureRenderSlot = 2;
+            std::shared_ptr<RenderPass> geoPass, shadowPass, lightingPass;
 
             std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, 
                                            lightsUniformBuffer, lightsParamsUniformBuffer,

@@ -46,33 +46,25 @@ namespace Kaesar
 
     void SceneRenderer::Initialize()
     {
-        ///------------------------------------------------Main Render Pass----------------------------------------///
-        FramebufferSpecification mainFbSpec;
-        mainFbSpec.Attachments = { FramebufferTextureFormat::RGBA16F, FramebufferTextureFormat::DEPTH24STENCIL8 };
-        mainFbSpec.Width = 1920;
-        mainFbSpec.Height = 1080;
-        mainFbSpec.Samples = 4;
-        mainFbSpec.ClearColor = glm::vec4(0.196f, 0.196f, 0.196f, 1.0f);
+        ///------------------------------------------Deferred Geometry Render Pass----------------------------------///
+        FramebufferSpecification GeoFbSpec;
+        GeoFbSpec.Attachments =
+        {
+            FramebufferTextureFormat::RGBA16F,			// Position texture attachment
+            FramebufferTextureFormat::RGBA16F,			// Normal texture attachment
+            FramebufferTextureFormat::RGBA16F,			// Albedo-specular texture attachment
+            FramebufferTextureFormat::DEPTH24STENCIL8	// default depth map
+        };
+        GeoFbSpec.Width = 1920;
+        GeoFbSpec.Height = 1080;
+        GeoFbSpec.Samples = 1;
+        GeoFbSpec.ClearColor = glm::vec4(0.196f, 0.196f, 0.196f, 1.0f);
 
-        RenderPassSpecification mainRenderPassSpec;
-        mainRenderPassSpec.TargetFrameBuffer = FrameBuffer::Create(mainFbSpec);
-        s_Data.mainPass = RenderPass::Create(mainRenderPassSpec);
-        RenderCommand::SetClearColor(mainFbSpec.ClearColor);
+        RenderPassSpecification GeoPassSpec;
+        GeoPassSpec.TargetFrameBuffer = FrameBuffer::Create(GeoFbSpec);
+        s_Data.geoPass = RenderPass::Create(GeoPassSpec);
 
-        ///-------------------------------------------------Mouse Pick Pass---------------------------------------///
-        FramebufferSpecification mouseFbSpec;
-        mouseFbSpec.Attachments = { FramebufferTextureFormat::RED_INTEGER , FramebufferTextureFormat::DEPTH24STENCIL8 };
-        mouseFbSpec.Width = 1920;
-        mouseFbSpec.Height = 1080;
-        mouseFbSpec.Samples = 1;
-        mouseFbSpec.ClearColor = glm::vec4(0.196f, 0.196f, 0.196f, 1.0f);
-
-        RenderPassSpecification mouseRenderPassSpec;
-        mouseRenderPassSpec.TargetFrameBuffer = FrameBuffer::Create(mouseFbSpec);
-        s_Data.mousePass = RenderPass::Create(mouseRenderPassSpec);
-        RenderCommand::SetClearColor(mouseFbSpec.ClearColor);
-
-        ///--------------------------------------------Post Processing Pass--------------------------------------///
+        ///--------------------------------------Lighting and Post Processing Pass--------------------------------///
         FramebufferSpecification postProcFB;
         postProcFB.Attachments = { FramebufferTextureFormat::RGBA8 , FramebufferTextureFormat::DEPTH24STENCIL8 };
         postProcFB.Width = 1920;
@@ -82,7 +74,7 @@ namespace Kaesar
 
         RenderPassSpecification finalPassSpec;
         finalPassSpec.TargetFrameBuffer = FrameBuffer::Create(postProcFB);
-        s_Data.postPass = RenderPass::Create(finalPassSpec);
+        s_Data.lightingPass = RenderPass::Create(finalPassSpec);
 
         ///------------------------------------------------Shadow Pass------------------------------------------///
         // 创建阴影帧缓冲
@@ -91,7 +83,7 @@ namespace Kaesar
         shadowSpec.Width = 1024;
         shadowSpec.Height = 1024;
         shadowSpec.Samples = 1;
-        shadowSpec.ClearColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+        shadowSpec.ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
         
         RenderPassSpecification shadowPassSpec;
         shadowPassSpec.TargetFrameBuffer = FrameBuffer::Create(shadowSpec);
@@ -132,16 +124,17 @@ namespace Kaesar
         if (!s_Data.basicShader)
         {
             s_Data.shaders.Load("assets/shaders/basic.glsl");
-            s_Data.shaders.Load("assets/shaders/quad.glsl");
-            s_Data.shaders.Load("assets/shaders/mouse.glsl");
             s_Data.shaders.Load("assets/shaders/light.glsl");
-            s_Data.shaders.Load("assets/shaders/depth.glsl");
+            s_Data.shaders.Load("assets/shaders/DeferredLighting.glsl");
+            s_Data.shaders.Load("assets/shaders/GeometryPass.glsl");
         }
         s_Data.basicShader = s_Data.shaders.Get("basic");
-        s_Data.mouseShader = s_Data.shaders.Get("mouse");
-        s_Data.quadShader = s_Data.shaders.Get("quad");
         s_Data.lightShader = s_Data.shaders.Get("light");
-        s_Data.depthShader = s_Data.shaders.Get("depth");
+        s_Data.geoShader = s_Data.shaders.Get("GeometryPass");
+        s_Data.deferredLightingShader = s_Data.shaders.Get("DeferredLighting");
+        s_Data.mouseShader = Shader::Create("assets/shaders/mouse.glsl");
+        s_Data.quadShader  = Shader::Create("assets/shaders/quad.glsl");
+        s_Data.depthShader = Shader::Create("assets/shaders/depth.glsl");
 
         ///-------------------------------------------------Uniforms-------------------------------------------///
         s_Data.cameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0); // 将和相机有关的数据绑定在 0 号绑定点
@@ -156,6 +149,10 @@ namespace Kaesar
         
         GeneratePoissonDisk(s_Data.distributionSampler0, 32);
         GeneratePoissonDisk(s_Data.distributionSampler1, 32);
+        s_Data.basicShader->Bind();
+        Texture1D::BindTexture(s_Data.distributionSampler0->GetRendererID(), 4);
+        Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
+        s_Data.basicShader->Unbind();
 
         s_Data.lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 500.0f);
     }
@@ -194,8 +191,6 @@ namespace Kaesar
 
 
         Renderer::BeginScene();
-        s_Data.mainPass->GetSpecification().TargetFrameBuffer->Bind();
-        RenderCommand::Clear();
     }
 
     void SceneRenderer::UpdateLights(Scene& scene)
@@ -272,9 +267,11 @@ namespace Kaesar
         auto view = scene.m_Registry.view<TransformComponent, MeshComponent>();
 
         // 渲染深度贴图
-        s_Data.shadowPass->GetSpecification().TargetFrameBuffer->Bind();
+        s_Data.shadowPass->BindTargetFrameBuffer();
         RenderCommand::SetState(RenderState::DEPTH_TEST, true);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        RenderCommand::SetClearColor(s_Data.shadowPass->GetSpecification().TargetFrameBuffer->GetSpecification().ClearColor);
+        s_Data.depthShader->Bind();
+        RenderCommand::Clear();
         for (auto& entity : view)
         {
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -282,25 +279,18 @@ namespace Kaesar
 
             if (!meshComponent.path.empty())
             {
-                s_Data.depthShader->Bind();
                 s_Data.depthShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
                 SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.depthShader);
             }
         }
-        s_Data.shadowPass->GetSpecification().TargetFrameBuffer->Unbind();
+        s_Data.depthShader->Unbind();
+        s_Data.shadowPass->UnbindTargetFrameBuffer();
 
-        s_Data.mainPass->GetSpecification().TargetFrameBuffer->Bind();
+        s_Data.geoPass->BindTargetFrameBuffer();
         RenderCommand::SetState(RenderState::DEPTH_TEST, true);
+        RenderCommand::SetClearColor(s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().ClearColor);
+        s_Data.geoShader->Bind();
         RenderCommand::Clear();
-
-        s_Data.basicShader->Bind();
-        Texture2D::BindTexture(s_Data.shadowPass->GetSpecification().TargetFrameBuffer->GetDepthAttachmentRendererID(), 3);
-        Texture1D::BindTexture(s_Data.distributionSampler0->GetRendererID(), 4);
-        Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
-        s_Data.basicShader->SetFloat("push.size", s_Data.lightSize);
-        s_Data.basicShader->SetInt("push.numPCFSamples", s_Data.numPCF);
-        s_Data.basicShader->SetInt("push.numBlockerSearchSamples", s_Data.numBlocker);
-        s_Data.basicShader->SetInt("push.softShadow", (int)s_Data.softShadow);
         for (auto entity : view)
         {
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -318,73 +308,57 @@ namespace Kaesar
                 }
                 else
                 {
-                    SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent); // 否则使用默认渲染
+                    s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
+                    SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.geoShader); // 否则使用默认渲染
                 }
             }
         }
-        s_Data.mainPass->GetSpecification().TargetFrameBuffer->Unbind();
-
-        s_Data.mousePass->GetSpecification().TargetFrameBuffer->Bind();
-        RenderCommand::Clear();
-        s_Data.mousePass->GetSpecification().TargetFrameBuffer->ClearAttachment(0, -1);
-        for (auto entity : view)
-        {
-            auto& transformComponent = view.get<TransformComponent>(entity);
-            auto& meshComponent = view.get<MeshComponent>(entity);
-
-            if (!meshComponent.path.empty())
-            {
-                s_Data.transformBuffer.transform = transformComponent.GetTransform();
-                s_Data.transformBuffer.id = (uint32_t)entity;
-                s_Data.transformUniformBuffer->SetData(&s_Data.transformBuffer, sizeof(TransformData), 0);
-
-                RenderEntityID(entity, transformComponent, meshComponent);
-            }
-        }
-        s_Data.mousePass->GetSpecification().TargetFrameBuffer->Unbind();
-    }
-
-    void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
-    {
-        RenderCommand::SetState(RenderState::CULL, false);
-        s_Data.basicShader->Bind(); // glUseProgram
-        Renderer::Submit(mesh.model, s_Data.basicShader);
-        RenderCommand::SetState(RenderState::CULL, true);
+        s_Data.geoShader->Unbind();
+        s_Data.geoPass->UnbindTargetFrameBuffer();
     }
 
     void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material)
     {
-        RenderCommand::SetState(RenderState::CULL, false);
         Renderer::Submit(material.material, mesh.model);
-        RenderCommand::SetState(RenderState::CULL, true);
     }
 
     void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& tc, MeshComponent& mc, const std::shared_ptr<Shader>& shader)
     {
-        RenderCommand::SetState(RenderState::CULL, false);
         shader->Bind();
         Renderer::Submit(mc.model, shader);
-        RenderCommand::SetState(RenderState::CULL, true);
-    }
-
-    void SceneRenderer::RenderEntityID(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh)
-    {
-        s_Data.mouseShader->Bind();
-        Renderer::Submit(mesh.model, s_Data.mouseShader);
     }
 
     void SceneRenderer::EndScene()
     {
-        s_Data.postPass->GetSpecification().TargetFrameBuffer->Bind();
+        s_Data.lightingPass->BindTargetFrameBuffer();
+        RenderCommand::SetState(RenderState::DEPTH_TEST, false);
         RenderCommand::Clear();
-        RenderCommand::DisableDepthTest();
 
-        s_Data.quadShader->Bind();
-        s_Data.quadShader->SetFloat("pc.exposure", s_Data.exposure);
-        s_Data.quadShader->SetFloat("pc.gamma", s_Data.gamma);
-        Texture2D::BindTexture(s_Data.mainPass->GetSpecification().TargetFrameBuffer->GetColorAttachmentRendererID(), 0);
-        Renderer::Submit(s_Data.vertexArray, s_Data.quadShader);
-        s_Data.postPass->GetSpecification().TargetFrameBuffer->Unbind();
+        s_Data.deferredLightingShader->Bind();
+
+        //shadow map samplers
+        Texture2D::BindTexture(s_Data.shadowPass->GetSpecification().TargetFrameBuffer->GetDepthAttachmentRendererID(), 3);
+        Texture1D::BindTexture(s_Data.distributionSampler0->GetRendererID(), 4);
+        Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
+
+        //Push constant variables
+        s_Data.deferredLightingShader->SetFloat("pc.size", s_Data.lightSize);
+        s_Data.deferredLightingShader->SetInt("pc.numPCFSamples", s_Data.numPCF);
+        s_Data.deferredLightingShader->SetInt("pc.numBlockerSearchSamples", s_Data.numBlocker);
+        s_Data.deferredLightingShader->SetInt("pc.softShadow", (int)s_Data.softShadow);
+        s_Data.deferredLightingShader->SetFloat("pc.exposure", s_Data.exposure);
+        s_Data.deferredLightingShader->SetFloat("pc.gamma", s_Data.gamma);
+
+        //GBuffer samplers
+        Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(0), 0);
+        Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(1), 1);
+        Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(2), 2);
+
+        Renderer::Submit(s_Data.vertexArray, s_Data.deferredLightingShader);
+
+        s_Data.deferredLightingShader->Unbind();
+        s_Data.lightingPass->UnbindTargetFrameBuffer();
+
         Renderer::EndScene();
     }
 
@@ -398,6 +372,41 @@ namespace Kaesar
         ImGui::DragFloat(u8"gamma值", &s_Data.gamma, 0.01f, 0, 4);
 
         ImGui::DragFloat(u8"光源大小", &s_Data.lightSize, 0.0001, 0, 100);
+
+        static bool showAlbedo = false;
+        static bool showNormal = false;
+        static bool showPosition = false;
+        if (ImGui::Button("Albedo")) {
+            showAlbedo = !showAlbedo;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Normal")) {
+            showNormal = !showNormal;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Position")) {
+            showPosition = !showPosition;
+        }
+        auto width = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Width * 0.5f;
+        auto height = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Height * 0.5f;
+        ImVec2 frameSize = ImVec2{ width,height };
+        if (showAlbedo) {
+            ImGui::Begin("Albedo");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(2)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::End();
+        }
+
+        if (showNormal) {
+            ImGui::Begin("Normal");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(1)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::End();
+        }
+
+        if (showPosition) {
+            ImGui::Begin("Position");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(0)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::End();
+        }
 
         static bool vSync = true;
         ImGui::Checkbox(u8"垂直同步", &vSync);
@@ -426,24 +435,23 @@ namespace Kaesar
 
     void SceneRenderer::OnViewportResize(uint32_t width, uint32_t height)
     {
-        s_Data.mainPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
-        s_Data.mousePass->GetSpecification().TargetFrameBuffer->Resize(width, height);
-        s_Data.postPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
+        s_Data.geoPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
+        s_Data.lightingPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
     }
 
     uint32_t SceneRenderer::GetTextureID(int index)
     { 
-        return s_Data.postPass->GetSpecification().TargetFrameBuffer->GetColorAttachmentRendererID(index); 
+        return s_Data.lightingPass->GetSpecification().TargetFrameBuffer->GetColorAttachmentRendererID(index); 
     }
 
-    FramebufferSpecification SceneRenderer::GetMainFBSpec()
+    FramebufferSpecification SceneRenderer::GetMainFrameSpec()
     {
-        return s_Data.mainPass->GetSpecification().TargetFrameBuffer->GetSpecification();
+        return s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification();
     }
 
-    std::shared_ptr<FrameBuffer> SceneRenderer::GetMouseFB()
+    std::shared_ptr<Kaesar::FrameBuffer> SceneRenderer::GetGeoFrameBuffer()
     {
-        return s_Data.mousePass->GetSpecification().TargetFrameBuffer;
+        return s_Data.geoPass->GetSpecification().TargetFrameBuffer;
     }
 
     ShaderLibrary& SceneRenderer::GetShaderLibrary()

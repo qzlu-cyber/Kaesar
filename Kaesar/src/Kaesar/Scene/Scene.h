@@ -28,8 +28,8 @@ namespace Kaesar {
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		uint32_t GetMainTextureID() { return SceneRenderer::GetTextureID(0); }
-		std::shared_ptr<FrameBuffer> GetMouseFB() { return SceneRenderer::GetMouseFB(); }
-		FramebufferSpecification GetSpec() { return SceneRenderer::GetMainFBSpec(); }
+		std::shared_ptr<FrameBuffer> GetMainFrameBuffer() { return SceneRenderer::GetGeoFrameBuffer(); }
+		FramebufferSpecification GetSpec() { return SceneRenderer::GetMainFrameSpec(); }
 
 		ShaderLibrary& GetShaderLibrary() { return m_Shaders; }
 		void SetShaderLibrary(const ShaderLibrary& shaders) { m_Shaders = shaders; }

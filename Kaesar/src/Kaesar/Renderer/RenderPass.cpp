@@ -11,4 +11,19 @@ namespace Kaesar {
 	{
 		return std::make_shared<RenderPass>(spec);
 	}
+
+	uint32_t RenderPass::GetFrameBufferTextureID(uint32_t slot)
+	{
+		return m_Specification.TargetFrameBuffer->GetColorAttachmentRendererID(slot);
+	}
+
+	void RenderPass::BindTargetFrameBuffer()
+	{
+		m_Specification.TargetFrameBuffer->Bind();
+	}
+
+	void RenderPass::UnbindTargetFrameBuffer()
+	{
+		m_Specification.TargetFrameBuffer->Unbind();
+	}
 }

@@ -29,8 +29,8 @@ namespace Kaesar {
             { ShaderDataType::Float3, "a_Position" },
             { ShaderDataType::Float3, "a_Normal" },
             { ShaderDataType::Float2, "a_TexCoords" },
-            { ShaderDataType::Float3,"a_Tangent" },
-            { ShaderDataType::Float3,"a_Bitangent" }
+            { ShaderDataType::Float3, "a_Tangent" },
+            { ShaderDataType::Float3, "a_Bitangent" }
         };
 
         vertexBuffer->SetLayout(layout);

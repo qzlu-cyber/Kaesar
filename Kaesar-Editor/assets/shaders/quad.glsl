@@ -21,7 +21,7 @@ layout(location = 0) out vec4 FragColor;
 
 layout(location = 0) in vec2 v_TexCoords;
 
-layout(binding = 0) uniform sampler2DMS u_ScreenTexture;
+layout(binding = 0) uniform sampler2D u_Texture;
 
 layout(push_constant) uniform pushConstants
 {
@@ -31,13 +31,7 @@ layout(push_constant) uniform pushConstants
 
 void main()
 {
-    ivec2 texturePosition = ivec2(gl_FragCoord.x, gl_FragCoord.y);
-    vec4 colorSample0 = texelFetch(u_ScreenTexture, texturePosition, 0);
-	vec4 colorSample1 = texelFetch(u_ScreenTexture, texturePosition, 1);
-	vec4 colorSample2 = texelFetch(u_ScreenTexture, texturePosition, 2);
-	vec4 colorSample3 = texelFetch(u_ScreenTexture, texturePosition, 3);
-
-	vec4 antialiased = (colorSample0 + colorSample1 + colorSample2 + colorSample3) / 4.0f;
+    vec4 antialiased = texture(u_Texture, v_TexCoords);
 
     vec3 hdrColor = antialiased.rgb;
 
