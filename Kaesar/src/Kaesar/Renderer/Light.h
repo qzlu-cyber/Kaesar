@@ -14,42 +14,39 @@ namespace Kaesar {
 	{
 	public:
 		Light() = default;
-		Light(const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float intensity)
-            : m_Ambient(ambient), m_Diffuse(diffuse), m_Specular(specular), m_Intensity(intensity)
+		Light(const glm::vec3& color, float intensity) 
+			: m_Color(color), m_Intensity(intensity) 
 		{}
 
 		virtual ~Light() = default;
 
-		void SetAmbient(const glm::vec3& ambient) { m_Ambient = ambient; }
-		glm::vec3 GetAmbient() const { return m_Ambient; }
-
-		void SetDiffuse(const glm::vec3& diffuse) { m_Diffuse = diffuse; }
-		glm::vec3 GetDiffuse() const { return m_Diffuse; }
-
-		void SetSpecular(const glm::vec3& specular) { m_Specular = specular; }
-		glm::vec3 GetSpecular() const { return m_Specular; }
+		void SetColor(const glm::vec3& color) { m_Color = color; }
+		glm::vec3 GetColor() const { return m_Color; }
 
 		void SetIntensity(float intensity) { m_Intensity = intensity; }
-		float GetIntensity() { return m_Intensity; }
+		float GetIntensity() const { return m_Intensity; }
 
 	private:
-		glm::vec3 m_Ambient;
-		glm::vec3 m_Diffuse;
-		glm::vec3 m_Specular;
+		glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f };
 
-		float m_Intensity = 1;
+		float m_Intensity = 1.0f;
 	};
 
 
 	class DirectionalLight : public Light 
 	{
 	public:
-		DirectionalLight()
-			: Light(glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f)
+		DirectionalLight() = default;
+		DirectionalLight(const glm::vec3& color) : Light(color, 1.0f) 
 		{}
-		DirectionalLight(const glm::vec3& dir, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float intensity)
-            : Light(ambient, diffuse, specular, intensity), m_Direction(dir)
-        {}
+		DirectionalLight(const glm::vec3& color, float intensity) : Light(color, intensity) {}
+		DirectionalLight(const glm::vec3& dir, const glm::vec3& color, float intensity)
+			: Light(color, intensity), m_Direction(dir) {}
+		DirectionalLight(const DirectionalLight& light) 
+		{
+			this->SetColor(light.GetColor());
+			this->SetIntensity(light.GetIntensity());
+		}
 
 		virtual ~DirectionalLight() = default;
 
@@ -64,13 +61,19 @@ namespace Kaesar {
 	class PointLight : public Light 
 	{
 	public:
-		PointLight() 
-			: Light(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f)
-		{}
-		PointLight(const glm::vec3& pos, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular,
-				   float intensity, float linear, float quadratic)
-            : Light(ambient, diffuse, specular, intensity), m_Position(pos), m_Linear(linear), m_Quadratic(quadratic)
-        {}
+		PointLight() = default;
+		PointLight(const glm::vec3& color) : Light(color, 1.0f) {}
+		PointLight(const glm::vec3& color, float intensity) : Light(color, intensity) {}
+		PointLight(const glm::vec3& pos, const glm::vec3& color)
+			: Light(color, 1.0f), m_Position(pos) {}
+		PointLight(const glm::vec3& pos, const glm::vec3& color, float intensity, float linear, float quadratic)
+			: Light(color, intensity), m_Position(pos), m_Linear(linear), m_Quadratic(quadratic) {}
+
+		PointLight(const PointLight& light) 
+		{
+			this->SetColor(light.GetColor());
+			this->SetIntensity(light.GetIntensity());
+		}
 
 		virtual ~PointLight() = default;
 
@@ -93,15 +96,17 @@ namespace Kaesar {
 	class SpotLight : public Light 
 {
 	public:
-		SpotLight()
-			: Light(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f)
-		{}
-		SpotLight(const glm::vec3& pos, const glm::vec3& dir, 
-				  const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float intensity,
-				  float linear, float quadratic, float cutOff, float outerCutOff)
-            : Light(ambient, diffuse, specular, intensity), m_Position(pos), m_Direction(dir), 
-			  m_Linear(linear), m_Quadratic(quadratic), m_CutOff(cutOff), m_OuterCutOff(outerCutOff)
-        {}
+		SpotLight() = default;
+		SpotLight(const glm::vec3& color) : Light(color, 1.0f) {}
+		SpotLight(const glm::vec3& color, float intensity) : Light(color, intensity) {}
+		SpotLight(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& color, float intensity, float linear, float quadratic, float cutOff, float outerCutOff)
+			: Light(color, intensity), m_Position(pos), m_Direction(dir), m_Linear(linear), m_Quadratic(quadratic), m_CutOff(cutOff), m_OuterCutOff(outerCutOff) {}
+
+		SpotLight(const SpotLight& light)
+		{
+			this->SetColor(light.GetColor());
+			this->SetIntensity(light.GetIntensity());
+		}
 
 		virtual ~SpotLight() = default;
 

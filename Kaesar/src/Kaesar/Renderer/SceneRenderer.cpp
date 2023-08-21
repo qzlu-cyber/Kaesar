@@ -146,7 +146,7 @@ namespace Kaesar
         ///-------------------------------------------------Uniforms-------------------------------------------///
         s_Data.cameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0); // 将和相机有关的数据绑定在 0 号绑定点
         s_Data.transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1); // 将和变换有关的数据绑定在 1 号绑定点
-        s_Data.lightsUniformBuffer = UniformBuffer::Create(sizeof(s_Data.pointLightBuffer) + sizeof(s_Data.spotLightBuffer) + sizeof(s_Data.directionalLightBuffer), 2);
+        s_Data.lightsUniformBuffer = UniformBuffer::Create(sizeof(s_Data.pointLightsBuffer) + sizeof(s_Data.spotLightsBuffer) + sizeof(s_Data.directionalLightBuffer), 2);
         s_Data.lightsParamsUniformBuffer = UniformBuffer::Create(sizeof(s_Data.lightsParamsBuffer), 3);
         s_Data.shadowUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 4);
 
@@ -166,29 +166,32 @@ namespace Kaesar
         s_Data.cameraBuffer.position = camera.GetPosition();
         s_Data.cameraUniformBuffer->SetData(&s_Data.cameraBuffer, sizeof(CameraData), 0);
 
-        s_Data.directionalLightBuffer.direction = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.directionalLightBuffer.ambient   = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.directionalLightBuffer.diffuse   = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.directionalLightBuffer.specular  = glm::vec3(0.0f, 0.0f, 0.0f);
+        s_Data.directionalLightBuffer.direction = glm::vec4(0.0f);
+        s_Data.directionalLightBuffer.color     = glm::vec4(0.0f);
 
-        s_Data.pointLightBuffer.position = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.pointLightBuffer.ambient  = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.pointLightBuffer.diffuse  = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.pointLightBuffer.specular = glm::vec3(0.0f, 0.0f, 0.0f);
+        for (auto& pointLight : s_Data.pointLightsBuffer)
+        {
+            pointLight.position = glm::vec4(0.0f);
+            pointLight.color    = glm::vec4(0.0f);
+        }
 
-        s_Data.spotLightBuffer.position  = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.spotLightBuffer.direction = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.spotLightBuffer.ambient   = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.spotLightBuffer.diffuse   = glm::vec3(0.0f, 0.0f, 0.0f);
-        s_Data.spotLightBuffer.specular  = glm::vec3(0.0f, 0.0f, 0.0f);
+        for (auto& spotLight : s_Data.spotLightsBuffer)
+        {
+            spotLight.position  = glm::vec4(0.0f);
+            spotLight.direction = glm::vec4(0.0f);
+            spotLight.color     = glm::vec4(0.0f);
+        }
 
-        s_Data.lightsParamsBuffer.dirIntensity   = 0.0f;
-        s_Data.lightsParamsBuffer.pointLinear    = 0.0f;
-        s_Data.lightsParamsBuffer.pointQuadratic = 0.0f;
-        s_Data.lightsParamsBuffer.spotLinear     = 0.0f;
-        s_Data.lightsParamsBuffer.spotQuadratic  = 0.0f;
-        s_Data.lightsParamsBuffer.innerCutOff    = 0.0f;
-        s_Data.lightsParamsBuffer.outerCutOff    = 0.0f;
+        for (auto& lightParams : s_Data.lightsParamsBuffer)
+        {
+            lightParams.pointLinear    = 0.09f;
+            lightParams.pointQuadratic = 0.032f;
+            lightParams.spotLinear     = 0.09f;
+            lightParams.spotQuadratic  = 0.032f;
+            lightParams.innerCutOff    = glm::cos(glm::radians(12.5f));
+            lightParams.outerCutOff    = glm::cos(glm::radians(15.0f));
+        }
+
 
         Renderer::BeginScene();
         s_Data.mainPass->GetSpecification().TargetFrameBuffer->Bind();
@@ -199,6 +202,11 @@ namespace Kaesar
     {
         auto& lightView = scene.m_Registry.view<TransformComponent, LightComponent>();
 
+        //point light index
+        int pIndex = 0;
+        //spot light index
+        int sIndex = 0;
+
         for (auto entity : lightView)
         {
             auto& transformComponent = lightView.get<TransformComponent>(entity);
@@ -207,49 +215,53 @@ namespace Kaesar
             if (lightComponent.type == LightType::Directional)
             {
                 auto light = dynamic_cast<DirectionalLight*>(lightComponent.light.get());
-                s_Data.directionalLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
-                s_Data.directionalLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
-                s_Data.directionalLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
-                s_Data.directionalLightBuffer.direction = light->GetDirection();
+                s_Data.directionalLightBuffer.color = glm::vec4(light->GetColor(), 0.0f) * light->GetIntensity();
+                s_Data.directionalLightBuffer.direction = glm::vec4(light->GetDirection(), 0.0f);
 
                 // shadow
                 s_Data.lightView = glm::lookAt(glm::vec3(s_Data.directionalLightBuffer.direction), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 s_Data.shadowBuffer.lightViewProjection = s_Data.lightProjection * s_Data.lightView;
                 s_Data.shadowUniformBuffer->SetData(&s_Data.shadowBuffer, sizeof(glm::mat4));
-
-                s_Data.lightsParamsBuffer.dirIntensity = light->GetIntensity();
+                light = nullptr;
             }
             if (lightComponent.type == LightType::Point)
             {
-                auto light = dynamic_cast<PointLight*>(lightComponent.light.get());
-                s_Data.pointLightBuffer.position = transformComponent.Translation;
+                if (pIndex < 5)
+                {
+                    auto light = dynamic_cast<PointLight*>(lightComponent.light.get());
+                    s_Data.pointLightsBuffer[pIndex].position = glm::vec4(transformComponent.Translation, 1.0f);
+                    s_Data.pointLightsBuffer[pIndex].color = glm::vec4(light->GetColor(), 1.0f) * light->GetIntensity();
 
-                s_Data.pointLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
-                s_Data.pointLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
-                s_Data.pointLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
+                    s_Data.lightsParamsBuffer[pIndex].pointLinear = light->GetLinear();
+                    s_Data.lightsParamsBuffer[pIndex].pointQuadratic = light->GetQuadratic();
 
-                s_Data.lightsParamsBuffer.pointLinear = light->GetLinear();
-                s_Data.lightsParamsBuffer.pointQuadratic = light->GetQuadratic();
+                    pIndex++;
+                    light = nullptr;
+                }
             }
             if (lightComponent.type == LightType::Spot)
             {
-                auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
-                s_Data.spotLightBuffer.position = transformComponent.Translation;
-                s_Data.spotLightBuffer.direction = transformComponent.Rotation;
-                s_Data.spotLightBuffer.ambient = light->GetAmbient() * light->GetIntensity();
-                s_Data.spotLightBuffer.diffuse = light->GetDiffuse() * light->GetIntensity();
-                s_Data.spotLightBuffer.specular = light->GetSpecular() * light->GetIntensity();
+                if (sIndex < 5)
+                {
+                    auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
+                    s_Data.spotLightsBuffer[sIndex].position = glm::vec4(transformComponent.Translation, 1.0f);
+                    s_Data.spotLightsBuffer[sIndex].direction = glm::vec4(transformComponent.Rotation, 0.0f);
+                    s_Data.spotLightsBuffer[sIndex].color = glm::vec4(light->GetColor(), 1.0f) * light->GetIntensity();
 
-                s_Data.lightsParamsBuffer.spotLinear = light->GetLinear();
-                s_Data.lightsParamsBuffer.spotQuadratic = light->GetQuadratic();
-                s_Data.lightsParamsBuffer.innerCutOff = glm::cos(glm::radians(light->GetInnerCutOff()));
-                s_Data.lightsParamsBuffer.outerCutOff = glm::cos(glm::radians(light->GetOuterCutOff()));
+                    s_Data.lightsParamsBuffer[sIndex].spotLinear = light->GetLinear();
+                    s_Data.lightsParamsBuffer[sIndex].spotQuadratic = light->GetQuadratic();
+                    s_Data.lightsParamsBuffer[sIndex].innerCutOff = glm::cos(glm::radians(light->GetInnerCutOff()));
+                    s_Data.lightsParamsBuffer[sIndex].outerCutOff = glm::cos(glm::radians(light->GetOuterCutOff()));
+                
+                    sIndex++;
+                    light = nullptr;
+                }
             }
         }
 
-        s_Data.lightsUniformBuffer->SetData(&s_Data.pointLightBuffer, sizeof(s_Data.pointLightBuffer), 0);
-        s_Data.lightsUniformBuffer->SetData(&s_Data.spotLightBuffer, sizeof(s_Data.spotLightBuffer), sizeof(s_Data.pointLightBuffer));
-        s_Data.lightsUniformBuffer->SetData(&s_Data.directionalLightBuffer, sizeof(s_Data.directionalLightBuffer), sizeof(s_Data.pointLightBuffer) + sizeof(s_Data.spotLightBuffer));
+        s_Data.lightsUniformBuffer->SetData(&s_Data.pointLightsBuffer, sizeof(s_Data.pointLightsBuffer), 0);
+        s_Data.lightsUniformBuffer->SetData(&s_Data.spotLightsBuffer, sizeof(s_Data.spotLightsBuffer), sizeof(s_Data.pointLightsBuffer));
+        s_Data.lightsUniformBuffer->SetData(&s_Data.directionalLightBuffer, sizeof(s_Data.directionalLightBuffer), sizeof(s_Data.pointLightsBuffer) + sizeof(s_Data.spotLightsBuffer));
         s_Data.lightsParamsUniformBuffer->SetData(&s_Data.lightsParamsBuffer, sizeof(s_Data.lightsParamsBuffer), 0);
     }
 

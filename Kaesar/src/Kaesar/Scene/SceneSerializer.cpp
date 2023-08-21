@@ -193,9 +193,7 @@ namespace Kaesar {
             out << YAML::Key << "Type" << YAML::Value << int(lightComponent.type);
             out << YAML::Key << "Intensity" << YAML::Value << lightComponent.light->GetIntensity();
 
-            out << YAML::Key << "Ambient" << YAML::Value << lightComponent.light->GetAmbient();
-            out << YAML::Key << "Diffuse" << YAML::Value << lightComponent.light->GetDiffuse();
-            out << YAML::Key << "Specular" << YAML::Value << lightComponent.light->GetSpecular();
+            out << YAML::Key << "Color" << YAML::Value << lightComponent.light->GetColor();
 
             switch (lightComponent.type)
             {
@@ -384,15 +382,13 @@ namespace Kaesar {
                     auto& lc = deserializedEntity.AddComponent<LightComponent>();
                     auto strType = lightComponent["Type"].as<int>();
                     auto intensity = lightComponent["Intensity"].as<float>();
-                    auto ambient = lightComponent["Ambient"].as<glm::vec3>();
-                    auto diffuse = lightComponent["Diffuse"].as<glm::vec3>();
-                    auto specular = lightComponent["Specular"].as<glm::vec3>();
+                    auto color = lightComponent["Color"].as<glm::vec3>();
 
                     if (strType == 0)
                     {
                         lc.type = LightType::Directional;
                         auto direction = lightComponent["Direction"].as<glm::vec3>();
-                        lc.light = std::make_shared<DirectionalLight>(direction, ambient, diffuse, specular, intensity);
+                        lc.light = std::make_shared<DirectionalLight>(direction, color, intensity);
                     }
                     if (strType == 1)
                     {
@@ -400,7 +396,7 @@ namespace Kaesar {
                         auto position = transformComponent["Translation"].as<glm::vec3>();
                         auto linear = lightComponent["Linear"].as<float>();
                         auto quadratic = lightComponent["Quadratic"].as<float>();
-                        lc.light = std::make_shared<PointLight>(position, ambient, diffuse, specular, intensity, linear, quadratic);
+                        lc.light = std::make_shared<PointLight>(position, color, intensity, linear, quadratic);
                     }
                     if (strType == 2)
                     {
@@ -411,7 +407,7 @@ namespace Kaesar {
                         auto quadratic = lightComponent["Quadratic"].as<float>();
                         auto innerCutOff = lightComponent["InnerCutOff"].as<float>();
                         auto outerCutOff = lightComponent["OuterCutOff"].as<float>();
-                        lc.light = std::make_shared<SpotLight>(position, direction, ambient, diffuse, specular, 
+                        lc.light = std::make_shared<SpotLight>(position, direction, color, 
                                                                intensity, linear, quadratic, innerCutOff, outerCutOff);
                     }
                 }

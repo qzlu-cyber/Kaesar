@@ -55,33 +55,25 @@ namespace Kaesar {
 
         struct DirectionalLightData
         {
-            glm::vec3 direction; // 平行光照射方向
-            glm::vec3 ambient;
-            glm::vec3 diffuse;
-            glm::vec3 specular;
+            glm::vec4 direction; // 平行光照射方向
+            glm::vec4 color;
         };
 
         struct PointLightData
         {
-            glm::vec3 position; // 点光源位置
-            glm::vec3 ambient;
-            glm::vec3 diffuse;
-            glm::vec3 specular;
+            glm::vec4 position; // 点光源位置
+            glm::vec4 color;
         };
 
         struct SpotLightData
         {
-            glm::vec3 position; // 聚光灯位置
-            glm::vec3 direction; // 聚光灯方向
-            glm::vec3 ambient;
-            glm::vec3 diffuse;
-            glm::vec3 specular;
+            glm::vec4 position; // 聚光灯位置
+            glm::vec4 direction; // 聚光灯方向
+            glm::vec4 color;
         };
 
         struct LightsParams
         {
-            float dirIntensity;
-
             float pointLinear;
             float pointQuadratic;
 
@@ -113,9 +105,9 @@ namespace Kaesar {
             float gamma; // gamma 矫正
             float lightSize;
             DirectionalLightData directionalLightBuffer;
-            PointLightData pointLightBuffer;
-            SpotLightData spotLightBuffer;
-            LightsParams lightsParamsBuffer;
+            PointLightData pointLightsBuffer[5];
+            SpotLightData spotLightsBuffer[5];
+            LightsParams lightsParamsBuffer[5];
 
             // shadow
             bool softShadow = true;

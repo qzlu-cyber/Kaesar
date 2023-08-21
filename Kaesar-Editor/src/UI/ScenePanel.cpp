@@ -648,26 +648,15 @@ namespace Kaesar {
 
             ImGui::Separator();
 
-            auto& ambient = lightComponent.light->GetAmbient();
-            auto& diffuse = lightComponent.light->GetDiffuse();
-            auto& specular = lightComponent.light->GetSpecular();
-
-            ImGuiColorEditFlags colorFlags = ImGuiColorEditFlags_HDR;
+            auto& color4 = glm::vec4(lightComponent.light->GetColor(), 1);
 
             ImGui::SetNextItemWidth(60);
-            ImGui::Text(u8"环境光\0");
+            ImGui::Text(u8"颜色\0");
             ImGui::SameLine();
-            ImGui::ColorEdit3(u8"##环境光颜色", glm::value_ptr(ambient), colorFlags);
-            ImGui::Text(u8"漫反射");
-            ImGui::SameLine();
-            ImGui::ColorEdit3(u8"##漫反射颜色", glm::value_ptr(diffuse), colorFlags);
-            ImGui::Text(u8"镜面光\0");
-            ImGui::SameLine();
-            ImGui::ColorEdit3(u8"##高光颜色", glm::value_ptr(specular), colorFlags);
+            ImGuiColorEditFlags colorFlags = ImGuiColorEditFlags_HDR;
+            ImGui::ColorEdit4(u8"##光颜色", glm::value_ptr(color4), colorFlags);
 
-            lightComponent.light->SetAmbient(ambient);
-            lightComponent.light->SetDiffuse(diffuse);
-            lightComponent.light->SetSpecular(specular);
+            lightComponent.light->SetColor(glm::vec3(color4));
 
             //light's intensity
             float intensity = lightComponent.light->GetIntensity();
@@ -705,10 +694,6 @@ namespace Kaesar {
             {
                 auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
                 auto& spotDirection = transformComponent.Rotation;
-                ImGui::Text(u8"方   向\0");
-                ImGui::SameLine();
-                ImGui::SliderFloat3(u8"##聚光方向", glm::value_ptr(spotDirection), -2 * PI, 2 * PI, "%1.f");
-                light->SetDirection(spotDirection);
                 float iCut = light->GetInnerCutOff();
                 float oCut = light->GetOuterCutOff();
                 float linear = light->GetLinear();

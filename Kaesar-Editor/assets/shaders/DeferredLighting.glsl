@@ -4,45 +4,14 @@
 #version 460
 	
 layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec3 a_Normal;
-layout(location = 2) in vec2 a_TexCroods;
-layout(location = 3) in vec3 a_Tangent;
-layout(location = 4) in vec3 a_Bitangent;
+layout(location = 1) in vec2 a_TexCroods;
 
-layout(binding = 0) uniform Camera
-{
-	mat4 u_ViewProjection;
-	vec3 u_CameraPos;
-} camera;
-
-layout(binding = 1) uniform Transform
-{
-	mat4 u_Trans;
-	int u_ID;
-} transform;
-
-layout(binding = 4) uniform Shadow
-{
-	mat4 u_LightViewProjection;
-} shadow;
-
-struct VS_OUT 
-{
-	vec3 v_FragPos;
-	vec3 v_Normal;
-	vec2 v_TexCroods;
-	vec4 v_FragPosLightSpace;
-};
-
-layout(location = 0) out VS_OUT vs_out;
+layout(location = 0) out vec2 v_TexCroods;
 
 void main()
 {
-	vs_out.v_FragPos = vec3(transform.u_Trans * vec4(a_Position, 1.0));
-	vs_out.v_Normal = mat3(transpose(inverse(transform.u_Trans))) * a_Normal;
-	vs_out.v_TexCroods = a_TexCroods;
-    vs_out.v_FragPosLightSpace = shadow.u_LightViewProjection * vec4(vs_out.v_FragPos, 1.0); // 将顶点从世界空间转换到光空间
-	gl_Position = camera.u_ViewProjection * transform.u_Trans * vec4(a_Position, 1.0);
+	v_TexCroods = a_TexCroods;
+	gl_Position = vec4(a_Position, 1.0);
 }
 
 #type fragment
@@ -51,9 +20,12 @@ void main()
 
 layout(location = 0) out vec4 FragColor;
 
-layout(binding = 0) uniform sampler2D texture_diffuse;
-layout(binding = 1) uniform sampler2D texture_specular;
-layout(binding = 2) uniform sampler2D texture_normal;
+//GBuffer samplers
+layout(binding = 0) uniform sampler2D gPosition;
+layout(binding = 1) uniform sampler2D gNormal;
+layout(binding = 2) uniform sampler2D gAlbedoSpec;
+
+//Shadow related samplers
 layout(binding = 3) uniform sampler2DShadow shadowMap;
 layout(binding = 4) uniform sampler1D distribution0;
 layout(binding = 5) uniform sampler1D distribution1;
@@ -70,23 +42,34 @@ layout(binding = 1) uniform Transform
 	int u_ID;
 } transform;
 
+layout(binding = 4) uniform Shadow
+{
+	mat4 u_LightViewProjection;
+} shadow;
+
 struct DLight
 {
-    vec4 direction;
-    vec4 color;
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 };
 
 struct PLight
 {
-    vec4 position;
-    vec4 color;
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 };
 
 struct SLight
 {
-    vec4 position; 
-    vec4 direction;
-    vec4 color;
+    vec3 position; 
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 };
 
 struct LightsParams
@@ -102,23 +85,33 @@ struct LightsParams
 
 layout(binding = 2) uniform Lights
 {
-    PLight pointLight[5];
-    SLight spotLight[5];
+    PLight pointLight;
+    SLight spotLight;
     DLight directionalLight;
 } lights;
 
 layout(binding = 3) uniform Params
 {
-    LightsParams lightsParams[5];
+    float dirIntensity;
+
+    float pointLinear;
+    float pointQuadratic;
+
+    float spotLinear;
+    float spotQuadratic;
+    float innerCutOff;
+    float outerCutOff;
 } params;
 
-layout(push_constant) uniform pc
+layout(push_constant) uniform pushConstants
 {
+	float exposure;
+	float gamma;
 	float size;
-    int numPCFSamples; // 阴影映射中的 PCF 样本数
-    int numBlockerSearchSamples; // 阴影映射中的阴影搜索样本数
-    int softShadow; // 是否启用软阴影
-} push;
+	int numPCFSamples; // PCF 抗锯齿的样本数
+	int numBlockerSearchSamples; // 阴影映射中的阴影搜索样本数
+	int softShadow;
+} pc;
 
 struct VS_OUT 
 {
@@ -132,9 +125,9 @@ layout(location = 0) in VS_OUT fs_in;
 
 const float NEAR = 2.0; // 阴影映射中的阴影搜索范围的近端
 
-vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir, vec3 col);
-vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir, LightsParams lightsParams, vec3 col);
-vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir, LightsParams lightsParams, vec3 col);
+vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir);
+vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir);
+vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir);
 
 // 通过在指定的分布中进行采样，生成一个在二维平面上的随机方向向量
 vec2 RandomDirection(sampler1D distribution, float u)
@@ -169,10 +162,10 @@ float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2DShadow sh
 	float searchWidth = SearchWidth(uvLightSize, shadowCoords.z);
 
     // 从阴影贴图中搜索遮挡者
-	for (int i = 0; i < push.numBlockerSearchSamples; i++)
+	for (int i = 0; i < pc.numBlockerSearchSamples; i++)
 	{
         // 计算用于采样的纹理坐标，使用了 RandomDirection 将随机方向与光源大小结合，以便在光源区域内随机采样
-		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution0, i / float(push.numPCFSamples)) * uvLightSize, (shadowCoords.z - bias));
+		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution0, i / float(pc.numPCFSamples)) * uvLightSize, (shadowCoords.z - bias));
 		float z = texture(shadowMap, uvc); // 从阴影贴图中获取遮挡者的深度
 		
         if (z < 0.5) // 如果遮挡者的深度小于当前片段的深度，则表示该片段被遮挡，但是如果和 (shadowCoords.z - bias) 比较，阴影走样很严重😅 和 0.5 比较结果要好得多😅 Why? 🤔
@@ -198,15 +191,15 @@ float PCF_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float u
 	float sum = 0; // 存储多个采样点的深度之和
 
     // 在阴影贴图中进行多次采样，以计算平均深度
-	for (int i = 0; i < push.numPCFSamples; i++)
+	for (int i = 0; i < pc.numPCFSamples; i++)
 	{
         // 在光源区域内随机采样
-		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution1, i / float(push.numPCFSamples)) * uvRadius, (shadowCoords.z - bias));
+		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution1, i / float(pc.numPCFSamples)) * uvRadius, (shadowCoords.z - bias));
 		float z = texture(shadowMap, uvc);
 		sum += z;
 	}
 
-	return sum / push.numPCFSamples;
+	return sum / pc.numPCFSamples;
 }
 
 /// 计算平行光源下阴影映射中的 PCSS 阴影
@@ -244,7 +237,7 @@ float SoftShadowCalculation(vec4 fragPosLightSpace)
     float currentDepth = projCoords.z;
 
     vec3 normal = normalize(fs_in.v_Normal);
-    vec3 lightDir = normalize(-lights.directionalLight.direction.rgb);
+    vec3 lightDir = normalize(-lights.directionalLight.direction);
     float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001); 
     
     float shadow = 0;
@@ -252,7 +245,7 @@ float SoftShadowCalculation(vec4 fragPosLightSpace)
     if(projCoords.z > 1.0) // 超出光源视锥，不考虑阴影
         shadow = 0.0;
 
-    shadow = PCSS_DirectionalLight(projCoords, shadowMap, push.size, bias);
+    shadow = PCSS_DirectionalLight(projCoords, shadowMap, pc.size, bias);
 
     return shadow;
 }
@@ -275,7 +268,7 @@ float HardShadowCalculation(vec4 fragPosLightSpace)
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 
     vec3 normal = normalize(fs_in.v_Normal);
-    vec3 lightDir = normalize(-lights.directionalLight.direction.rgb);
+    vec3 lightDir = normalize(-lights.directionalLight.direction);
     float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001); 
 
     for (int x = -1; x <= 1; ++x)
@@ -297,101 +290,81 @@ float HardShadowCalculation(vec4 fragPosLightSpace)
 
 void main()
 {	
-	vec3 normal = normalize(fs_in.v_Normal);
-    vec3 viewDir = normalize(camera.u_CameraPos - fs_in.v_FragPos);
+    vec3 fragPos = texture(gPosistion, v_TexCoords).rgb;
+    vec3 normal = texture(gNormal, v_TexCoords).rgb;
+    vec4 albedospec = texture(gAlbedoSpec, v_TexCoords);
+	vec3 diffuse = albedospec.rgb;
+	float specular = albedospec.a;
 
-    vec4 color = texture(texture_diffuse, fs_in.v_TexCroods);
-    if(color.a < .2)
-    {
-		discard;
-	}
+    vec4 FragPosLightSpace = shadow.u_LightViewProjection * vec4(fragPos, 1.0);
+    vec3 viewDir = normalize(camera.u_CameraPos - fragPos);
 
     vec3 result = vec3(0);
-    result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir, color.rgb);
-    for (int i = 0; i < 5; ++i)
-    {
-        result += CaculatePointLight(lights.pointLight[i], normal, viewDir, params.lightsParams[i], color.rgb);
-        result += CaculateSpotLight(lights.spotLight[i], normal, viewDir, params.lightsParams[i], color.rgb);
-    }
-    // result += CaculatePointLight(lights.pointLight, normal, viewDir, color.rgb);
-    // result += CaculateSpotLight(lights.spotLight, normal, viewDir, color.rgb);
+    result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir);
+    result += CaculatePointLight(lights.pointLight, normal, viewDir);
+    result += CaculateSpotLight(lights.spotLight, normal, viewDir);
 
-    float shadow = 0;
-    if (push.softShadow == 1)
-    {
-        shadow = SoftShadowCalculation(fs_in.v_FragPosLightSpace);
-    }
-    else
-    {
-        shadow = HardShadowCalculation(fs_in.v_FragPosLightSpace);
-    }
+    vec3 hdrColor = result;
 
-    result = (1 - shadow) * result + color.rgb * 0.1;
+    // Reinhard 色调映射
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * pc.exposure);
+    // gamma 矫正 
+    mapped = pow(mapped, vec3(1.0 / pc.gamma));
 
-	FragColor = vec4(result, 1.0);
+    FragColor = vec4(mapped, 1.0);
 }
 
-vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir, vec3 col)
+vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 lightDir = normalize(-light.direction.rgb);
+    vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
 
+    vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.color * Diffuse;
 
-    vec3 color;
-	if(col == vec3(0))
-    {
-		color = vec3(diff) * light.color.rgb;
-	}
-    else
-    {
-		color = col * diff * light.color.rgb;
-	}
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    vec3 specular = spec * Specular * light.color;
 
-	return color;
+    return lighting + diffuse + specular;
 }
 
-vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir, LightsParams lightsParams, vec3 col)
+vec3 CaculatePointLight(PLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 lightDir = normalize(light.position.rgb - fs_in.v_FragPos);
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
+
+    vec3 lightDir = normalize(light.position - fs_in.v_FragPos);
     float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
 
-    float dist = length(light.position.rgb - fs_in.v_FragPos);
-    float attenuation = 1.0 / (1.0 + (lightsParams.pointLinear * dist) + (lightsParams.pointQuadratic * dist * dist));
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    vec3 specular = spec * light.specular * vec3(texture(texture_specular, fs_in.v_TexCroods));
 
-    vec3 color;
-	if(col == vec3(0))
-    {
-		color = vec3(diff) * light.color.rgb;
-	}
-    else
-    {
-		color = col * diff * light.color.rgb;
-	}
+    float dist = length(light.position - fs_in.v_FragPos);
+    float attenuation = 1.0 / (1.0 + (params.pointLinear * dist) + (params.pointQuadratic * dist * dist));
 
-    return color * attenuation;
+    return (ambient + diffuse + specular) * attenuation;
 }
 
-vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir, LightsParams lightsParams, vec3 col)
+vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 viewDir)
 {
-    vec3 lightDir = normalize(light.position.rgb - fs_in.v_FragPos);
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
+
+    vec3 lightDir = normalize(light.position - fs_in.v_FragPos);
     float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.diffuse * vec3(texture(texture_diffuse, fs_in.v_TexCroods));
 
-    float dist = length(light.position.rgb - fs_in.v_FragPos);
-    float attenuation = 1.0 / (1.0 + (lightsParams.spotLinear * dist) + (lightsParams.spotQuadratic * dist * dist));
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    vec3 specular = spec * light.specular * vec3(texture(texture_specular, fs_in.v_TexCroods));
 
-    vec3 color;
-	if(col == vec3(0))
-    {
-		color = vec3(diff) * light.color.rgb;
-	}
-    else
-    {
-		color = col * diff * light.color.rgb;
-	}
+    float dist = length(light.position - fs_in.v_FragPos);
+    float attenuation = 1.0 / (1.0 + (params.spotLinear * dist) + (params.spotQuadratic * dist * dist));
 
-    float theta = dot(lightDir, normalize(-light.direction.rgb));
-    float epsilon = lightsParams.innerCutOff - lightsParams.outerCutOff;
-    float intensity = clamp((theta - lightsParams.outerCutOff) / epsilon, 0.0, 1.0);
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = params.innerCutOff - params.outerCutOff;
+    float intensity = clamp((theta - params.outerCutOff) / epsilon, 0.0, 1.0);
 
-    return color * attenuation * intensity;
+    return (ambient + diffuse + specular) * attenuation * intensity;
 }
