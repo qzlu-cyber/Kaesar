@@ -443,7 +443,7 @@ namespace Kaesar {
                 if (sampler.binding == 0)
                 {
                     static glm::vec4 color;
-                    ImGui::ColorEdit4("Color", glm::value_ptr(color));
+                    ImGui::ColorEdit4("Albedo", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs);
                     materialComponent.shader->Bind();
                     materialComponent.shader->SetFloat4("pc.material.color", color);
                     materialComponent.shader->Unbind();

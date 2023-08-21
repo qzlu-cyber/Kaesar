@@ -95,6 +95,7 @@ layout(push_constant) uniform pushConstants
     float exposure;
 	float gamma;
 	float size;
+    float near; // 阴影映射中的阴影搜索范围的近端
     int numPCFSamples; // 阴影映射中的 PCF 样本数
     int numBlockerSearchSamples; // 阴影映射中的阴影搜索样本数
     int softShadow; // 是否启用软阴影
@@ -131,7 +132,7 @@ vec2 RandomDirection(sampler1D distribution, float u)
 /// return 搜索宽度
 float SearchWidth(float uvLightSize, float receiverDistance)
 {
-	return uvLightSize * (receiverDistance - NEAR) / receiverDistance;
+	return uvLightSize * (receiverDistance - pc.near) / receiverDistance;
 }
 
 /// 计算平行光源下阴影映射中的遮挡距离
@@ -206,7 +207,7 @@ float PCSS_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float 
 	float penumbraWidth = (shadowCoords.z - blockerDistance) / blockerDistance;
 
 	// PCF
-	float uvRadius = penumbraWidth * uvLightSize * NEAR / shadowCoords.z; // 计算用于 PCF 采样的半径
+	float uvRadius = penumbraWidth * uvLightSize * pc.near / shadowCoords.z; // 计算用于 PCF 采样的半径
 
 	return PCF_DirectionalLight(shadowCoords, shadowMap, uvRadius, bias);
 }

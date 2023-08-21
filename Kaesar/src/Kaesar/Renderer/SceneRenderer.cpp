@@ -9,6 +9,7 @@
 
 #include <glad/glad.h>
 #include "imgui.h"
+#include "imgui_internal.h"
 
 namespace Kaesar
 {
@@ -144,9 +145,12 @@ namespace Kaesar
         s_Data.lightsParamsUniformBuffer = UniformBuffer::Create(sizeof(s_Data.lightsParamsBuffer), 3);
         s_Data.shadowUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 4);
 
-        s_Data.exposure = 0.2f;
-        s_Data.gamma = 2.2f;
-        s_Data.lightSize = 0.001f;
+        s_Data.exposure = 0.5f;
+        s_Data.gamma = 1.9f;
+        s_Data.lightSize = 2.0f;
+        s_Data.orthoSize = 10.0f;
+        s_Data.lightNear = 1.0f;
+        s_Data.lightFar = 500.0f;
         
         GeneratePoissonDisk(s_Data.distributionSampler0, 32);
         GeneratePoissonDisk(s_Data.distributionSampler1, 32);
@@ -155,7 +159,8 @@ namespace Kaesar
         Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
         s_Data.basicShader->Unbind();
 
-        s_Data.lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 500.0f);
+        float dSize = s_Data.orthoSize;
+        s_Data.lightProjection = glm::ortho(-dSize, dSize, -dSize, dSize, s_Data.lightNear, s_Data.lightFar);
     }
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
@@ -215,7 +220,7 @@ namespace Kaesar
                 s_Data.directionalLightBuffer.direction = glm::vec4(light->GetDirection(), 0.0f);
 
                 // shadow
-                s_Data.lightView = glm::lookAt(glm::vec3(s_Data.directionalLightBuffer.direction), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                s_Data.lightView = glm::lookAt(-(glm::vec3(glm::normalize(s_Data.directionalLightBuffer.direction)) * 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 s_Data.shadowBuffer.lightViewProjection = s_Data.lightProjection * s_Data.lightView;
                 s_Data.shadowUniformBuffer->SetData(&s_Data.shadowBuffer, sizeof(glm::mat4));
                 light = nullptr;
@@ -349,12 +354,13 @@ namespace Kaesar
         Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
 
         //Push constant variables
-        s_Data.deferredLightingShader->SetFloat("pc.size", s_Data.lightSize);
+        s_Data.deferredLightingShader->SetFloat("pc.size", s_Data.lightSize * 0.0001f);
         s_Data.deferredLightingShader->SetInt("pc.numPCFSamples", s_Data.numPCF);
         s_Data.deferredLightingShader->SetInt("pc.numBlockerSearchSamples", s_Data.numBlocker);
         s_Data.deferredLightingShader->SetInt("pc.softShadow", (int)s_Data.softShadow);
         s_Data.deferredLightingShader->SetFloat("pc.exposure", s_Data.exposure);
         s_Data.deferredLightingShader->SetFloat("pc.gamma", s_Data.gamma);
+        s_Data.deferredLightingShader->SetFloat("pc.near", s_Data.lightNear);
 
         //GBuffer samplers
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(0), 0);
@@ -425,8 +431,6 @@ namespace Kaesar
         ImGui::Checkbox(u8"垂直同步", &vSync);
         Application::Get().GetWindow().SetVSync(vSync);
 
-        ImGui::Checkbox(u8"软阴影", &s_Data.softShadow);
-
         //DepthMap
         static bool showDepth = false;
         if (ImGui::Button(u8"深度贴图"))
@@ -434,16 +438,41 @@ namespace Kaesar
             showDepth = !showDepth;
         }
 
-        ImGui::End();
+        //shadow
+        ImGui::Checkbox(u8"软阴影", &s_Data.softShadow);
+        ImGui::DragFloat(u8"PCF 样本数", &s_Data.numPCF, 1, 1, 64);
+        ImGui::DragFloat(u8"Blocker 样本数", &s_Data.numBlocker, 1, 1, 64);
+        ImGui::DragFloat(u8"光源大小", &s_Data.lightSize, 0.01f, 0, 100);
 
-        if (showDepth) 
+        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+        if (ImGui::DragFloat("near", &s_Data.lightNear, 0.01f, 0.1f, 100.0f))
+        {
+            s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
+        }
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        if (ImGui::DragFloat("far", &s_Data.lightFar, 0.1f, 100.0f, 10000.0f))
+        {
+            s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
+        }
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        if (ImGui::DragFloat("camera size", &s_Data.orthoSize, 0.1f, 1, 50))
+        {
+            s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
+        }
+        ImGui::PopItemWidth();
+
+        if (showDepth)
         {
             ImGui::Begin(u8"深度贴图");
             ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
             ImGui::Image(reinterpret_cast<void*>(s_Data.shadowPass->GetSpecification()
-                            .TargetFrameBuffer->GetDepthAttachmentRendererID()), viewportPanelSize);
+                .TargetFrameBuffer->GetDepthAttachmentRendererID()), viewportPanelSize);
             ImGui::End();
         }
+
+        ImGui::End();
     }
 
     void SceneRenderer::OnViewportResize(uint32_t width, uint32_t height)

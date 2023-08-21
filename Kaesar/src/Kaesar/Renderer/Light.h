@@ -54,7 +54,7 @@ namespace Kaesar {
 		glm::vec3 GetDirection() const { return m_Direction; }
 
 	private:
-		glm::vec3 m_Direction = { -1.0f, 1.0f, 0.0f };
+		glm::vec3 m_Direction = { -4.0f, -6.28f, 0.0f };
 	};
 
 

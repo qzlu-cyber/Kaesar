@@ -111,6 +111,9 @@ namespace Kaesar {
             bool softShadow = true;
             float numPCF = 32;
             float numBlocker = 32;
+            float orthoSize;
+            float lightNear;
+            float lightFar;
             glm::mat4 lightProjection;
             glm::mat4 lightView;
             ShadowData shadowBuffer;
