@@ -12,6 +12,11 @@ namespace Kaesar {
         SceneRenderer::Initialize();
 
         m_Camera = new PerspectiveCamera(45.0f, 1.778f, 0.1f, 100.0f);
+
+        auto entity = CreateEntity("Directional Light");
+        auto& lightComponent = entity.AddComponent<LightComponent>();
+        lightComponent.type = LightType::Directional;
+        lightComponent.light = std::make_shared<DirectionalLight>();
     }
 
     Scene::~Scene() 

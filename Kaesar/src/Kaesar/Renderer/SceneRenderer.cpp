@@ -376,33 +376,39 @@ namespace Kaesar
         static bool showAlbedo = false;
         static bool showNormal = false;
         static bool showPosition = false;
-        if (ImGui::Button("Albedo")) {
+        if (ImGui::Button("Albedo"))
+        {
             showAlbedo = !showAlbedo;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Normal")) {
+        if (ImGui::Button("Normal"))
+        {
             showNormal = !showNormal;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Position")) {
+        if (ImGui::Button("Position"))
+        {
             showPosition = !showPosition;
         }
         auto width = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Width * 0.5f;
         auto height = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Height * 0.5f;
         ImVec2 frameSize = ImVec2{ width,height };
-        if (showAlbedo) {
+        if (showAlbedo)
+        {
             ImGui::Begin("Albedo");
             ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(2)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
 
-        if (showNormal) {
+        if (showNormal)
+        {
             ImGui::Begin("Normal");
             ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(1)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
 
-        if (showPosition) {
+        if (showPosition)
+        {
             ImGui::Begin("Position");
             ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(0)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
