@@ -246,9 +246,9 @@ namespace Kaesar {
 
         if (m_ColorAttachments.size() > 1)
         {
-            KR_CORE_ASSERT(m_ColorAttachments.size() <= 4, "Kaesar只支持附加 4 个颜色附件！");
+            KR_CORE_ASSERT(m_ColorAttachments.size() <= 5, "Kaesar只支持附加 5 个颜色附件！");
 
-            GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+            GLenum buffers[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
             
             glDrawBuffers(m_ColorAttachments.size(), buffers); // 指定帧缓冲的颜色附件
         }

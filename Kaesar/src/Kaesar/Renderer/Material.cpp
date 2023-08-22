@@ -31,11 +31,23 @@ namespace Kaesar {
                 {
                     if (sampler.binding == 0)
                     {
-                        m_Shader->SetInt("pc.HasDiffuseMap", 1);
+                        m_Shader->SetInt("pc.HasAlbedoMap", 1);
+                    }
+                    if (sampler.binding == 1)
+                    {
+                        m_Shader->SetInt("pc.HasMetallicMap", 1);
                     }
                     if (sampler.binding == 2)
                     {
                         m_Shader->SetInt("pc.HasNormalMap", 1);
+                    }
+                    if (sampler.binding == 3)
+                    {
+                        m_Shader->SetInt("pc.HasRoughnessMap", 1);
+                    }
+                    if (sampler.binding == 4)
+                    {
+                        m_Shader->SetInt("pc.HasAOMap", 1);
                     }
                     texture->Bind(sampler.binding); // 将纹理绑定到渲染流水线中
                 }
@@ -44,11 +56,23 @@ namespace Kaesar {
             {
                 if (sampler.binding == 0)
                 {
-                    m_Shader->SetInt("push.HasDiffuseMap", 0);
+                    m_Shader->SetInt("pc.HasAlbedoMap", 0);
+                }
+                if (sampler.binding == 1)
+                {
+                    m_Shader->SetInt("pc.HasMetallicMap", 0);
                 }
                 if (sampler.binding == 2)
                 {
-                    m_Shader->SetInt("push.HasNormalMap", 0);
+                    m_Shader->SetInt("pc.HasNormalMap", 0);
+                }
+                if (sampler.binding == 3)
+                {
+                    m_Shader->SetInt("pc.HasRoughnessMap", 0);
+                }
+                if (sampler.binding == 4)
+                {
+                    m_Shader->SetInt("pc.HasAOMap", 0);
                 }
             }
         }

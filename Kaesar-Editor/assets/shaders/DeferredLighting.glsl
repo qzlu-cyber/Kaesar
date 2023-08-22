@@ -25,11 +25,14 @@ layout(location = 0) out vec4 FragColor;
 layout(binding = 0) uniform sampler2D gPosition;
 layout(binding = 1) uniform sampler2D gNormal;
 layout(binding = 2) uniform sampler2D gAlbedoSpec;
+layout(binding = 6) uniform sampler2D gRoughMetalAO;
 
 //Shadow related samplers
 layout(binding = 3) uniform sampler2DShadow shadowMap;
 layout(binding = 4) uniform sampler1D distribution0;
 layout(binding = 5) uniform sampler1D distribution1;
+
+//-----------------------------------------------UNIFORM BUFFERS-----------------------------------------//
 
 layout(binding = 0) uniform Camera
 {
@@ -90,6 +93,7 @@ layout(binding = 3) uniform Params
     LightsParams lightsParams[5];
 } params;
 
+//-----------------------------------------------PUSH CONSTANT-----------------------------------------//
 layout(push_constant) uniform pushConstants
 {
     float exposure;
@@ -111,12 +115,7 @@ struct VS_OUT
 
 layout(location = 0) in vec2 v_TexCoords;
 
-const float NEAR = 2.0; // 阴影映射中的阴影搜索范围的近端
-
-vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir, vec3 col);
-vec3 CaculatePointLight(PLight light, vec3 normal, vec3 fragPos, vec3 viewDir, LightsParams lightsParams, vec3 col);
-vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 fragPos, vec3 viewDir, LightsParams lightsParams, vec3 col);
-
+//-----------------------------------------Shadow calculation functions-------------------------------//
 // 通过在指定的分布中进行采样，生成一个在二维平面上的随机方向向量
 vec2 RandomDirection(sampler1D distribution, float u)
 {
@@ -268,28 +267,130 @@ float HardShadowCalculation(vec4 fragPosLightSpace, float bias)
     return shadow;
 }
 
+//--------------------------------------------------PBR------------------------------------------------//
+
+const float PI = 3.14159265359;
+
+/// 法线分布函数 D (Trowbridge-Reitz GGX)
+/// params N 法线
+/// params H 入射光线与视线的半程向量
+/// params roughness 粗糙度
+/// return 分布函数值
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a2 = roughness * roughness;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return a2 / denom;
+}
+
+/// 几何函数 G (Schlick GGX)
+/// params NdotV 法线与视线的点积
+/// params k 粗糙度的重映射
+/// return 几何函数值
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float nom = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / denom;
+}
+
+/// 几何函数 G (Smith Joint GGX)
+/// params N 法线
+/// params V 视线
+/// params L 入射光线
+/// params k 粗糙度的重映射
+/// return 几何函数值
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+
+/// 菲涅尔方程 F (Fresnel-Schlick 近似)
+/// params cosTheta 半程向量与视线（或法线）之间的夹角的余弦值
+/// params F0 材质的基础反射率
+/// return 菲涅尔反射率
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}
+
+/// 计算表面的光照颜色
+/// params L 入射光线方向向量
+/// params N 表面法线向量
+/// params V 视线方向向量
+/// params Ra 环境光颜色
+/// params F0 材质的基础反射率
+/// params R 粗糙度参数
+/// params M 金属度参数
+/// params A 环境光颜色
+/// return 计算得到的光照颜色
+vec3 CalculateL0(vec3 L, vec3 N, vec3 V, vec3 Ra, vec3 F0, float R, float M, vec3 A)
+{
+    vec3 H = normalize(L + V); // 半程向量
+
+    // Cook-Torrance BRDF
+    float D = DistributionGGX(N, H, R);
+    float G = GeometrySmith(N, V, L, R);
+    vec3  F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 F_lambert = A / PI; // 漫反射项
+
+    vec3 Nominator = D * G * F;
+    float Denominator = 4 * max(dot(V, N), 0.0) * max(dot(L, N), 0.0);
+    vec3 F_cook = Nominator / Denominator; // 镜面反射项
+
+    vec3 Ks = F; // 反射光线所占比率
+    vec3 Kd = vec3(1.0) - Ks; // 折射（漫反射）光线所占比率
+
+    Kd *= 1.0 - M; // 考虑金属度的调整
+
+	float NdotL = max(dot(N, L), 0.0);
+
+    vec3 FR = Kd * F_lambert + Ks * F_cook;
+
+    return FR * Ra * NdotL;
+}
+
 void main()
 {	
-    vec3 fragPos = texture(gPosition, v_TexCoords).rgb;
-	vec3 normal = texture(gNormal, v_TexCoords).rgb;
+    vec3 fragPos    = texture(gPosition, v_TexCoords).rgb;
+	vec3 N          = texture(gNormal, v_TexCoords).rgb;
 	vec4 albedospec = texture(gAlbedoSpec, v_TexCoords);
-	vec3 diffuse = albedospec.rgb;
-	float specular = albedospec.a;
+	vec3 Albedo     = albedospec.rgb;
+	float Roughness = texture(gRoughMetalAO, v_TexCoords).r;
+	float Metallic  = texture(gRoughMetalAO, v_TexCoords).g;
+	float AO		= texture(gRoughMetalAO, v_TexCoords).b;
 
-    vec3 viewDir = normalize(camera.u_CameraPos - fragPos);
+    vec3 V = normalize(camera.u_CameraPos - fragPos);
+    vec3 R = reflect(-V, N);
+
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, Albedo, Metallic);
+
+    vec3 L0 = vec3(0.0);
 
     vec4 FragPosLightSpace = shadow.u_LightViewProjection * vec4(fragPos, 1.0);
 
-    vec3 lightDir = normalize(-lights.directionalLight.direction.rgb);
-    float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
+    vec3  L = normalize(-lights.directionalLight.direction.rgb);
+    float bias = max(0.01 * (1.0 - dot(N, L)), 0.001);
 
-    vec3 result = vec3(0);
-    result += CaculateDirectionalLight(lights.directionalLight, normal, viewDir, diffuse);
-    for (int i = 0; i < 5; ++i)
-    {
-        result += CaculatePointLight(lights.pointLight[i], normal, fragPos, viewDir, params.lightsParams[i], diffuse);
-        result += CaculateSpotLight(lights.spotLight[i], normal, fragPos, viewDir, params.lightsParams[i], diffuse);
-    }
+    L0 += CalculateL0(L, N, V, lights.directionalLight.color.rgb, F0, Roughness, Metallic, Albedo);
 
     float shadow = 0;
     if (pc.softShadow == 1)
@@ -301,8 +402,10 @@ void main()
         shadow = HardShadowCalculation(FragPosLightSpace, bias);
     }
 
-    vec3 ambient = diffuse * 0.1;
-    result = (1 - shadow) * result + ambient;
+    vec3 ambient = vec3(0.03) * Albedo * AO;
+
+    vec3 result = vec3(0);
+	result = (1 - shadow) * L0 + ambient;
 
 	vec3 hdrColor = result;
 
@@ -312,69 +415,4 @@ void main()
     mapped = pow(mapped, vec3(1.0 / pc.gamma));
 
     FragColor = vec4(mapped, 1.0);
-}
-
-vec3 CaculateDirectionalLight(DLight light, vec3 normal, vec3 viewDir, vec3 col)
-{
-    vec3 lightDir = normalize(-light.direction.rgb);
-
-    float diff = max(dot(normal, lightDir), 0.0);
-
-    vec3 color;
-	if(col == vec3(0))
-    {
-		color = vec3(diff) * light.color.rgb;
-	}
-    else
-    {
-		color = col * diff * light.color.rgb;
-	}
-
-	return color;
-}
-
-vec3 CaculatePointLight(PLight light, vec3 normal, vec3 fragPos, vec3 viewDir, LightsParams lightsParams, vec3 col)
-{
-    vec3 lightDir = normalize(light.position.rgb - fragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
-
-    float dist = length(light.position.rgb - fragPos);
-    float attenuation = 1.0 / (1.0 + (lightsParams.pointLinear * dist) + (lightsParams.pointQuadratic * dist * dist));
-
-    vec3 color;
-	if(col == vec3(0))
-    {
-		color = vec3(diff) * light.color.rgb;
-	}
-    else
-    {
-		color = col * diff * light.color.rgb;
-	}
-
-    return color * attenuation;
-}
-
-vec3 CaculateSpotLight(SLight light, vec3 normal, vec3 fragPos, vec3 viewDir, LightsParams lightsParams, vec3 col)
-{
-    vec3 lightDir = normalize(light.position.rgb - fragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
-
-    float dist = length(light.position.rgb - fragPos);
-    float attenuation = 1.0 / (1.0 + (lightsParams.spotLinear * dist) + (lightsParams.spotQuadratic * dist * dist));
-
-    vec3 color;
-	if(col == vec3(0))
-    {
-		color = vec3(diff) * light.color.rgb;
-	}
-    else
-    {
-		color = col * diff * light.color.rgb;
-	}
-
-    float theta = dot(lightDir, normalize(-light.direction.rgb));
-    float epsilon = lightsParams.innerCutOff - lightsParams.outerCutOff;
-    float intensity = clamp((theta - lightsParams.outerCutOff) / epsilon, 0.0, 1.0);
-
-    return color * attenuation * intensity;
 }

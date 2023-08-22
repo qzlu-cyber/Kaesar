@@ -439,13 +439,40 @@ namespace Kaesar {
                 ImGui::SameLine();
                 ImGui::Checkbox(u8"启用", &sampler.isUsed);
 
-                //Diffuse
+                // Albedo
                 if (sampler.binding == 0)
                 {
                     static glm::vec4 color;
-                    ImGui::ColorEdit4("Albedo", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs);
+                    ImGui::ColorEdit4(u8"反照率", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs);
                     materialComponent.shader->Bind();
                     materialComponent.shader->SetFloat4("pc.material.color", color);
+                    materialComponent.shader->Unbind();
+                }
+                // Metallic
+                if (sampler.binding == 1)
+                {
+                    static float metallic = 0.0f;
+                    ImGui::SliderFloat(u8"金属度", &metallic, 0.0f, 1.0f);
+                    materialComponent.shader->Bind();
+                    materialComponent.shader->SetFloat("pc.material.MetallicFactor", metallic);
+                    materialComponent.shader->Unbind();
+                }
+                // Roughness
+                if (sampler.binding == 3)
+                {
+                    static float roughness;
+                    ImGui::SliderFloat(u8"粗糙度", &roughness, 0, 1);
+                    materialComponent.shader->Bind();
+                    materialComponent.shader->SetFloat("push.material.RoughnessFactor", roughness);
+                    materialComponent.shader->Unbind();
+                }
+                // AO
+                if (sampler.binding == 4)
+                {
+                    static float AO;
+                    ImGui::SliderFloat(u8"环境光遮蔽", &AO, 0, 1);
+                    materialComponent.shader->Bind();
+                    materialComponent.shader->SetFloat("push.material.AO", AO);
                     materialComponent.shader->Unbind();
                 }
 

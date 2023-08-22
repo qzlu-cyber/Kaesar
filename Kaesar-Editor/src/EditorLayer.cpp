@@ -336,7 +336,7 @@ namespace Kaesar {
             auto mouseFB = m_ActiveScene->GetMainFrameBuffer();
             mouseFB->Bind();
 
-            int pixelData = mouseFB->ReadPixel(3, mouseX, mouseY);
+            int pixelData = mouseFB->ReadPixel(4, mouseX, mouseY);
             if (pixelData != -1) 
             {
                 m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;

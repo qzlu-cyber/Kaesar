@@ -54,6 +54,7 @@ namespace Kaesar
             FramebufferTextureFormat::RGBA16F,			// 坐标颜色缓冲
             FramebufferTextureFormat::RGBA16F,			// 法线颜色缓冲
             FramebufferTextureFormat::RGBA16F,			// 颜色 + 高光颜色缓冲
+            FramebufferTextureFormat::RGBA16F,          // 粗糙度 + 金属度 + AO 缓冲
             FramebufferTextureFormat::RED_INTEGER,      // 物体 ID 缓冲
             FramebufferTextureFormat::DEPTH24STENCIL8	// 深度 + 模板缓冲
         };
@@ -295,7 +296,7 @@ namespace Kaesar
         s_Data.geoPass->BindTargetFrameBuffer();
         RenderCommand::SetState(RenderState::DEPTH_TEST, true);
         RenderCommand::SetClearColor(s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().ClearColor);
-        s_Data.geoPass->GetSpecification().TargetFrameBuffer->ClearAttachment(3, -1);
+        s_Data.geoPass->GetSpecification().TargetFrameBuffer->ClearAttachment(4, -1);
         s_Data.geoShader->Bind();
         RenderCommand::Clear();
         for (auto entity : view)
@@ -317,8 +318,11 @@ namespace Kaesar
                 }
                 else
                 {
-                    s_Data.geoShader->SetInt("pc.HasDiffuseMap", 1);
+                    s_Data.geoShader->SetInt("pc.HasAlbedoMap", 1);
                     s_Data.geoShader->SetInt("pc.HasNormalMap", 0);
+                    s_Data.geoShader->SetFloat("pc.material.MetallicFactor", 0);
+                    s_Data.geoShader->SetFloat("pc.material.RoughnessFactor", 1);
+                    s_Data.geoShader->SetFloat("pc.material.AO", 1);
                     s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
                     s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.geoShader); // 否则使用默认渲染
@@ -366,6 +370,7 @@ namespace Kaesar
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(0), 0);
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(1), 1);
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(2), 2);
+        Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(3), 6);
 
         Renderer::Submit(s_Data.vertexArray, s_Data.deferredLightingShader);
 
@@ -389,6 +394,7 @@ namespace Kaesar
         static bool showAlbedo = false;
         static bool showNormal = false;
         static bool showPosition = false;
+        static bool showRoughMetalAO = false;
         if (ImGui::Button("Albedo"))
         {
             showAlbedo = !showAlbedo;
@@ -403,9 +409,26 @@ namespace Kaesar
         {
             showPosition = !showPosition;
         }
+        ImGui::SameLine();
+        if (ImGui::Button("RoughMetalAO"))
+        {
+            showRoughMetalAO = !showRoughMetalAO;
+        }
         auto width = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Width * 0.5f;
         auto height = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Height * 0.5f;
         ImVec2 frameSize = ImVec2{ width,height };
+        if (showPosition)
+        {
+            ImGui::Begin("Position");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(0)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::End();
+        }
+        if (showNormal)
+        {
+            ImGui::Begin("Normal");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(1)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::End();
+        }
         if (showAlbedo)
         {
             ImGui::Begin("Albedo");
@@ -413,17 +436,10 @@ namespace Kaesar
             ImGui::End();
         }
 
-        if (showNormal)
+        if (showRoughMetalAO)
         {
-            ImGui::Begin("Normal");
-            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(1)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-            ImGui::End();
-        }
-
-        if (showPosition)
-        {
-            ImGui::Begin("Position");
-            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(0)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::Begin("RoughMetalAO");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(3)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
 
