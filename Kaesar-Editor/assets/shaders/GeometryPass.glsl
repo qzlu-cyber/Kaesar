@@ -70,8 +70,8 @@ layout(binding = 4) uniform sampler2D AmbientOcclusionMap;
 struct Material
 {
 	vec4 color;
-	float RoughnessFactor;
 	float MetallicFactor;
+	float RoughnessFactor;
 	float AO;
 };
 
@@ -79,9 +79,10 @@ layout(push_constant) uniform pushConstant
 {
 	Material material;
 	int id;
+	float tiling;
 	int HasAlbedoMap;
-	int HasMetallicMap;
 	int HasNormalMap;
+	int HasMetallicMap;
 	int HasRoughnessMap;
 	int HasAOMap;
 } pc;
@@ -101,9 +102,11 @@ void main()
 {
 	gPosistion = fs_in.v_FragPos;
 
+	vec2 uv = fs_in.v_TexCoords * pc.tiling; // tiling
+
 	if (pc.HasAlbedoMap == 1)
 	{
-		gAlbedoSpec.rgb = texture(AlbedoMap, fs_in.v_TexCoords).rgb;
+		gAlbedoSpec.rgb = texture(AlbedoMap, uv).rgb;
 	}
 	else
 	{
@@ -113,7 +116,7 @@ void main()
 
 	if (pc.HasNormalMap == 1)
 	{
-		vec3 normal = texture(NormalMap, fs_in.v_TexCoords).rgb;
+		vec3 normal = texture(NormalMap, uv).rgb;
 		normal = normalize(normal * 2.0 - 1.0);
 		gNormal = normalize(fs_in.v_TBN * normal); 
 
@@ -126,7 +129,7 @@ void main()
 	float Roughness;
 	if(pc.HasRoughnessMap == 1)
 	{
-		Roughness = texture(RoughnessMap, fs_in.v_TexCoords).r * pc.material.RoughnessFactor;
+		Roughness = texture(RoughnessMap, uv).r * pc.material.RoughnessFactor;
 	}
 	else
 	{
@@ -136,7 +139,7 @@ void main()
 	float Metallic;
 	if(pc.HasMetallicMap == 1)
 	{
-		Metallic =  texture(MetallicMap, fs_in.v_TexCoords).r * pc.material.MetallicFactor;
+		Metallic =  texture(MetallicMap, uv).r * pc.material.MetallicFactor;
 	}
 	else
 	{
@@ -146,7 +149,7 @@ void main()
 	float AO;
 	if(pc.HasAOMap == 1)
 	{
-		AO =  texture(AmbientOcclusionMap, fs_in.v_TexCoords).r * pc.material.AO;
+		AO =  texture(AmbientOcclusionMap, uv).r * pc.material.AO;
 	}
 	else
 	{

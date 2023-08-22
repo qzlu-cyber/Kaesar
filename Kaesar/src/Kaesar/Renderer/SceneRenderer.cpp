@@ -221,7 +221,7 @@ namespace Kaesar
                 s_Data.directionalLightBuffer.direction = glm::vec4(light->GetDirection(), 0.0f);
 
                 // shadow
-                s_Data.lightView = glm::lookAt(-(glm::vec3(glm::normalize(s_Data.directionalLightBuffer.direction)) * 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                s_Data.lightView = glm::lookAt(-(glm::vec3(s_Data.directionalLightBuffer.direction) * 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 s_Data.shadowBuffer.lightViewProjection = s_Data.lightProjection * s_Data.lightView;
                 s_Data.shadowUniformBuffer->SetData(&s_Data.shadowBuffer, sizeof(glm::mat4));
                 light = nullptr;
@@ -318,11 +318,15 @@ namespace Kaesar
                 }
                 else
                 {
+                    s_Data.geoShader->SetFloat("pc.tiling", 1.0f);
                     s_Data.geoShader->SetInt("pc.HasAlbedoMap", 1);
                     s_Data.geoShader->SetInt("pc.HasNormalMap", 0);
-                    s_Data.geoShader->SetFloat("pc.material.MetallicFactor", 0);
-                    s_Data.geoShader->SetFloat("pc.material.RoughnessFactor", 1);
-                    s_Data.geoShader->SetFloat("pc.material.AO", 1);
+                    s_Data.geoShader->SetInt("pc.HasMetallicMap", 0);
+                    s_Data.geoShader->SetInt("pc.HasRoughnessMap", 0);
+                    s_Data.geoShader->SetInt("pc.HasAOMap", 0);
+                    s_Data.geoShader->SetFloat("pc.material.MetallicFactor", 0.0f);
+                    s_Data.geoShader->SetFloat("pc.material.RoughnessFactor", 1.0f);
+                    s_Data.geoShader->SetFloat("pc.material.AO", 1.0f);
                     s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
                     s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.geoShader); // 否则使用默认渲染
@@ -391,10 +395,17 @@ namespace Kaesar
 
         ImGui::DragFloat(u8"光源大小", &s_Data.lightSize, 0.0001, 0, 100);
 
+        static bool showDepth = false;
         static bool showAlbedo = false;
         static bool showNormal = false;
         static bool showPosition = false;
         static bool showRoughMetalAO = false;
+
+        if (ImGui::Button(u8"深度贴图"))
+        {
+            showDepth = !showDepth;
+        }
+        ImGui::SameLine();
         if (ImGui::Button("Albedo"))
         {
             showAlbedo = !showAlbedo;
@@ -416,43 +427,48 @@ namespace Kaesar
         }
         auto width = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Width * 0.5f;
         auto height = s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetSpecification().Height * 0.5f;
-        ImVec2 frameSize = ImVec2{ width,height };
+        ImVec2 frameSize = ImVec2{ width, height };
+        if (showDepth)
+        {
+            ImGui::Begin(u8"深度贴图");
+            ImGui::Image(reinterpret_cast<void*>(s_Data.shadowPass->GetSpecification()
+                .TargetFrameBuffer->GetDepthAttachmentRendererID()), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::End();
+        }
+
         if (showPosition)
         {
             ImGui::Begin("Position");
-            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(0)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(0)), 
+                         frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
         if (showNormal)
         {
             ImGui::Begin("Normal");
-            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(1)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(1)), 
+                         frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
         if (showAlbedo)
         {
             ImGui::Begin("Albedo");
-            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(2)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(2)), 
+                         frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
 
         if (showRoughMetalAO)
         {
             ImGui::Begin("RoughMetalAO");
-            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(3)), frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+            ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(3)), 
+                         frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
         }
 
         static bool vSync = true;
         ImGui::Checkbox(u8"垂直同步", &vSync);
         Application::Get().GetWindow().SetVSync(vSync);
-
-        //DepthMap
-        static bool showDepth = false;
-        if (ImGui::Button(u8"深度贴图"))
-        {
-            showDepth = !showDepth;
-        }
 
         //shadow
         ImGui::Checkbox(u8"软阴影", &s_Data.softShadow);
@@ -478,15 +494,6 @@ namespace Kaesar
             s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
         }
         ImGui::PopItemWidth();
-
-        if (showDepth)
-        {
-            ImGui::Begin(u8"深度贴图");
-            ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-            ImGui::Image(reinterpret_cast<void*>(s_Data.shadowPass->GetSpecification()
-                .TargetFrameBuffer->GetDepthAttachmentRendererID()), viewportPanelSize);
-            ImGui::End();
-        }
 
         ImGui::End();
     }

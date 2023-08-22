@@ -426,9 +426,13 @@ namespace Kaesar {
             for (auto& sampler : samplers)
             {
                 ImGui::PushID(sampler.name.c_str());
+                ImGui::Separator();
                 int frame_padding = -1 + 0;                           // -1 == uses default padding (style.FramePadding)
                 ImVec2 size = ImVec2(64.0f, 64.0f);                  // Size of the image we want to make visible
+                ImGui::Checkbox(u8"启用", &sampler.isUsed);
+                ImGui::SameLine();
                 ImGui::Text(sampler.name.c_str());
+
                 m_TextureId = reinterpret_cast<void*>(m_EmptyTexture->GetRendererID());
                 auto& texture = materialComponent.material->GetTexture(sampler);
                 if (texture)
@@ -436,55 +440,77 @@ namespace Kaesar {
                     m_TextureId = reinterpret_cast<void*>(texture->GetRendererID());
                 }
 
-                ImGui::SameLine();
-                ImGui::Checkbox(u8"启用", &sampler.isUsed);
-
-                // Albedo
-                if (sampler.binding == 0)
-                {
-                    static glm::vec4 color;
-                    ImGui::ColorEdit4(u8"反照率", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs);
-                    materialComponent.shader->Bind();
-                    materialComponent.shader->SetFloat4("pc.material.color", color);
-                    materialComponent.shader->Unbind();
-                }
-                // Metallic
-                if (sampler.binding == 1)
-                {
-                    static float metallic = 0.0f;
-                    ImGui::SliderFloat(u8"金属度", &metallic, 0.0f, 1.0f);
-                    materialComponent.shader->Bind();
-                    materialComponent.shader->SetFloat("pc.material.MetallicFactor", metallic);
-                    materialComponent.shader->Unbind();
-                }
-                // Roughness
-                if (sampler.binding == 3)
-                {
-                    static float roughness;
-                    ImGui::SliderFloat(u8"粗糙度", &roughness, 0, 1);
-                    materialComponent.shader->Bind();
-                    materialComponent.shader->SetFloat("push.material.RoughnessFactor", roughness);
-                    materialComponent.shader->Unbind();
-                }
-                // AO
-                if (sampler.binding == 4)
-                {
-                    static float AO;
-                    ImGui::SliderFloat(u8"环境光遮蔽", &AO, 0, 1);
-                    materialComponent.shader->Bind();
-                    materialComponent.shader->SetFloat("push.material.AO", AO);
-                    materialComponent.shader->Unbind();
-                }
-
-                if (ImGui::ImageButton(m_TextureId, size, ImVec2{ 0, 1 }, ImVec2{ 1, 0 })) 
+                if (ImGui::ImageButton(m_TextureId, size, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }))
                 {
                     auto path = FileDialogs::OpenFile("Kaesar Texture (*.*)\0*.*\0");
-                    if (path) 
+                    if (path)
                     {
                         // 内嵌纹理默认为漫反射贴图，绑定点为 0 就是漫反射贴图，将其设置为 sRGB 颜色空间
                         materialTextures[sampler.binding] = Texture2D::Create(*path, 0, sampler.binding == 0);
                     }
                 }
+
+                auto& buffer = materialComponent.material->GetCBuffer();
+
+                // Albedo
+                if (sampler.binding == 0)
+                {
+                    glm::vec4 color = buffer.material.color;
+
+                    float tiling = buffer.tiling;
+                    if (ImGui::DragFloat("Tiling", &tiling, 0.05f, 0.001f, 100))
+                    {
+                        materialComponent.material->Set("tiling", tiling);
+                    }
+                    
+                    if (ImGui::ColorEdit4(u8"反照率", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
+                    {
+                        materialComponent.material->Set("pc.material.color", color);
+                    }
+                }
+                // Metallic
+                if (sampler.binding == 1)
+                {
+                    float metallic = buffer.material.MetallicFactor;
+
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text(u8"金属度\0");
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+                    if (ImGui::SliderFloat("##金属度", &metallic, 0.0f, 1.0f))
+                    {
+                        materialComponent.material->Set("pc.material.MetallicFactor", metallic);
+                    }
+                }
+                // Roughness
+                if (sampler.binding == 3)
+                {
+                    float roughness = buffer.material.RoughnessFactor;
+                    
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text(u8"粗糙度\0");
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+                    if (ImGui::SliderFloat("##粗糙度", &roughness, 0.0f, 1.0f))
+                    {
+                        materialComponent.material->Set("pc.material.RoughnessFactor", roughness);
+                    }
+                }
+                // AO
+                if (sampler.binding == 4)
+                {
+                    float AO = buffer.material.AO;
+                    
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text(u8"环境光遮蔽\0");
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+                    if (ImGui::SliderFloat("##环境光遮蔽", &AO, 0.0f, 1.0f))
+                    {
+                        materialComponent.material->Set("pc.material.AO", AO);
+                    }
+                }
+
                 ImGui::PopID();
             }
             ImGui::TreePop();

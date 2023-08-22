@@ -290,10 +290,13 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 /// 几何函数 G (Schlick GGX)
 /// params NdotV 法线与视线的点积
-/// params k 粗糙度的重映射
+/// params roughness 粗糙度
 /// return 几何函数值
-float GeometrySchlickGGX(float NdotV, float k)
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+
     float nom = NdotV;
     float denom = NdotV * (1.0 - k) + k;
 
@@ -304,14 +307,14 @@ float GeometrySchlickGGX(float NdotV, float k)
 /// params N 法线
 /// params V 视线
 /// params L 入射光线
-/// params k 粗糙度的重映射
+/// params roughness 粗糙度
 /// return 几何函数值
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
-    float ggx1 = GeometrySchlickGGX(NdotV, k);
-    float ggx2 = GeometrySchlickGGX(NdotL, k);
+    float ggx1 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx2 = GeometrySchlickGGX(NdotL, roughness);
 
     return ggx1 * ggx2;
 }
@@ -371,8 +374,7 @@ void main()
 {	
     vec3 fragPos    = texture(gPosition, v_TexCoords).rgb;
 	vec3 N          = texture(gNormal, v_TexCoords).rgb;
-	vec4 albedospec = texture(gAlbedoSpec, v_TexCoords);
-	vec3 Albedo     = albedospec.rgb;
+	vec3 Albedo     = pow(texture(gAlbedoSpec, v_TexCoords).rgb, vec3(pc.gamma)); // Gamma 矫正
 	float Roughness = texture(gRoughMetalAO, v_TexCoords).r;
 	float Metallic  = texture(gRoughMetalAO, v_TexCoords).g;
 	float AO		= texture(gRoughMetalAO, v_TexCoords).b;
@@ -391,6 +393,17 @@ void main()
     float bias = max(0.01 * (1.0 - dot(N, L)), 0.001);
 
     L0 += CalculateL0(L, N, V, lights.directionalLight.color.rgb, F0, Roughness, Metallic, Albedo);
+
+    for (int i = 0; i < 5; i++)
+    {
+        vec3 L = normalize(lights.pointLight[i].position.rgb - fragPos);
+        float dist = length(lights.pointLight[i].position.rgb - fragPos);
+        float attenuation = 1.0 / (1.0 + dist * (params.lightsParams[i].pointLinear + params.lightsParams[i].pointQuadratic * dist));
+
+        vec3 Ra = lights.pointLight[i].color.rgb;
+
+        L0 += CalculateL0(L, N, V, Ra * attenuation, F0, Roughness, Metallic, Albedo);
+    }
 
     float shadow = 0;
     if (pc.softShadow == 1)

@@ -76,10 +76,80 @@ namespace Kaesar {
                 }
             }
         }
+
+        // ÉèÖÃ PushConstants
+        for (auto& item : m_PushConstants[1].members)
+        {
+            if (item.name == "material")
+            {
+                m_Shader->SetFloat4("pc.material.color", m_Cbuffer.material.color);
+                m_Shader->SetFloat("pc.material.MetallicFactor", m_Cbuffer.material.MetallicFactor);
+                m_Shader->SetFloat("pc.material.RoughnessFactor", m_Cbuffer.material.RoughnessFactor);
+                m_Shader->SetFloat("pc.material.AO", m_Cbuffer.material.AO);
+                m_Shader->SetFloat("pc.tiling", m_Cbuffer.tiling);
+            }
+        }
     }
 
     std::shared_ptr<Texture2D> Material::GetTexture(const Sampler& sampler)
     {
         return  m_Textures[sampler.binding];
+    }
+
+    void Material::Set(const std::string& name, int value)
+    {
+        if (name == "HasAlbedoMap")
+        {
+            m_Cbuffer.HasAlbedoMap = value;
+        }
+        else if (name == "HasNormalMap")
+        {
+            m_Cbuffer.HasNormalMap = value;
+        }
+        else if (name == "HasMetallicMap")
+        {
+            m_Cbuffer.HasMetallicMap = value;
+        }
+        else if (name == "HasRoughnessMap")
+        {
+            m_Cbuffer.HasRoughnessMap = value;
+        }
+        else if (name == "HasAOMap")
+        {
+            m_Cbuffer.HasAOMap = value;
+        }
+        else if (name == "tiling")
+        {
+            m_Cbuffer.tiling = value;
+        }
+    }
+
+    void Material::Set(const std::string& name, float value)
+    {
+        if (name == "pc.material.MetallicFactor")
+        {
+            m_Cbuffer.material.MetallicFactor = value;
+        }
+        else if (name == "pc.material.RoughnessFactor")
+        {
+            m_Cbuffer.material.RoughnessFactor = value;
+        }
+        else if (name == "pc.material.AO")
+        {
+            m_Cbuffer.material.AO = value;
+        }
+    }
+
+    void Material::Set(const std::string& name, const glm::vec3& value)
+    {
+
+    }
+
+    void Material::Set(const std::string& name, const glm::vec4& value)
+    {
+        if (name == "pc.material.color")
+        {
+            m_Cbuffer.material.color = value;
+        }
     }
 }

@@ -9,7 +9,8 @@
 namespace Kaesar {
 	// 推送常量的成员
 	// 推送常量是一种特殊的常量数据，可以在渲染管线中快速访问，通常用于在着色器程序中传递常量数据
-	struct PCMember {
+	struct PCMember
+	{
 		std::string name; // 推送常量成员的名称
 		size_t size; // 推送常量成员的大小
 	};
