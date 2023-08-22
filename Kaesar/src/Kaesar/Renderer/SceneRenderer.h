@@ -8,6 +8,7 @@
 #include "Kaesar/Renderer/UniformBuffer.h"
 #include "Kaesar/Scene/Component.h"
 #include "Kaesar/Renderer/RenderPass.h"
+#include "Kaesar/Renderer/Environment.h"
 
 #include <entt.hpp>
 #include <memory>
@@ -117,6 +118,9 @@ namespace Kaesar {
             glm::mat4 lightProjection;
             glm::mat4 lightView;
             ShadowData shadowBuffer;
+
+            // environment
+            std::shared_ptr<Environment> environment;
 
             std::shared_ptr<VertexArray> vertexArray;
 

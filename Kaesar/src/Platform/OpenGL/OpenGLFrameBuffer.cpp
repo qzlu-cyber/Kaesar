@@ -159,17 +159,29 @@ namespace Kaesar {
         return false;
     }
 
+    static bool IsCubemapFormat(FramebufferTextureFormat format)
+    {
+        if (format == FramebufferTextureFormat::Cubemap)
+            return true;
+        return false;
+    }
+
     Kaesar::OpenGLFrameBuffer::OpenGLFrameBuffer(const FramebufferSpecification& fspc)
         : m_Specification(fspc)
     {
         for (auto& format : m_Specification.Attachments.Attachments)
         {
-            if (!IsDepthFormat(format.TextureFormat)) {
-                m_ColorAttachmentSpecifications.emplace_back(format);
+            if (IsDepthFormat(format.TextureFormat))
+            {
+                m_DepthAttachmentSpecification = format;
+            }
+            else if (IsCubemapFormat(format.TextureFormat))
+            {
+                m_CubeMapAttachmentSpecification = format;
             }
             else
             {
-                m_DepthAttachmentSpecification = format;
+                m_ColorAttachmentSpecifications.emplace_back(format);
             }
         }
 
@@ -244,6 +256,22 @@ namespace Kaesar {
             }
         }
 
+        // 处理天空盒附件
+        if (m_CubeMapAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
+        {
+            glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_CubemapAttachment);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubemapAttachment);
+            for (unsigned int i = 0; i < 6; ++i)
+            {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_Specification.Width, m_Specification.Height, 0, GL_RGB, GL_FLOAT, nullptr);
+            }
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+
         if (m_ColorAttachments.size() > 1)
         {
             KR_CORE_ASSERT(m_ColorAttachments.size() <= 5, "Kaesar只支持附加 5 个颜色附件！");
@@ -254,10 +282,18 @@ namespace Kaesar {
         }
         else if (m_ColorAttachments.empty())
         {
-            // 需要的只是在从光的透视图下渲染场景的时候深度信息，所以颜色缓冲没有用。然而，不包含颜色缓冲的帧缓冲对象是不完整的，
-            // 所以要显式告诉 OpenGL 不适用任何颜色数据进行渲染。通过将调用 glDrawBuffer 和 glReadBuffer 把读和绘制缓冲设置为 GL_NONE 来实现
-            glDrawBuffer(GL_NONE);
-            glReadBuffer(GL_NONE);
+            if (m_CubeMapAttachmentSpecification.TextureFormat == FramebufferTextureFormat::None)
+            {
+                // 需要的只是在从光的透视图下渲染场景的时候深度信息，所以颜色缓冲没有用。然而，不包含颜色缓冲的帧缓冲对象是不完整的，
+                // 所以要显式告诉 OpenGL 不适用任何颜色数据进行渲染。通过将调用 glDrawBuffer 和 glReadBuffer 把读和绘制缓冲设置为 GL_NONE 来实现
+                glDrawBuffer(GL_NONE);
+                glReadBuffer(GL_NONE);
+            }
+            else
+            {
+                GLenum buffer = GL_COLOR_ATTACHMENT0;
+                glDrawBuffers(1, &buffer);
+            }
         }
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -277,11 +313,9 @@ namespace Kaesar {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void OpenGLFrameBuffer::BlitMultiSample(unsigned int readFrameBuffer, unsigned int drawFrameBuffer) const
+    void OpenGLFrameBuffer::BindCubemapFace(uint32_t index) const
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFrameBuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFrameBuffer);
-        glBlitFramebuffer(0, 0, m_Specification.Width, m_Specification.Height, 0, 0, m_Specification.Width, m_Specification.Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glFramebufferTexture2D(GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, m_RendererID, 0);
     }
 
     void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
@@ -305,6 +339,19 @@ namespace Kaesar {
         glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
 
         return pixelData;
+    }
+
+    uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID(uint32_t index) const
+    {
+        if (m_ColorAttachments.empty())
+        {
+            return m_CubemapAttachment;
+        }
+        else
+        {
+            KR_CORE_ASSERT(index < m_ColorAttachments.size(), "索引必须小于帧缓冲颜色附件的个数！");
+            return m_ColorAttachments[index];
+        }
     }
 
     void OpenGLFrameBuffer::ClearAttachment(uint32_t attachmentIndex, int value)

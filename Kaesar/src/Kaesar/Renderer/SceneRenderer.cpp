@@ -6,6 +6,7 @@
 #include "Kaesar/Renderer/Renderer.h"
 #include "Kaesar/Core/Application.h"
 #include "Kaesar/Utils/PoissonGenerator.h"
+#include "Kaesar/Utils/PlatformUtils.h"
 
 #include <glad/glad.h>
 #include "imgui.h"
@@ -166,6 +167,11 @@ namespace Kaesar
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
     {   
+        if (s_Data.environment)
+        {
+            s_Data.environment->SetViewProjection(camera.GetViewMatrix(), camera.GetProjection());
+        }
+
         s_Data.cameraBuffer.viewProjection = camera.GetViewProjection();
         s_Data.cameraBuffer.position = camera.GetPosition();
         s_Data.cameraUniformBuffer->SetData(&s_Data.cameraBuffer, sizeof(CameraData), 0);
@@ -379,6 +385,15 @@ namespace Kaesar
         Renderer::Submit(s_Data.vertexArray, s_Data.deferredLightingShader);
 
         s_Data.deferredLightingShader->Unbind();
+
+        if (s_Data.environment)
+        {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL); // 深度缓冲会填上天空和的深度 1.0，所以需要保证天空盒在值小于或等于深度缓冲而不是小于时通过深度测试
+            s_Data.environment->RenderBackground();
+            glDepthFunc(GL_LESS);
+        }
+
         s_Data.lightingPass->UnbindTargetFrameBuffer();
 
         Renderer::EndScene();
@@ -494,6 +509,15 @@ namespace Kaesar
             s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
         }
         ImGui::PopItemWidth();
+
+        if (ImGui::Button("HDR", { 40, 20 }))
+        {
+            auto path = FileDialogs::OpenFile("HDR (*.hdr)\0*.hdr\0");
+            if (path)
+            {
+                s_Data.environment = std::make_shared<Environment>(Texture2D::CreateHDR(*path, 0, false, true));
+            }
+        }
 
         ImGui::End();
     }

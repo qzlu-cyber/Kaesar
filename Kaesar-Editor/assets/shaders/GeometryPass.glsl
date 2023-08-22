@@ -1,4 +1,3 @@
-// Basic diffuse Shader
 #type vertex
 
 #version 460
