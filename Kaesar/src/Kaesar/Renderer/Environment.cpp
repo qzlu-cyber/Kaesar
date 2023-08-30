@@ -9,10 +9,11 @@ namespace Kaesar {
     Environment::Environment(const std::shared_ptr<Texture2D>& hdri)
         : m_HDRSkyMap(hdri)
     {
-        m_EquirectangularToCube = Shader::Create("assets/shaders/EquirectangularToCube.glsl");
-        m_BackgroundShader = Shader::Create("assets/shaders/BackgroundSky.glsl");
+		m_BackgroundShader		= Shader::Create("assets/shaders/BackgroundSky.glsl");
+		m_EquirectangularToCube = Shader::Create("assets/shaders/EquirectangularToCube.glsl");
+		m_IrradianceConvShader  = Shader::Create("assets/shaders/IrradianceConvolution.glsl");
 
-        SetupCube();
+		SetupCube();
 
 		SetupFrameBuffer();
 
@@ -26,32 +27,68 @@ namespace Kaesar {
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
 
-		m_FrameBuffer->Bind();
+		// 将 HDR 贴图转换为立方体贴图
+		m_CaptureFBO->Bind();
+
 		m_EquirectangularToCube->Bind();
 		m_EquirectangularToCube->SetMat4("camera.u_Projection", captureProjection);
+
 		m_HDRSkyMap->Bind(0);
-		for (int i = 0; i < 6; ++i)
+		for (unsigned int i = 0; i < 6; ++i)
 		{
 			m_EquirectangularToCube->SetMat4("camera.u_View", captureViews[i]);
-			m_FrameBuffer->BindCubemapFace(i);
+			m_CaptureFBO->BindCubemapFace(i);
 			RenderCommand::Clear();
 			RenderCube();
 		}
+
+		m_EquirectangularToCube->Unbind();
+		m_CaptureFBO->Unbind();
+
+		// 将立方体贴图转换为辐照度贴图
+		m_IrradianceFBO->Bind();
+
+		m_IrradianceConvShader->Bind();
+		m_IrradianceConvShader->SetMat4("camera.u_Projection", captureProjection);
+
+		Texture2D::BindTexture(m_CaptureFBO->GetColorAttachmentRendererID(), 0);
+
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			m_IrradianceConvShader->SetMat4("camera.u_View", captureViews[i]);
+			m_IrradianceFBO->BindCubemapFace(i);
+			RenderCommand::Clear();
+			RenderCube();
+		}
+		m_IrradianceConvShader->Unbind();
+		m_IrradianceFBO->Unbind();
     }
 
-    void Environment::RenderBackground()
-    {
+	void Environment::RenderCube()
+	{
+		m_CubeVAO->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+
+	void Environment::RenderBackground()
+	{
 		m_BackgroundShader->Bind();
-		m_BackgroundShader->SetMat4("camera.u_Projection", m_Projection);
+
+		Texture2D::BindTexture(m_CaptureFBO->GetColorAttachmentRendererID(), 0);
+
 		m_BackgroundShader->SetMat4("camera.u_View", m_View);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_FrameBuffer->GetColorAttachmentRendererID());
+		m_BackgroundShader->SetMat4("camera.u_Projection", m_Projection);
 
 		RenderCube();
-    }
+	}
 
-    void Environment::SetupCube()
-    {
+	void Environment::BindIrradianceMap(uint32_t slot)
+	{
+		Texture2D::BindTexture(m_IrradianceFBO->GetColorAttachmentRendererID(), slot);
+	}
+
+	void Environment::SetupCube()
+	{
 		float vertices[] = {
 			// back face
 			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
@@ -96,35 +133,33 @@ namespace Kaesar {
 			 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
 			 -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
 		};
+		m_CubeVAO = VertexArray::Create();
+		std::shared_ptr<VertexBuffer> cubeVBO = VertexBuffer::Create(vertices, sizeof(vertices));
 
-		m_VertexArrey = VertexArray::Create();
-		std::shared_ptr<VertexBuffer> vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
-
-		BufferLayout layout = {
+		BufferLayout cubeLayout = {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float3, "a_Normal" },
-			{ ShaderDataType::Float2, "a_TexCoord" }
+			{ ShaderDataType::Float2, "a_TexCoords" }
+
 		};
 
-		vertexBuffer->SetLayout(layout);
-		m_VertexArrey->AddVertexBuffer(vertexBuffer);
-    }
+		cubeVBO->SetLayout(cubeLayout);
+		m_CubeVAO->AddVertexBuffer(cubeVBO);
+	}
 
-    void Environment::SetupFrameBuffer()
-    {
+	void Environment::SetupFrameBuffer()
+	{
 		FramebufferSpecification spec;
-		spec.Attachments = { FramebufferTextureFormat::Cubemap ,FramebufferTextureFormat::DEPTH24STENCIL8 };
+		spec.Attachments = { FramebufferTextureFormat::Cubemap, FramebufferTextureFormat::DEPTH24STENCIL8 };
 		spec.Width = 2048;
 		spec.Height = 2048;
 		spec.Samples = 1;
 		spec.ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-		m_FrameBuffer = FrameBuffer::Create(spec);
-    }
+		m_CaptureFBO = FrameBuffer::Create(spec);
 
-    void Environment::RenderCube()
-    {
-		m_VertexArrey->Bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+		spec.Width = 32;
+		spec.Height = 32;
+		m_IrradianceFBO = FrameBuffer::Create(spec);
+	}
 }

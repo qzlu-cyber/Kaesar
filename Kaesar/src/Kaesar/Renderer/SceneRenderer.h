@@ -99,6 +99,8 @@ namespace Kaesar {
             CameraData cameraBuffer;
             TransformData transformBuffer;
 
+            std::shared_ptr<Environment> environment;
+
             // lights
             float exposure; // ÆØ¹â¶È
             float gamma; // gamma ½ÃÕý
@@ -118,9 +120,6 @@ namespace Kaesar {
             glm::mat4 lightProjection;
             glm::mat4 lightView;
             ShadowData shadowBuffer;
-
-            // environment
-            std::shared_ptr<Environment> environment;
 
             std::shared_ptr<VertexArray> vertexArray;
 

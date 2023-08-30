@@ -21,16 +21,19 @@ void main()
 
 layout(location = 0) out vec4 FragColor;
 
-//GBuffer samplers
+// GBuffer samplers
 layout(binding = 0) uniform sampler2D gPosition;
 layout(binding = 1) uniform sampler2D gNormal;
 layout(binding = 2) uniform sampler2D gAlbedoSpec;
 layout(binding = 6) uniform sampler2D gRoughMetalAO;
 
-//Shadow related samplers
+// Shadow related samplers
 layout(binding = 3) uniform sampler2DShadow shadowMap;
 layout(binding = 4) uniform sampler1D distribution0;
 layout(binding = 5) uniform sampler1D distribution1;
+
+// IBL
+layout(binding = 7) uniform samplerCube irradianceMap;
 
 //-----------------------------------------------UNIFORM BUFFERS-----------------------------------------//
 
@@ -355,7 +358,7 @@ vec3 CalculateL0(vec3 L, vec3 N, vec3 V, vec3 Ra, vec3 F0, float R, float M, vec
     vec3 F_lambert = A / PI; // 漫反射项
 
     vec3 Nominator = D * G * F;
-    float Denominator = 4 * max(dot(V, N), 0.0) * max(dot(L, N), 0.0);
+    float Denominator = 4 * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
     vec3 F_cook = Nominator / Denominator; // 镜面反射项
 
     vec3 Ks = F; // 反射光线所占比率
@@ -400,9 +403,9 @@ void main()
         float dist = length(lights.pointLight[i].position.rgb - fragPos);
         float attenuation = 1.0 / (1.0 + dist * (params.lightsParams[i].pointLinear + params.lightsParams[i].pointQuadratic * dist));
 
-        vec3 Ra = lights.pointLight[i].color.rgb;
+        vec3 Ra = lights.pointLight[i].color.rgb * attenuation;
 
-        L0 += CalculateL0(L, N, V, Ra * attenuation, F0, Roughness, Metallic, Albedo);
+        L0 += CalculateL0(L, N, V, Ra, F0, Roughness, Metallic, Albedo);
     }
 
     float shadow = 0;
@@ -415,7 +418,11 @@ void main()
         shadow = HardShadowCalculation(FragPosLightSpace, bias);
     }
 
-    vec3 ambient = vec3(0.03) * Albedo * AO;
+    vec3 Ks = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, Roughness); 
+	vec3 Kd = 1.0 - Ks;
+	vec3 irradiance = texture(irradianceMap, N).rgb;
+	vec3 diffuse    = irradiance * Albedo;
+	vec3 ambient    = (Kd * diffuse) * AO;
 
     vec3 result = vec3(0);
 	result = (1 - shadow) * L0 + ambient;

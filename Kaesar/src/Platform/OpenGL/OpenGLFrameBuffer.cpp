@@ -162,7 +162,10 @@ namespace Kaesar {
     static bool IsCubemapFormat(FramebufferTextureFormat format)
     {
         if (format == FramebufferTextureFormat::Cubemap)
+        {
             return true;
+        }
+
         return false;
     }
 
@@ -256,6 +259,22 @@ namespace Kaesar {
             }
         }
 
+        // 处理天空盒
+        if (m_CubeMapAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
+        {
+            glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_CubemapAttachment);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubemapAttachment);
+            for (unsigned int i = 0; i < 6; ++i)
+            {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB32F, m_Specification.Width, m_Specification.Height, 0, GL_RGB, GL_FLOAT, nullptr);
+            }
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+
         // 处理天空盒附件
         if (m_CubeMapAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
         {
@@ -282,10 +301,10 @@ namespace Kaesar {
         }
         else if (m_ColorAttachments.empty())
         {
+            // 需要的只是在从光的透视图下渲染场景的时候深度信息，所以颜色缓冲没有用。然而，不包含颜色缓冲的帧缓冲对象是不完整的，
+            // 所以要显式告诉 OpenGL 不适用任何颜色数据进行渲染。通过将调用 glDrawBuffer 和 glReadBuffer 把读和绘制缓冲设置为 GL_NONE 来实现
             if (m_CubeMapAttachmentSpecification.TextureFormat == FramebufferTextureFormat::None)
             {
-                // 需要的只是在从光的透视图下渲染场景的时候深度信息，所以颜色缓冲没有用。然而，不包含颜色缓冲的帧缓冲对象是不完整的，
-                // 所以要显式告诉 OpenGL 不适用任何颜色数据进行渲染。通过将调用 glDrawBuffer 和 glReadBuffer 把读和绘制缓冲设置为 GL_NONE 来实现
                 glDrawBuffer(GL_NONE);
                 glReadBuffer(GL_NONE);
             }
@@ -315,7 +334,7 @@ namespace Kaesar {
 
     void OpenGLFrameBuffer::BindCubemapFace(uint32_t index) const
     {
-        glFramebufferTexture2D(GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, m_RendererID, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, m_CubemapAttachment, 0);
     }
 
     void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
@@ -343,14 +362,14 @@ namespace Kaesar {
 
     uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID(uint32_t index) const
     {
-        if (m_ColorAttachments.empty())
-        {
-            return m_CubemapAttachment;
-        }
-        else
+        if (!m_ColorAttachments.empty())
         {
             KR_CORE_ASSERT(index < m_ColorAttachments.size(), "索引必须小于帧缓冲颜色附件的个数！");
             return m_ColorAttachments[index];
+        }
+        else
+        {
+            return m_CubemapAttachment;
         }
     }
 

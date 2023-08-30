@@ -21,8 +21,8 @@ namespace Kaesar {
     void OpenGLRendererAPI::Init()
     {
         glFrontFace(GL_CW);
-        glCullFace(GL_FRONT);
-        glEnable(GL_CULL_FACE);
+        //glCullFace(GL_FRONT);
+        //glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
     }
 

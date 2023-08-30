@@ -1,7 +1,7 @@
 #type vertex
 
 #version 460
-	
+
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec3 a_Normal;
 layout(location = 2) in vec2 a_TexCoords;
@@ -47,9 +47,9 @@ void main()
     vec3 hdrColor = envColor;
 
     // Reinhard 色调映射
-    vec3 mapped = vec3(1.0) - exp(-hdrColor * pc.exposure);
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * 0.5);
     // gamma 矫正 
-    mapped = pow(mapped, vec3(1.0 / pc.gamma));
+    mapped = pow(mapped, vec3(1.0 / 2.2));
 
     FragColor = vec4(mapped, 1.0);
 }

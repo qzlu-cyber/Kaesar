@@ -9,13 +9,10 @@ namespace Kaesar {
     {
         if (HDR)
         {
-            LoadHDR();
+            LoadHDR(vertical);
         }
         else
         {
-            glGenTextures(1, &m_RendererID);
-            glBindTexture(GL_TEXTURE_2D, m_RendererID);
-
             int width, height, channels;
             stbi_set_flip_vertically_on_load(vertical);
             unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
@@ -38,6 +35,9 @@ namespace Kaesar {
 
             m_InternalFormat = internalFormat;
             m_DataFormat = dataFormat;
+
+            glGenTextures(1, &m_RendererID);
+            glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -136,12 +136,11 @@ namespace Kaesar {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTextureUnit(slot, rendererID);
     }
-
-    void OpenGLTexture2D::LoadHDR()
+    void OpenGLTexture2D::LoadHDR(bool vertical)
     {
         int width, height, channels;
+        stbi_set_flip_vertically_on_load(vertical);
         float* data = stbi_loadf(m_Filepath.c_str(), &width, &height, &channels, 0);
-        
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
@@ -151,7 +150,6 @@ namespace Kaesar {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
         stbi_image_free(data);
     }
 }

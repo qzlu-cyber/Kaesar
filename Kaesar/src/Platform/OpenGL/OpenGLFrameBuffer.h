@@ -28,10 +28,10 @@ namespace Kaesar {
 		inline virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; };
 
 	private:
-		unsigned int m_RendererID; // 帧缓冲对象的 ID
+		uint32_t m_RendererID; // 帧缓冲对象的 ID
 		std::vector<uint32_t> m_ColorAttachments; // 所有颜色附件的 ID
-		unsigned int m_DepthAttachment; // 深度附件的 ID
-		unsigned int m_CubemapAttachment; // 立方体贴图附件的 ID
+		uint32_t m_DepthAttachment; // 深度附件的 ID
+		uint32_t m_CubemapAttachment = 0; // 立方体贴图的 ID
 
 		FramebufferSpecification m_Specification;
 

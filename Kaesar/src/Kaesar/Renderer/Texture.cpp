@@ -32,12 +32,12 @@ namespace Kaesar {
         return nullptr;
     }
 
-    std::shared_ptr<Texture2D> Texture2D::CreateHDR(const std::string& path, bool vertical, bool sRGB, bool HDR)
+    std::shared_ptr<Texture2D> Texture2D::CreateHDR(const std::string& filepath, bool vertical, bool sRGB, bool HDR)
     {
         switch (Renderer::GetAPI())
         {
             case RendererAPI::API::None:   KR_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-            case RendererAPI::API::OpenGL: return std::make_shared<OpenGLTexture2D>(path, vertical, sRGB, HDR);
+            case RendererAPI::API::OpenGL: return std::make_shared<OpenGLTexture2D>(filepath, vertical, sRGB, HDR);
             default: break;
         }
 

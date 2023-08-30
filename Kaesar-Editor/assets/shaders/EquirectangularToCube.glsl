@@ -1,3 +1,4 @@
+// Equirectangular To Cubemap Shader
 #type vertex
 
 #version 460
