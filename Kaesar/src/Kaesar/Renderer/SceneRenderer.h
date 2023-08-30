@@ -8,6 +8,7 @@
 #include "Kaesar/Renderer/UniformBuffer.h"
 #include "Kaesar/Scene/Component.h"
 #include "Kaesar/Renderer/RenderPass.h"
+#include "Kaesar/Renderer/Environment.h"
 
 #include <entt.hpp>
 #include <memory>
@@ -97,6 +98,8 @@ namespace Kaesar {
         {
             CameraData cameraBuffer;
             TransformData transformBuffer;
+
+            std::shared_ptr<Environment> environment;
 
             // lights
             float exposure; // ÆØ¹â¶È

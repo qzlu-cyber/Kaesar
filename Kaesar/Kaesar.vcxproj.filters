@@ -1480,6 +1480,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture1D.h" />
     <ClInclude Include="src\Kaesar\Utils\PoissonGenerator.h" />
     <ClInclude Include="src\Kaesar\Renderer\RenderPass.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Environment.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Kaesar\Core\Application.cpp">
@@ -1607,5 +1608,6 @@
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture1D.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\RenderPass.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\Environment.cpp" />
   </ItemGroup>
 </Project>

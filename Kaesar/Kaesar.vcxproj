@@ -167,6 +167,7 @@
     <ClInclude Include="src\Kaesar\Renderer\Camera\Camera.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\OrthographicCamera.h" />
     <ClInclude Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.h" />
+    <ClInclude Include="src\Kaesar\Renderer\Environment.h" />
     <ClInclude Include="src\Kaesar\Renderer\FrameBuffer.h" />
     <ClInclude Include="src\Kaesar\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Kaesar\Renderer\Light.h" />
@@ -632,6 +633,7 @@
     <ClCompile Include="src\Kaesar\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Camera\OrthographicCamera.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Camera\PerspectiveCamera.cpp" />
+    <ClCompile Include="src\Kaesar\Renderer\Environment.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Material.cpp" />
     <ClCompile Include="src\Kaesar\Renderer\Mesh.cpp" />

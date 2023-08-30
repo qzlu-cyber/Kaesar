@@ -8,7 +8,7 @@ namespace Kaesar {
     class OpenGLTexture2D : public Texture2D
     {
     public:
-        OpenGLTexture2D(const std::string& filepath, bool vertical, bool sRGB);
+        OpenGLTexture2D(const std::string& filepath, bool vertical, bool sRGB = false, bool HDR = false);
         OpenGLTexture2D(uint32_t width, uint32_t height, const unsigned char* data, bool vertical, bool sRGB);
 
         virtual ~OpenGLTexture2D();
@@ -27,6 +27,9 @@ namespace Kaesar {
         virtual std::string GetPath() const override { return m_Filepath; }
 
         static void BindTexture(uint32_t rendererID, uint32_t slot);
+
+    private:
+        void LoadHDR(bool vertical);
 
     private:
         std::string m_Filepath;

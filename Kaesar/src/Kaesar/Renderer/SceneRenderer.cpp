@@ -6,6 +6,7 @@
 #include "Kaesar/Renderer/Renderer.h"
 #include "Kaesar/Core/Application.h"
 #include "Kaesar/Utils/PoissonGenerator.h"
+#include "Kaesar/Utils/PlatformUtils.h"
 
 #include <glad/glad.h>
 #include "imgui.h"
@@ -61,7 +62,7 @@ namespace Kaesar
         GeoFbSpec.Width = 1920;
         GeoFbSpec.Height = 1080;
         GeoFbSpec.Samples = 1;
-        GeoFbSpec.ClearColor = glm::vec4(0.196f, 0.196f, 0.196f, 1.0f);
+        GeoFbSpec.ClearColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
         RenderPassSpecification GeoPassSpec;
         GeoPassSpec.TargetFrameBuffer = FrameBuffer::Create(GeoFbSpec);
@@ -166,6 +167,11 @@ namespace Kaesar
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
     {   
+        if (s_Data.environment)
+        {
+            s_Data.environment->SetViewProjection(camera.GetViewMatrix(), camera.GetProjection());
+        }
+
         s_Data.cameraBuffer.viewProjection = camera.GetViewProjection();
         s_Data.cameraBuffer.position = camera.GetPosition();
         s_Data.cameraUniformBuffer->SetData(&s_Data.cameraBuffer, sizeof(CameraData), 0);
@@ -195,7 +201,6 @@ namespace Kaesar
             lightParams.innerCutOff    = glm::cos(glm::radians(12.5f));
             lightParams.outerCutOff    = glm::cos(glm::radians(15.0f));
         }
-
 
         Renderer::BeginScene();
     }
@@ -376,9 +381,29 @@ namespace Kaesar
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(2), 2);
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(3), 6);
 
+        if (s_Data.environment)
+        {
+            s_Data.environment->BindIrradianceMap(7);
+        }
+
         Renderer::Submit(s_Data.vertexArray, s_Data.deferredLightingShader);
 
         s_Data.deferredLightingShader->Unbind();
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, s_Data.geoPass->GetSpecification().TargetFrameBuffer->GetRendererID());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_Data.lightingPass->GetSpecification().TargetFrameBuffer->GetRendererID()); // write to default framebuffer
+        auto w = s_Data.lightingPass->GetSpecification().TargetFrameBuffer->GetSpecification().Width;
+        auto h = s_Data.lightingPass->GetSpecification().TargetFrameBuffer->GetSpecification().Height;
+        glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+        if (s_Data.environment)
+        {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL); // 深度缓冲会填上天空和的深度 1.0，所以需要保证天空盒在值小于或等于深度缓冲而不是小于时通过深度测试
+            s_Data.environment->RenderBackground();
+            glDepthFunc(GL_LESS);
+        }
+
         s_Data.lightingPass->UnbindTargetFrameBuffer();
 
         Renderer::EndScene();
@@ -464,6 +489,15 @@ namespace Kaesar
             ImGui::Image(reinterpret_cast<void*>(s_Data.geoPass->GetFrameBufferTextureID(3)), 
                          frameSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
             ImGui::End();
+        }
+
+        if (ImGui::Button("HDR", { 40, 20 }))
+        {
+            auto path = FileDialogs::OpenFile("HDR (*.hdr)\0*.hdr\0");
+            if (path)
+            {
+                s_Data.environment = std::make_shared<Environment>(Texture2D::CreateHDR(*path, 1, false, true));
+            }
         }
 
         static bool vSync = true;

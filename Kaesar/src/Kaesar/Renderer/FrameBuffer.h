@@ -14,6 +14,8 @@ namespace Kaesar {
         RED_INTEGER,
         RGBA16F,
 
+        Cubemap,
+
         // Depth/stencil
         DEPTH24STENCIL8,
         DEPTH32
@@ -56,7 +58,7 @@ namespace Kaesar {
         virtual void Bind() const = 0;
         virtual void Unbind() const = 0;
 
-        virtual void BlitMultiSample(unsigned int readFrameBuffer, unsigned int drawFrameBuffer) const = 0;
+        virtual void BindCubemapFace(uint32_t index) const = 0;
 
         virtual void Invalidate() = 0;
 
