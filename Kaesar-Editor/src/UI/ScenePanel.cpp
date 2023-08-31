@@ -615,7 +615,7 @@ namespace Kaesar {
             if (ImGui::Button(u8"选择"))
             {
                 auto dir = std::filesystem::current_path();
-                std::optional<std::string> path = Kaesar::FileDialogs::OpenFile("模型文件 (*.obj)\0*.obj\0");
+                std::optional<std::string> path = Kaesar::FileDialogs::OpenFile("模型文件 (*.obj, *.fbx)\0*.obj;*.fbx\0");
                 if (path)
                 {
                     std::string filepath;

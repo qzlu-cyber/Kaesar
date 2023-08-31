@@ -529,15 +529,6 @@ namespace Kaesar
         }
         ImGui::PopItemWidth();
 
-        if (ImGui::Button("HDR", { 40, 20 }))
-        {
-            auto path = FileDialogs::OpenFile("HDR (*.hdr)\0*.hdr\0");
-            if (path)
-            {
-                s_Data.environment = std::make_shared<Environment>(Texture2D::CreateHDR(*path, 0, false, true));
-            }
-        }
-
         ImGui::End();
     }
 

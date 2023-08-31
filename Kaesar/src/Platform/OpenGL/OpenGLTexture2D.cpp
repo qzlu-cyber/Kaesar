@@ -136,6 +136,7 @@ namespace Kaesar {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTextureUnit(slot, rendererID);
     }
+
     void OpenGLTexture2D::LoadHDR(bool vertical)
     {
         int width, height, channels;
