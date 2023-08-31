@@ -148,11 +148,13 @@ namespace Kaesar
         s_Data.shadowUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 4);
 
         s_Data.exposure = 0.5f;
-        s_Data.gamma = 1.9f;
+        s_Data.gamma = 2.2f;
         s_Data.lightSize = 2.0f;
         s_Data.orthoSize = 10.0f;
         s_Data.lightNear = 1.0f;
         s_Data.lightFar = 500.0f;
+
+        s_Data.intensity = 1.0f;
         
         GeneratePoissonDisk(s_Data.distributionSampler0, 32);
         GeneratePoissonDisk(s_Data.distributionSampler1, 32);
@@ -384,6 +386,8 @@ namespace Kaesar
         if (s_Data.environment)
         {
             s_Data.environment->BindIrradianceMap(7);
+            s_Data.environment->BindPreFilterMap(8);
+            s_Data.environment->BindBRDFMap(9);
         }
 
         Renderer::Submit(s_Data.vertexArray, s_Data.deferredLightingShader);

@@ -34,6 +34,8 @@ layout(binding = 5) uniform sampler1D distribution1;
 
 // IBL
 layout(binding = 7) uniform samplerCube irradianceMap;
+layout(binding = 8) uniform samplerCube prefilterMap;
+layout(binding = 9) uniform sampler2D   brdfLUT;
 
 //-----------------------------------------------UNIFORM BUFFERS-----------------------------------------//
 
@@ -418,11 +420,21 @@ void main()
         shadow = HardShadowCalculation(FragPosLightSpace, bias);
     }
 
-    vec3 Ks = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, Roughness); 
+	vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, Roughness);
+
+	vec3 Ks = F;
 	vec3 Kd = 1.0 - Ks;
+	Kd *= 1.0 - Metallic;
+
 	vec3 irradiance = texture(irradianceMap, N).rgb;
 	vec3 diffuse    = irradiance * Albedo;
-	vec3 ambient    = (Kd * diffuse) * AO;
+	
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R, Roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 BRDF  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), Roughness)).rg;
+    vec3 specular = prefilteredColor * (F * BRDF.x + BRDF.y);
+
+	vec3 ambient = (Kd * diffuse + specular) * AO;
 
     vec3 result = vec3(0);
 	result = (1 - shadow) * L0 + ambient;

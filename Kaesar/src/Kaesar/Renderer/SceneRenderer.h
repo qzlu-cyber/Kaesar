@@ -99,6 +99,8 @@ namespace Kaesar {
             CameraData cameraBuffer;
             TransformData transformBuffer;
 
+            // environment
+            float intensity;
             std::shared_ptr<Environment> environment;
 
             // lights

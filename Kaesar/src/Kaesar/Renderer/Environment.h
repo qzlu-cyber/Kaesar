@@ -17,18 +17,28 @@ namespace Kaesar {
 		void SetViewProjection(const glm::mat4& view, const glm::mat4& projection) { m_View = view; m_Projection = projection; }
 
 		void BindIrradianceMap(uint32_t slot);
+		void BindPreFilterMap(uint32_t slot);
+		void BindBRDFMap(uint32_t slot);
+
+		void SetIntensity(float intensity);
 
 	private:
 		void SetupCube();
+		void SetupQuad();
 		void SetupFrameBuffer();
 
 		void RenderCube();
+		void RenderQuad();
 
 	private:
+		unsigned int m_EnvCubemap;
+		unsigned int m_BrdfLUTTexture;
+		unsigned int m_PrefilterMap;
+		unsigned int m_IrradianceMap;
 		std::shared_ptr<Texture2D> m_HDRSkyMap;
-		std::shared_ptr<Shader> m_EquirectangularToCube, m_BackgroundShader, m_IrradianceConvShader;
-		std::shared_ptr<VertexArray> m_CubeVAO;
-		std::shared_ptr<FrameBuffer> m_CaptureFBO, m_IrradianceFBO;
+		std::shared_ptr<Shader> m_EquirectangularToCube, m_BackgroundShader, m_IrradianceConvShader, m_PrefilterShader, m_BRDFLutShader;
+		std::shared_ptr<VertexArray> m_CubeVAO, m_QuadVAO;
+		std::shared_ptr<FrameBuffer> m_IrradianceFBO, m_PrefilterFBO;
 		glm::mat4 m_View, m_Projection;
 	};
 }

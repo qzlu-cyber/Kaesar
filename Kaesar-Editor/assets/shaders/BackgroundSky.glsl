@@ -32,11 +32,17 @@ layout(location = 0) out vec4 FragColor;
 
 layout(location = 0) in vec3 v_Position;
 
-layout(binding = 0) uniform samplerCube u_Skybox;
+layout(push_constant) uniform Push
+{
+    float intensity;
+} pc;
+
+layout(binding = 0) uniform samplerCube environmentMap;
 
 void main()
 {
-    vec3 envColor = texture(u_Skybox, v_Position).rgb;
+    //vec3 envColor = texture(environmentMap, v_Position).rgb;
+    vec3 envColor = textureLod(environmentMap, v_Position, pc.intensity).rgb;
 
     vec3 hdrColor = envColor;
 
