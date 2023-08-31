@@ -2,9 +2,10 @@
 bin/
 bin-int/
 
-*.user
-*.vcxproj
-*.vcxproj.filters
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
 *.json
 *.srctrlbm
 *.srctrldb
