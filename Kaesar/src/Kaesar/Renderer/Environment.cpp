@@ -16,7 +16,7 @@ namespace Kaesar {
 		m_BRDFLutShader			= Shader::Create("assets/shaders/BRDFLut.glsl");
 
 		m_BackgroundShader->Bind();
-		m_BackgroundShader->SetFloat("pc.intensity", 0.5);
+		m_BackgroundShader->SetFloat("pc.intensity", 1.0);
 		m_BackgroundShader->Unbind();
 
 		SetupCube();

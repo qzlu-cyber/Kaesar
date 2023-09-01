@@ -41,8 +41,7 @@ layout(binding = 0) uniform samplerCube environmentMap;
 
 void main()
 {
-    //vec3 envColor = texture(environmentMap, v_Position).rgb;
-    vec3 envColor = textureLod(environmentMap, v_Position, pc.intensity).rgb;
+    vec3 envColor = textureLod(environmentMap, v_Position, pc.intensity).rgb * pc.intensity;
 
     vec3 hdrColor = envColor;
 

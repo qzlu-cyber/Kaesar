@@ -104,6 +104,7 @@ layout(push_constant) uniform pushConstants
     float exposure;
 	float gamma;
 	float size;
+    float intensity;
     float near; // 阴影映射中的阴影搜索范围的近端
     int numPCFSamples; // 阴影映射中的 PCF 样本数
     int numBlockerSearchSamples; // 阴影映射中的阴影搜索样本数
@@ -426,7 +427,7 @@ void main()
 	vec3 Kd = 1.0 - Ks;
 	Kd *= 1.0 - Metallic;
 
-	vec3 irradiance = texture(irradianceMap, N).rgb;
+	vec3 irradiance = texture(irradianceMap, N).rgb * pc.intensity;
 	vec3 diffuse    = irradiance * Albedo;
 	
     const float MAX_REFLECTION_LOD = 4.0;

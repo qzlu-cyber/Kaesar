@@ -161,8 +161,8 @@ namespace Kaesar
         s_Data.gamma = 2.2f;
         s_Data.lightSize = 2.0f;
         s_Data.orthoSize = 10.0f;
-        s_Data.lightNear = 1.0f;
-        s_Data.lightFar = 500.0f;
+        s_Data.lightNear = 20.0f;
+        s_Data.lightFar = 300.0f;
 
         s_Data.intensity = 1.0f;
         
@@ -174,7 +174,7 @@ namespace Kaesar
         s_Data.basicShader->Unbind();
 
         float dSize = s_Data.orthoSize;
-        s_Data.lightProjection = glm::ortho(-dSize, dSize, -dSize, dSize, s_Data.lightNear, s_Data.lightFar);
+        s_Data.lightProjection = glm::perspective(45.0f, 1.0f, s_Data.lightNear, s_Data.lightFar);
     }
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
@@ -238,7 +238,8 @@ namespace Kaesar
                 s_Data.directionalLightBuffer.direction = glm::vec4(light->GetDirection(), 0.0f);
 
                 // shadow
-                s_Data.lightView = glm::lookAt(-(glm::vec3(s_Data.directionalLightBuffer.direction) * 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                s_Data.lightView = glm::lookAt(-(glm::normalize(glm::vec3(s_Data.directionalLightBuffer.direction)) * s_Data.lightFar / 4.0f), 
+                                               glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 s_Data.shadowBuffer.lightViewProjection = s_Data.lightProjection * s_Data.lightView;
                 s_Data.shadowUniformBuffer->SetData(&s_Data.shadowBuffer, sizeof(glm::mat4));
                 light = nullptr;
@@ -401,6 +402,7 @@ namespace Kaesar
         s_Data.deferredLightingShader->SetFloat("pc.exposure", s_Data.exposure);
         s_Data.deferredLightingShader->SetFloat("pc.gamma", s_Data.gamma);
         s_Data.deferredLightingShader->SetFloat("pc.near", s_Data.lightNear);
+        s_Data.deferredLightingShader->SetFloat("pc.intensity", s_Data.intensity);
 
         //GBuffer samplers
         Texture2D::BindTexture(s_Data.geoPass->GetFrameBufferTextureID(0), 0);
@@ -539,6 +541,14 @@ namespace Kaesar
             }
         }
 
+        if (ImGui::DragFloat("Intensity", &s_Data.intensity, 0.01f, 1, 20))
+        {
+            if (s_Data.environment)
+            {
+                s_Data.environment->SetIntensity(s_Data.intensity);
+            }
+        }
+
         static bool vSync = true;
         ImGui::Checkbox(u8"垂直同步", &vSync);
         Application::Get().GetWindow().SetVSync(vSync);
@@ -549,22 +559,16 @@ namespace Kaesar
         ImGui::DragFloat(u8"Blocker 样本数", &s_Data.numBlocker, 1, 1, 64);
         ImGui::DragFloat(u8"光源大小", &s_Data.lightSize, 0.01f, 0, 100);
 
-        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+        ImGui::PushMultiItemsWidths(2, ImGui::CalcItemWidth());
         if (ImGui::DragFloat("near", &s_Data.lightNear, 0.01f, 0.1f, 100.0f))
         {
-            s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
+            s_Data.lightProjection = glm::perspective(45.0f, 1.0f, s_Data.lightNear, s_Data.lightFar);
         }
         ImGui::PopItemWidth();
         ImGui::SameLine();
         if (ImGui::DragFloat("far", &s_Data.lightFar, 0.1f, 100.0f, 10000.0f))
-        {
-            s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
-        }
-        ImGui::PopItemWidth();
-        ImGui::SameLine();
-        if (ImGui::DragFloat("camera size", &s_Data.orthoSize, 0.1f, 1, 50))
-        {
-            s_Data.lightProjection = glm::ortho(-s_Data.orthoSize, s_Data.orthoSize, -s_Data.orthoSize, s_Data.orthoSize, s_Data.lightNear, s_Data.lightFar);
+        {          
+            s_Data.lightProjection = glm::perspective(45.0f, 1.0f, s_Data.lightNear, s_Data.lightFar);
         }
         ImGui::PopItemWidth();
 

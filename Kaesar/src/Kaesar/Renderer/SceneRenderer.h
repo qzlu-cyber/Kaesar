@@ -88,13 +88,6 @@ namespace Kaesar {
             glm::mat4 lightViewProjection;
         };
 
-        struct DrawCall 
-        {
-            entt::entity id;
-            TransformComponent transformComponent;
-            MeshComponent meshComponent;
-        };
-
         struct SceneData
         {
             // scene
@@ -134,8 +127,7 @@ namespace Kaesar {
 
             // shader
             ShaderLibrary shaders;
-            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, 
-                                    lightShader, depthShader, geoShader, 
+            std::shared_ptr<Shader> basicShader, lightShader, depthShader, geoShader, 
                                     deferredLightingShader, fxaaShader;
 
             // FrameBuffers
