@@ -11,7 +11,7 @@ namespace Kaesar {
     public:
         struct ShaderMaterial
         {
-            glm::vec4 color;
+            glm::vec4 color = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
             float MetallicFactor = 0;
             float RoughnessFactor = 1;
             float AO = 1;

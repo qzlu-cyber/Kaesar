@@ -242,6 +242,11 @@ namespace Kaesar {
 		m_BackgroundShader->Unbind();
 	}
 
+	uint32_t Environment::GetBackgroundTextureID() const
+	{
+		return m_HDRSkyMap->GetRendererID();
+	}
+
 	void Environment::SetupCube()
 	{
 		float vertices[] = {

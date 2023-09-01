@@ -24,33 +24,21 @@ namespace Kaesar {
         // 遍历采样器获取纹理数据
         for (auto& sampler : m_Samplers)
         {
-            if (sampler.isUsed)
+            auto& texture = m_Textures[sampler.binding]; // 根据采样器的绑定点从材质的纹理集合中获取相应的纹理对象
+            if (sampler.isUsed && texture)
             {
-                auto& texture = m_Textures[sampler.binding]; // 根据采样器的绑定点从材质的纹理集合中获取相应的纹理对象
-                if (texture) 
-                {
-                    if (sampler.binding == 0)
-                    {
-                        m_Shader->SetInt("pc.HasAlbedoMap", 1);
-                    }
-                    if (sampler.binding == 1)
-                    {
-                        m_Shader->SetInt("pc.HasMetallicMap", 1);
-                    }
-                    if (sampler.binding == 2)
-                    {
-                        m_Shader->SetInt("pc.HasNormalMap", 1);
-                    }
-                    if (sampler.binding == 3)
-                    {
-                        m_Shader->SetInt("pc.HasRoughnessMap", 1);
-                    }
-                    if (sampler.binding == 4)
-                    {
-                        m_Shader->SetInt("pc.HasAOMap", 1);
-                    }
-                    texture->Bind(sampler.binding); // 将纹理绑定到渲染流水线中
-                }
+                if (sampler.binding == 0)
+                    m_Shader->SetInt("pc.HasAlbedoMap", 1);
+                if (sampler.binding == 1)
+                    m_Shader->SetInt("pc.HasMetallicMap", 1);
+                if (sampler.binding == 2)
+                    m_Shader->SetInt("pc.HasNormalMap", 1);
+                if (sampler.binding == 3)
+                    m_Shader->SetInt("pc.HasRoughnessMap", 1);
+                if (sampler.binding == 4)
+                    m_Shader->SetInt("pc.HasAOMap", 1);
+
+                texture->Bind(sampler.binding);
             }
             else
             {

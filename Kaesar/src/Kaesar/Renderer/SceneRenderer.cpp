@@ -454,6 +454,34 @@ namespace Kaesar
         /// ====================== Scene Setting ========================
         ImGui::Begin(u8"场景设置");
 
+        std::string label = "shader";
+        static std::shared_ptr<Shader> selectedShader;
+        if (selectedShader)
+        {
+            label = selectedShader->GetName();
+        }
+        static int item_current_idx = 0;
+        static int index = 0;
+        if (ImGui::BeginCombo("##Shaders", label.c_str()))
+        {
+            for (auto& shader : s_Data.shaders.GetShaders())
+            {
+                //const bool is_selected = (item_current_idx == n);
+                if (ImGui::Selectable(shader.first.c_str(), true)) {
+                    selectedShader = shader.second;
+                }
+
+                ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reload shader")) {
+            Reload(selectedShader);
+        }
+        ImGui::Separator();
+
+
         ImGui::DragFloat(u8"曝   光", &s_Data.exposure, 0.001f, -2, 4);
 
         ImGui::DragFloat(u8"gamma值", &s_Data.gamma, 0.01f, 0, 4);
@@ -600,5 +628,10 @@ namespace Kaesar
     ShaderLibrary& SceneRenderer::GetShaderLibrary()
     {
         return s_Data.shaders;
+    }
+
+    void SceneRenderer::Reload(const std::shared_ptr<Shader>& shader)
+    {
+        shader->Reload();
     }
 }

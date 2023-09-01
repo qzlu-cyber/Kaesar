@@ -498,4 +498,56 @@ namespace Kaesar {
 		return m_Name;
 	}
 
+	void OpenGLShader::Reload()
+	{
+		CreateCacheDirectoryIfNeeded();
+
+		std::string source = ReadFile(m_FilePath);
+		auto shaderSources = PreProcess(source);
+
+		GLuint program = glCreateProgram();
+
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+		options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_2);
+		const bool optimize = false;
+		if (optimize)
+			options.SetOptimizationLevel(shaderc_optimization_level_size);
+
+		std::filesystem::path cacheDirectory = GetCacheDirectory();
+
+		auto& shaderData = m_VulkanSPIRV;
+		shaderData.clear();
+		for (auto&& [stage, source] : shaderSources)
+		{
+			std::filesystem::path shaderFilePath = m_FilePath;
+			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + GLShaderStageCachedVulkanFileExtension(stage));
+
+			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
+
+			shaderc::SpvCompilationResult mod = compiler.CompileGlslToSpv(source, GLShaderStageToShaderC(stage), m_FilePath.c_str(), options);
+			if (mod.GetCompilationStatus() != shaderc_compilation_status_success)
+			{
+				KR_CORE_ERROR(mod.GetErrorMessage());
+			}
+
+			shaderData[stage] = std::vector<uint32_t>(mod.cbegin(), mod.cend());
+
+			std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
+			if (out.is_open())
+			{
+				auto& data = shaderData[stage];
+				out.write((char*)data.data(), data.size() * sizeof(uint32_t));
+				out.flush();
+				out.close();
+			}
+
+		}
+		KR_CORE_WARN("=================================={0} Shader=======================================", m_Name);
+		for (auto&& [stage, data] : shaderData)
+			Reflect(stage, data);
+		KR_CORE_WARN("===================================================================================");
+
+		CompileOrGetOpenGLBinaries();
+	}
 }

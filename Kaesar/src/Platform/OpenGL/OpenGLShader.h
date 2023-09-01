@@ -25,6 +25,8 @@ namespace Kaesar {
 
 		virtual const std::string& GetName() const override;
 
+		virtual void Reload() override;
+
 		void UploadUniformInt(const std::string& name, int value);
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
 

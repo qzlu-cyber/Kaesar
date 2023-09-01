@@ -23,7 +23,7 @@ namespace Kaesar {
 
         m_EmptyTexture = Texture2D::Create("assets/models/cube/default.png", 0);
         m_TextureId = reinterpret_cast<void*>(m_EmptyTexture->GetRendererID());
-        m_SelectedShader = "basic";
+        m_SelectedShader = "GeometryPass";
 
         m_SelectionContext = {};
     }

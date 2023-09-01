@@ -41,6 +41,8 @@ namespace Kaesar {
 
         static ShaderLibrary& GetShaderLibrary();
 
+        static void Reload(const std::shared_ptr<Shader>& shader);
+
     public:
         struct CameraData
         {

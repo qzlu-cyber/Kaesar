@@ -23,6 +23,7 @@ namespace Kaesar {
 		void SetIntensity(float intensity);
 
 		std::string GetPath() const { return m_HDRSkyMap->GetPath(); }
+		uint32_t GetBackgroundTextureID() const;
 
 	private:
 		void SetupCube();
