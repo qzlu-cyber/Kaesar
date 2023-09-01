@@ -268,7 +268,7 @@ namespace Kaesar
             if (!meshComponent.path.empty())
             {
                 s_Data.depthShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
-                SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.depthShader);
+                SceneRenderer::RenderEntity(entity, meshComponent, s_Data.depthShader);
             }
         }
         s_Data.depthShader->Unbind();
@@ -295,7 +295,7 @@ namespace Kaesar
                     auto& materialComponent = s_Data.scene->m_Registry.get<MaterialComponent>(entity);
                     s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
                     s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
-                    SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, materialComponent); // 使用它自身的材质组件渲染
+                    SceneRenderer::RenderEntity(entity, meshComponent, materialComponent); // 使用它自身的材质组件渲染
                 }
                 else
                 {
@@ -310,7 +310,7 @@ namespace Kaesar
                     s_Data.geoShader->SetFloat("pc.material.AO", 1.0f);
                     s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
                     s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
-                    SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, s_Data.geoShader); // 否则使用默认渲染
+                    SceneRenderer::RenderEntity(entity, meshComponent, s_Data.geoShader); // 否则使用默认渲染
                 }
             }
         }
@@ -333,12 +333,12 @@ namespace Kaesar
         }
     }
 
-    void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material)
+    void SceneRenderer::RenderEntity(const entt::entity& entity, MeshComponent& mesh, MaterialComponent& material)
     {
         Renderer::Submit(material.material, mesh.model);
     }
 
-    void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& tc, MeshComponent& mc, const std::shared_ptr<Shader>& shader)
+    void SceneRenderer::RenderEntity(const entt::entity& entity, MeshComponent& mc, const std::shared_ptr<Shader>& shader)
     {
         shader->Bind();
         Renderer::Submit(mc.model, shader);

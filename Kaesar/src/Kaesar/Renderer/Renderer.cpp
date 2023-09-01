@@ -32,12 +32,12 @@ namespace Kaesar {
         }
     }
 
-    void Renderer::Submit(const std::shared_ptr<Material>& material, const Model& model)
+    void Renderer::Submit(Material& material, const Model& model)
     {
         auto& meshes = model.meshes;
         for (auto& mesh : meshes) 
         {
-            material->Bind();
+            material.Bind();
             auto vertexArray = mesh.GetVertexArray();
             vertexArray->Bind();
             RenderCommand::DrawIndexed(vertexArray);

@@ -9,6 +9,15 @@ namespace Kaesar {
         m_PushConstants = shader->GetPushConstants();
     }
 
+    Material::Material(const Material& material)
+    {
+        m_Shader = material.m_Shader;
+        m_Samplers = m_Shader->GetSamplers();
+        m_PushConstants = m_Shader->GetPushConstants();
+        m_Textures = material.m_Textures;
+        m_Cbuffer = material.m_Cbuffer;
+    }
+
     std::shared_ptr<Material> Material::Create(std::shared_ptr<Shader>& shader)
     {
         return std::make_shared<Material>(shader);

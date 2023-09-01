@@ -27,8 +27,8 @@ namespace Kaesar {
         static void BeginScene(const PerspectiveCamera& camera);
         static void RenderScene();
         static void SetScene(const std::shared_ptr<Scene>& scene);
-        static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material);
-        static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, const std::shared_ptr<Shader>& shader);
+        static void RenderEntity(const entt::entity& entity, MeshComponent& mesh, MaterialComponent& material);
+        static void RenderEntity(const entt::entity& entity, MeshComponent& mesh, const std::shared_ptr<Shader>& shader);
         static void EndScene();
 
         static void OnImGuiUpdate();

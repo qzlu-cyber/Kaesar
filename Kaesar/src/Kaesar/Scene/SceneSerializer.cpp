@@ -174,11 +174,11 @@ namespace Kaesar {
 
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
 
-            auto& shader = materialComponent.material->GetShader();
+            auto& shader = materialComponent.material.GetShader();
             out << YAML::Key << "Shader" << YAML::Value << shader->GetName();
 
             out << YAML::Key << "Textures" << YAML::Value << YAML::BeginSeq;
-            out << materialComponent.material->GetTextures();
+            out << materialComponent.material.GetTextures();
             out << YAML::EndSeq;
 
             out << YAML::EndMap;

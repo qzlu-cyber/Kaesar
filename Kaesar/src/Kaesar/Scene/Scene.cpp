@@ -30,7 +30,7 @@ namespace Kaesar {
         m_Entities.push_back(std::make_shared<Entity>(entity));
 
         auto& tag = entity.AddComponent<TagComponent>();
-        tag.Tag = name.empty() ? "Entity" : name; // entity 名称
+        tag.Tag = name.empty() ? "Entity" + std::to_string(uint32_t(entity)) : name; // entity 名称
         entity.AddComponent<TransformComponent>(); // 所有 entity 都默认有 transform 组件
 
         return entity;

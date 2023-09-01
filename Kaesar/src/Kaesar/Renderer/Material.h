@@ -34,12 +34,14 @@ namespace Kaesar {
 
     public:
         Material() = default;
+        Material(const Material& material);
         Material(std::shared_ptr<Shader>& shader);
 
         void Bind();
 
         std::shared_ptr<Texture2D> GetTexture(const Sampler& sampler);
         std::unordered_map<uint32_t, std::shared_ptr<Texture2D>>& GetTextures() { return m_Textures; }
+        void SetTextures(const std::unordered_map<uint32_t, std::shared_ptr<Texture2D>>& textures) { m_Textures = textures; }
 
         std::shared_ptr<Shader> GetShader() { return m_Shader; }
 

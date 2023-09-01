@@ -421,8 +421,8 @@ namespace Kaesar {
             ImGui::PopItemWidth();
             ImGui::Columns(1);
             ImGui::Separator();
-            std::vector<Sampler>& samplers = materialComponent.material->GetSamplers();
-            auto& materialTextures = materialComponent.material->GetTextures();
+            std::vector<Sampler>& samplers = materialComponent.material.GetSamplers();
+            auto& materialTextures = materialComponent.material.GetTextures();
             for (auto& sampler : samplers)
             {
                 ImGui::PushID(sampler.name.c_str());
@@ -434,7 +434,7 @@ namespace Kaesar {
                 ImGui::Text(sampler.name.c_str());
 
                 m_TextureId = reinterpret_cast<void*>(m_EmptyTexture->GetRendererID());
-                auto& texture = materialComponent.material->GetTexture(sampler);
+                auto& texture = materialComponent.material.GetTexture(sampler);
                 if (texture)
                 {
                     m_TextureId = reinterpret_cast<void*>(texture->GetRendererID());
@@ -450,7 +450,7 @@ namespace Kaesar {
                     }
                 }
 
-                auto& buffer = materialComponent.material->GetCBuffer();
+                auto& buffer = materialComponent.material.GetCBuffer();
 
                 // Albedo
                 if (sampler.binding == 0)
@@ -460,12 +460,12 @@ namespace Kaesar {
                     float tiling = buffer.tiling;
                     if (ImGui::DragFloat("Tiling", &tiling, 0.05f, 0.001f, 100))
                     {
-                        materialComponent.material->Set("tiling", tiling);
+                        materialComponent.material.Set("tiling", tiling);
                     }
                     
                     if (ImGui::ColorEdit4(u8"反照率", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
                     {
-                        materialComponent.material->Set("pc.material.color", color);
+                        materialComponent.material.Set("pc.material.color", color);
                     }
                 }
                 // Metallic
@@ -479,7 +479,7 @@ namespace Kaesar {
                     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
                     if (ImGui::SliderFloat("##金属度", &metallic, 0.0f, 1.0f))
                     {
-                        materialComponent.material->Set("pc.material.MetallicFactor", metallic);
+                        materialComponent.material.Set("pc.material.MetallicFactor", metallic);
                     }
                 }
                 // Roughness
@@ -493,7 +493,7 @@ namespace Kaesar {
                     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
                     if (ImGui::SliderFloat("##粗糙度", &roughness, 0.0f, 1.0f))
                     {
-                        materialComponent.material->Set("pc.material.RoughnessFactor", roughness);
+                        materialComponent.material.Set("pc.material.RoughnessFactor", roughness);
                     }
                 }
                 // AO
@@ -507,7 +507,7 @@ namespace Kaesar {
                     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
                     if (ImGui::SliderFloat("##环境光遮蔽", &AO, 0.0f, 1.0f))
                     {
-                        materialComponent.material->Set("pc.material.AO", AO);
+                        materialComponent.material.Set("pc.material.AO", AO);
                     }
                 }
 

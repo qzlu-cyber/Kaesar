@@ -4,11 +4,11 @@ Camera:
   FOV: 45
   Near: 0.100000001
   Far: 100
-  Yaw: 6.39243221
-  Pitch: 0.0158447027
-  Position: [-0.823680162, 0.119711019, 7.50960016]
+  Yaw: 0.538067281
+  Pitch: 0.144225955
+  Position: [-4.14237595, 1.17393541, 6.94091415]
   FocalPoint: [0, 0, 0]
-  Distance: 7.55558586
+  Distance: 8.16784477
 Entities:
   - Entity: 0
     TagComponent:
@@ -19,7 +19,7 @@ Entities:
       Scale: [1, 1, 1]
     LightComponent:
       Type: 0
-      Intensity: 12
+      Intensity: 1
       Color: [1, 1, 1]
       Direction: [-4, -6.28000021, 0]
   - Entity: 1
@@ -39,28 +39,11 @@ Entities:
         - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\gold-scuffed\gold-scuffed_normal.png}
         - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\gold-scuffed\gold-scuffed_roughness.png}
         - {binding: 4, path: ""}
-  - Entity: 2
+  - Entity: 1048579
     TagComponent:
       Tag: Entity2
     TransformComponent:
       Translation: [-2.5, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    MeshComponent:
-      Path: \assets\models\Sphere\Sphere.fbx
-    MaterialComponent:
-      Shader: GeometryPass
-      Textures:
-        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_albedo.png}
-        - {binding: 1, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_metallic.png}
-        - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_normal-dx.png}
-        - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_roughness.png}
-        - {binding: 4, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_ao.png}
-  - Entity: 3
-    TagComponent:
-      Tag: Entity3
-    TransformComponent:
-      Translation: [2.5, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     MeshComponent:
@@ -73,3 +56,20 @@ Entities:
         - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\Aluminum-Scuffed\Aluminum-Scuffed_normal.png}
         - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\Aluminum-Scuffed\Aluminum-Scuffed_roughness.png}
         - {binding: 4, path: ""}
+  - Entity: 1048578
+    TagComponent:
+      Tag: Entity3
+    TransformComponent:
+      Translation: [2.5, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshComponent:
+      Path: \assets\models\Sphere\Sphere.fbx
+    MaterialComponent:
+      Shader: GeometryPass
+      Textures:
+        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_albedo.png}
+        - {binding: 1, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_metallic.png}
+        - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_normal-dx.png}
+        - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_roughness.png}
+        - {binding: 4, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_ao.png}

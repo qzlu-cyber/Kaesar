@@ -68,7 +68,7 @@ namespace Kaesar {
 
     struct MaterialComponent
     {
-        std::shared_ptr<Material> material;
+        Material material;
         std::shared_ptr<Shader> shader;
 
         MaterialComponent() = default;
@@ -76,13 +76,13 @@ namespace Kaesar {
         MaterialComponent(const MaterialComponent&) = default;
 
         MaterialComponent(const std::shared_ptr<Material>& material, const std::shared_ptr<Shader>& shader)
-            : material(material), shader(shader)
+            : material(*material), shader(shader)
         {}
 
         MaterialComponent(std::shared_ptr<Shader> shader) 
         {
             this->shader = shader;
-            material = Material::Create(shader);
+            material = *Material::Create(shader);
         }
     };
 
