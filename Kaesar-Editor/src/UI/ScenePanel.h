@@ -4,6 +4,11 @@
 #include "Kaesar/Scene/Entity.h"
 #include "Kaesar/Scene/Component.h"
 
+#include "Panels/MeshPanel.h"
+#include "Panels/MaterialPanel.h"
+#include "Panels/LightPanel.h"
+#include "Panels/CameraPanel.h"
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -20,8 +25,7 @@ namespace Kaesar {
 
     private:
         void DrawEntity(std::shared_ptr<Entity>& entity);
-        void DrawComponents(Entity entity);
-        void ScenePanel::DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f);
+        void DrawComponents(Entity& entity);
 
     private:
         std::shared_ptr<Scene> m_Context;
@@ -30,12 +34,13 @@ namespace Kaesar {
         ShaderLibrary m_Shaders;
         std::vector<std::string> m_ShaderNames;
 
-        ImTextureID m_TextureId;
-        std::shared_ptr<Texture2D> m_EmptyTexture;
-
         std::string m_SelectedShader;
 
-        bool m_ScaleLock = true;
+        std::shared_ptr<MeshPanel> m_MeshPanel;
+        std::shared_ptr<MaterialPanel> m_MaterialPanel;
+        std::shared_ptr<LightPanel> m_LightPanel;
+        std::shared_ptr< CameraPanel> m_CameraPanel;
+
         bool m_EntityCreated = false;
     };
 }

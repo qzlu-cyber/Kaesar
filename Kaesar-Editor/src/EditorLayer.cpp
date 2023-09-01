@@ -341,7 +341,7 @@ namespace Kaesar {
         int mouseX = (int)mx;
         int mouseY = (int)my;
         auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
-        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y 
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y - 35.0f
             && !altIsDown && m_ViewportHovered && !ImGuizmo::IsOver())
         {
             auto mouseFB = m_ActiveScene->GetMainFrameBuffer();
@@ -357,10 +357,10 @@ namespace Kaesar {
             {
                 if (!ImGuizmo::IsOver()) 
                 {
-                    if (m_GizmosChanged)
+                    if (!m_GizmosChanged)
                     {
                         m_ScenePanel->SetSelectedEntity({});
-                        m_GizmosChanged = false;
+                        m_GizmosChanged = true;
                     }
                 }
             }
