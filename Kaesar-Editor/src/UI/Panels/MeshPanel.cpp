@@ -11,7 +11,7 @@ namespace Kaesar {
     void MeshPanel::DrawMesh(Entity& entity)
     {
         static bool MeshRemove = false;
-        if (UI::DrawComponent<MeshComponent>(u8"模型", entity, true, &MeshRemove))
+        if (UI::DrawComponent<MeshComponent>(UI::DrawIconFont(" 模型", ICON_FA_CUBE), entity, true, &MeshRemove))
         {
             auto& tag = entity.GetComponent<MeshComponent>().path;
 

@@ -4,6 +4,7 @@
 #include "imgui/imgui.h"
 #include "ImGuizmo.h"
 
+#include "Kaesar/ImGui/IconsFontAwesome5.h"
 #include "Kaesar/Scene/SceneSerializer.h"
 #include "Kaesar/Utils/PlatformUtils.h"
 #include "Kaesar/Utils/Math.h"
@@ -11,8 +12,17 @@
 #include <glad/glad.h>
 
 namespace Kaesar {
+    static std::string TBS(std::string& str)
+    {
+        typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> F;
+
+        static std::wstring_convert<F>strC(new F("Chinese"));
+        static std::wstring_convert<std::codecvt_utf8<wchar_t>> strCnv;
+        return strCnv.to_bytes(strC.from_bytes(str));
+    }
+
     EditorLayer::EditorLayer()
-        :Layer("Editor Layer")
+        : Layer("Editor Layer")
     {
         RenderCommand::Init();
         m_Info = RenderCommand::Info();
@@ -33,13 +43,7 @@ namespace Kaesar {
 
         m_ActiveScene->m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
-        FramebufferSpecification fspc;
-        fspc.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24STENCIL8 };
-        fspc.Width = 1920;
-        fspc.Height = 1080;
-        fspc.Samples = 4;
-
-        m_ViewportSize = { fspc.Width, fspc.Height };
+        m_ViewportSize = { 1920, 1080 };
     }
 
     void EditorLayer::OnDetach()
@@ -126,19 +130,22 @@ namespace Kaesar {
         {
             if (ImGui::BeginMenu(u8"文件"))
             {
-                if (ImGui::MenuItem(u8"新建场景", "Ctrl+N"))
+                if (ImGui::MenuItemEx(u8"新建场景", ICON_FA_PLUS, "Ctrl+N"))
                 {
                     NewScene();
                 }
-                if (ImGui::MenuItem(u8"打开场景", "Ctrl+O"))
+                ImGui::Separator();
+                if (ImGui::MenuItemEx(u8"打开场景", ICON_FA_FOLDER_OPEN, "Ctrl+O"))
                 {
                     OpenScene();
                 }
-                if (ImGui::MenuItem(u8"保存场景", "Ctrl+Shift+S"))
+                ImGui::Separator();
+                if (ImGui::MenuItemEx( u8"保存场景", ICON_FA_SAVE, "Ctrl+Shift+S"))
                 {
                     SaveSceneAs();
                 }
-                if (ImGui::MenuItem(u8"退出", "ESC"))
+                ImGui::Separator();
+                if (ImGui::MenuItemEx(u8"退出", ICON_FA_WINDOW_CLOSE, "ESC"))
                 {
                     Application::Get().CloseApp();
                 }
@@ -146,14 +153,15 @@ namespace Kaesar {
             }
             if (ImGui::BeginMenu(u8"编辑")) 
             {
-                if (ImGui::MenuItem(u8"新建"))
+                if (ImGui::MenuItemEx(u8"新建", ICON_FA_PLUS))
                 {
                     if (m_SelectedEntity)
                     {
                         m_ActiveScene->CreateEntity();
                     }
                 }
-                if (ImGui::MenuItem(u8"复制"))
+                ImGui::Separator();
+                if (ImGui::MenuItemEx(u8"复制", ICON_FA_COPY))
                 {
                     if (m_SelectedEntity)
                     {
@@ -168,7 +176,7 @@ namespace Kaesar {
             }
             if (ImGui::BeginMenu(u8"实体"))
             {
-                if (ImGui::MenuItem(u8"新建"))
+                if (ImGui::MenuItemEx(u8"新建", ICON_FA_PLUS))
                 {
                     m_ActiveScene->CreateEntity();
                 }
@@ -183,7 +191,7 @@ namespace Kaesar {
         SceneRenderer::OnImGuiUpdate();
 
         /// ====================== Renderer info ========================
-        ImGui::Begin("Renderer info");
+        ImGui::Begin(ICON_FA_INFO " Renderer info");
         ImGui::Text(m_Info.c_str());
         ImGui::Text("\nApplication average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
@@ -193,21 +201,27 @@ namespace Kaesar {
 
         /// ====================== viewport ========================
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-        ImGui::Begin(u8"视口");
+
+        std::stringstream ss;
+        std::string viewport = " 视口";
+        viewport = TBS(viewport);
+        ss << ICON_FA_IMAGE << viewport;
+
+        ImGui::Begin(ss.str().c_str());
         ImGuiWindow* window = ImGui::GetCurrentWindow();
-        const ImGuiID id = window->GetID(u8"视口");
+        const ImGuiID id = window->GetID("视口");
 
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
 
         //Global or local gizmos button
-        ImGui::PushID("gizmos Type\0");
-        if (ImGui::ImageButton(io.Fonts->TexID, { 20, 20 }))
-        {
-            m_GizmosChanged = true;
-            m_GizmoMode == 0 ? m_GizmoMode = 1 : m_GizmoMode = 0;
-        }
-        ImGui::PopID();
+        //ImGui::PushID("gizmos Type\0");
+        //if (ImGui::ImageButton(ICON_FA_HAMMER, { 20, 20 }))
+        //{
+        //    m_GizmosChanged = true;
+        //    m_GizmoMode == 0 ? m_GizmoMode = 1 : m_GizmoMode = 0;
+        //}
+        //ImGui::PopID();
 
         auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
         auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
@@ -273,8 +287,14 @@ namespace Kaesar {
 
         /// ======================== editor camera ==========================
         static bool camerSettings = true;
-        if (camerSettings) {
-            ImGui::Begin(u8"相机", &camerSettings);
+        if (camerSettings) 
+        {
+            std::stringstream ss;
+            std::string camera = " 相机";
+            camera = TBS(camera);
+            ss << ICON_FA_CAMERA << camera;
+
+            ImGui::Begin(ss.str().c_str(), &camerSettings);
             //Fov
             float fov = m_ActiveScene->m_Camera->GetFOV();
             if (ImGui::SliderFloat(u8"视野", &fov, 10, 180)) {

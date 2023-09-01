@@ -7,6 +7,7 @@
 #include "Kaesar/Core/Application.h"
 #include "Kaesar/Utils/PoissonGenerator.h"
 #include "Kaesar/Utils/PlatformUtils.h"
+#include "Kaesar/ImGui/IconsFontAwesome5.h"
 
 #include <glad/glad.h>
 #include "imgui.h"

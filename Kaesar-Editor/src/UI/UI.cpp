@@ -134,4 +134,24 @@ namespace Kaesar {
 
         return ImGui::DragFloat(name.c_str(), value, speed, min, max);
     }
+
+    std::string UI::DrawIconFont(const char* name, const char* icon)
+    {
+        std::stringstream ss;
+        std::string title = name;
+
+        title = TBS(title);
+        ss << icon << title;
+
+        return ss.str();
+    }
+
+    std::string UI::TBS(std::string& str)
+    {
+        typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> F;
+
+        static std::wstring_convert<F>strC(new F("Chinese"));
+        static std::wstring_convert<std::codecvt_utf8<wchar_t>> strCnv;
+        return strCnv.to_bytes(strC.from_bytes(str));
+    }
 }

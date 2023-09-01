@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Kaesar/Scene/Entity.h"
+#include "Kaesar/ImGui/IconsFontAwesome5.h"
 
 #include <string>
+#include <codecvt>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,6 +17,8 @@ namespace Kaesar {
 		static bool SliderFloat(const std::string& name, float* value, float min = 0.0f, float max = 1.0f);
 		static bool DragFloat(const std::string& name, float* value, float speed = 0.1f, float min = 0.0f, float max = 100.0f);		
 	
+        static std::string DrawIconFont(const char* name, const char* icon);
+
         /// <summary>
         /// 一个函数模板，允许在一个统一的方式下绘制不同类型的组件的用户界面
         /// </summary>
@@ -125,5 +129,7 @@ namespace Kaesar {
             return false;
         }
 	
-	};
+    private:
+        static std::string TBS(std::string& str);
+    };
 }

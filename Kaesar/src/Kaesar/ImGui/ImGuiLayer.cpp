@@ -7,6 +7,7 @@
 #include "ImGuizmo.h"
 
 #include "Kaesar/Core/Application.h"
+#include "Kaesar/ImGui/IconsFontAwesome5.h"
 
 // TEMPORARY
 #include <GLFW/glfw3.h>
@@ -36,9 +37,21 @@ namespace Kaesar {
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
-        io.Fonts->AddFontFromFileTTF("assets/fonts/msyh.ttc", 20.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/msyh.ttc", 20.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+        ImFontConfig cfg;
+        cfg.OversampleH = cfg.OversampleV = 1;
 
+        io.Fonts->AddFontFromFileTTF("assets/fonts/msyh.ttc", 20.0f, &cfg, io.Fonts->GetGlyphRangesChineseFull());
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/msyh.ttc", 20.0f, &cfg, io.Fonts->GetGlyphRangesChineseFull());
+        io.Fonts->Build();
+
+        // merge in icons from Font Awesome
+        static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+        ImFontConfig icons_config;
+        icons_config.MergeMode = true;
+        icons_config.PixelSnapH = true;
+        icons_config.GlyphMinAdvanceX = 20.0f;
+        io.Fonts->AddFontFromFileTTF("assets/fonts/fa-solid-900.ttf", 20.0f * 2.0f / 3.0f, &icons_config, icons_ranges);
+        
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         ImGui::StyleColorsClassic();

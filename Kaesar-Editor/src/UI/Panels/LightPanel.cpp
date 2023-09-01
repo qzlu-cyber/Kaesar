@@ -20,7 +20,7 @@ namespace Kaesar {
     void LightPanel::DrawLight(Entity& entity)
     {
         static bool LightRemove = false;
-        if (UI::DrawComponent<LightComponent>(u8"ตฦนโ", entity, true, &LightRemove))
+        if (UI::DrawComponent<LightComponent>(UI::DrawIconFont(" ตฦนโ", ICON_FA_LIGHTBULB), entity, true, &LightRemove))
         {
             auto& lightComponent = entity.GetComponent<LightComponent>();
             auto& transformComponent = entity.GetComponent<TransformComponent>();

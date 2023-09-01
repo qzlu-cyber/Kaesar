@@ -5,7 +5,6 @@
 #include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Utils/PlatformUtils.h"
 
-#include <filesystem>
 #include <cstring>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -37,7 +36,7 @@ namespace Kaesar {
         ImGui::End();
 
         /// ====================== scene ========================
-        ImGui::Begin(u8"场景");
+        ImGui::Begin((UI::DrawIconFont(" 场景", ICON_FA_LIST_UL)).c_str());
 
         for (auto& entity : m_Context->m_Entities)
         {
@@ -58,37 +57,37 @@ namespace Kaesar {
         // 如果鼠标右键点击了当前的窗口，开启一个弹出式上下文菜单
         if (ImGui::BeginPopupContextWindow(0, 1, false))
         {
-            if (ImGui::MenuItem(u8"新建物体"))
+            if (ImGui::MenuItemEx(u8"新建物体", ICON_FA_FILE))
             {
                 m_SelectionContext = m_Context->CreateEntity();
             }
-            if (ImGui::BeginMenu(u8"添加默认物体"))
+            if (ImGui::BeginMenuEx(u8"添加默认物体", ICON_FA_CUBE))
             {
-                if (ImGui::MenuItem(u8"立方体"))
+                if (ImGui::MenuItemEx(u8"立方体", ICON_FA_CUBE))
                 {
                     m_SelectionContext = *(m_Context->CreatePrimitive(PrimitiveType::Cube));
                 }
-                if (ImGui::MenuItem(u8"球体"))
+                if (ImGui::MenuItemEx(u8"球体", ICON_FA_CIRCLE))
                 {
                     m_SelectionContext = *(m_Context->CreatePrimitive(PrimitiveType::Sphere));
                 }
-                if (ImGui::MenuItem(u8"平面"))
+                if (ImGui::MenuItemEx(u8"平面", ICON_FA_MAP))
                 {
                     m_SelectionContext = *(m_Context->CreatePrimitive(PrimitiveType::Plane));
                 }
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu(u8"添加光照"))
+            if (ImGui::BeginMenuEx(u8"添加光照", ICON_FA_LIGHTBULB))
             {
-                if (ImGui::MenuItem(u8"平行光"))
+                if (ImGui::MenuItemEx(u8"平行光", ICON_FA_SUN))
                 {
                     m_SelectionContext = *(m_Context->CreateLight(LightType::Directional));
                 }
-                if (ImGui::MenuItem(u8"点光源"))
+                if (ImGui::MenuItemEx(u8"点光源", ICON_FA_LIGHTBULB))
                 {
                     m_SelectionContext = *(m_Context->CreateLight(LightType::Point));
                 }
-                if (ImGui::MenuItem(u8"聚光"))
+                if (ImGui::MenuItemEx(u8"聚光", ICON_FA_SPLOTCH))
                 {
                     m_SelectionContext = *(m_Context->CreateLight(LightType::Spot));
                 }
@@ -101,7 +100,7 @@ namespace Kaesar {
         ImGui::End();
 
         /// ===================== Properties =======================
-        ImGui::Begin(u8"组件");
+        ImGui::Begin((UI::DrawIconFont(" 组件", ICON_FA_SLIDERS_H).c_str()));
 
         if (m_SelectionContext)
         {
@@ -119,8 +118,20 @@ namespace Kaesar {
         // 确定用于渲染表示实体的树节点的标志。检查实体当前是否被选中，以及节点是否应在单击箭头时展开
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == *entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
         flags |= ImGuiTreeNodeFlags_SpanAvailWidth; // 节点的宽度将扩展到当前行的最大宽度
+        
+        const char* name = "";
+        if (entity->HasComponent<MeshComponent>())
+        {
+            name = ICON_FA_CUBE;
+        }
+        if (entity->HasComponent<LightComponent>())
+        {
+            name = ICON_FA_LIGHTBULB;
+        }
+
         // 在界面中呈现一个树节点，使用指定的标志和标签文本。此函数调用的结果指示节点是打开还是关闭
-        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)*entity, flags, tag.Tag.c_str());
+        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)*entity, flags, UI::DrawIconFont(tag.Tag.c_str(), name).c_str());
+        
         if (ImGui::IsItemClicked()) // 是否点击了当前的树节点（实体）
         {
             m_SelectionContext = *entity; // 选中当前的实体
@@ -146,9 +157,9 @@ namespace Kaesar {
         bool entityDeleted = false;
         if (ImGui::BeginPopupContextItem()) // 如果右键点击了当前的树节点（实体）
         {
-            if (ImGui::Selectable(u8"删除")) // 呈现一个菜单项，允许用户删除实体
+            if (ImGui::MenuItemEx(u8"删除", ICON_FA_TRASH)) // 呈现一个菜单项，允许用户删除实体
                 entityDeleted = true;
-            if (ImGui::Selectable(u8"复制"))
+            if (ImGui::MenuItemEx(u8"复制", ICON_FA_COPY))
             {
                 m_SelectionContext = *entity;
                 m_EntityCreated = true;
@@ -172,7 +183,7 @@ namespace Kaesar {
     void ScenePanel::DrawComponents(Entity& entity)
     {
         static bool TagRemove = false;
-        if (UI::DrawComponent<TagComponent>(u8"名称", entity, false, &TagRemove))
+        if (UI::DrawComponent<TagComponent>(UI::DrawIconFont(" 名称", ICON_FA_PEN), entity, false, &TagRemove))
         {
             auto& tag = entity.GetComponent<TagComponent>().Tag;
 
@@ -192,7 +203,7 @@ namespace Kaesar {
         }
 
         static bool TransformRemove = false;
-        if (UI::DrawComponent<TransformComponent>(u8"变换", entity, false, &TransformRemove))
+        if (UI::DrawComponent<TransformComponent>(UI::DrawIconFont(" 变换", ICON_FA_PENCIL_RULER), entity, false, &TransformRemove))
         {
             TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
             UI::DrawVec3Control(u8"位置", transformComponent.Translation);
@@ -213,7 +224,6 @@ namespace Kaesar {
         m_LightPanel->DrawLight(entity);
         m_CameraPanel->DrawCamera(entity);
 
-        ImGui::Separator();
         float buttonSz = 100;
         ImGui::PushItemWidth(buttonSz);
 
