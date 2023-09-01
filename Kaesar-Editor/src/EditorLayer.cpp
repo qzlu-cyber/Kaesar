@@ -197,14 +197,23 @@ namespace Kaesar {
         ImGuiWindow* window = ImGui::GetCurrentWindow();
         const ImGuiID id = window->GetID(u8"视口");
 
+        m_ViewportFocused = ImGui::IsWindowFocused();
+        m_ViewportHovered = ImGui::IsWindowHovered();
+
+        //Global or local gizmos button
+        ImGui::PushID("gizmos Type\0");
+        if (ImGui::ImageButton(io.Fonts->TexID, { 20, 20 }))
+        {
+            m_GizmosChanged = true;
+            m_GizmoMode == 0 ? m_GizmoMode = 1 : m_GizmoMode = 0;
+        }
+        ImGui::PopID();
+
         auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
         auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
         auto viewportOffset = ImGui::GetWindowPos();
         m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
         m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-
-        m_ViewportFocused = ImGui::IsWindowFocused();
-        m_ViewportHovered = ImGui::IsWindowHovered();
 
         Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused || !m_ViewportHovered); // 当视口没有被激活时，不接受事件
 
@@ -242,7 +251,7 @@ namespace Kaesar {
             float snapValues[3] = { snapValue, snapValue, snapValue };
 
             ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-                (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+                (ImGuizmo::OPERATION)m_GizmoType, (ImGuizmo::MODE)m_GizmoMode, glm::value_ptr(transform),
                 nullptr, snap ? snapValues : nullptr);
 
             if (ImGuizmo::IsUsing())
@@ -332,7 +341,8 @@ namespace Kaesar {
         int mouseX = (int)mx;
         int mouseY = (int)my;
         auto altIsDown = Input::IsKeyPressed(KR_KEY_LEFT_ALT) || Input::IsKeyPressed(KR_KEY_RIGHT_ALT);
-        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y && !altIsDown)
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y 
+            && !altIsDown && m_ViewportHovered && !ImGuizmo::IsOver())
         {
             auto mouseFB = m_ActiveScene->GetMainFrameBuffer();
             mouseFB->Bind();
@@ -347,7 +357,11 @@ namespace Kaesar {
             {
                 if (!ImGuizmo::IsOver()) 
                 {
-                    m_ScenePanel->SetSelectedEntity({});
+                    if (m_GizmosChanged)
+                    {
+                        m_ScenePanel->SetSelectedEntity({});
+                        m_GizmosChanged = false;
+                    }
                 }
             }
 

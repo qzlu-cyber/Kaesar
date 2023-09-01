@@ -30,7 +30,9 @@ namespace Kaesar {
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
 
-        int m_GizmoType = -1;
+        int m_GizmoType = -1; // -1: none, 0: translate, 1: rotate, 2: scale
+        int m_GizmoMode = 0; // 0: local, 1: world
+        bool m_GizmosChanged = true; // 标记 gizmos 是否被改变
 
         glm::vec2 m_ViewportSize = { 200.0f, 200.0f };
 
