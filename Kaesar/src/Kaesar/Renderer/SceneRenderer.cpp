@@ -93,26 +93,35 @@ namespace Kaesar
         shadowPassSpec.TargetFrameBuffer = FrameBuffer::Create(shadowSpec);
         s_Data.shadowPass = RenderPass::Create(shadowPassSpec);
 
+        ///----------------------------------------------Anti Aliasing-----------------------------------------///
+        FramebufferSpecification aaFB;
+        aaFB.Attachments = { FramebufferTextureFormat::RGBA8 };
+        aaFB.Width = 1920;
+        aaFB.Height = 1080;
+        aaFB.Samples = 1;
+        aaFB.ClearColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+        RenderPassSpecification aaPassSpec;
+        aaPassSpec.TargetFrameBuffer = FrameBuffer::Create(aaFB);
+        s_Data.aaPass = RenderPass::Create(aaPassSpec);
+
         ///-------------------------------------------------Quad-----------------------------------------------///
         float quad[] = {
-            // positions   // texCoords
-           -1.0f,  1.0f,  0.0f, 1.0f,
-           -1.0f, -1.0f,  0.0f, 0.0f,
-            1.0f, -1.0f,  1.0f, 0.0f,
-
-           -1.0f,  1.0f,  0.0f, 1.0f,
-            1.0f, -1.0f,  1.0f, 0.0f,
-            1.0f,  1.0f,  1.0f, 1.0f
+             // positions             // texCoords
+             1.0f,  1.0f, 0.0f,    1.0f, 1.0f,   // top right
+             1.0f, -1.0f, 0.0f,    1.0f, 0.0f,   // bottom right
+            -1.0f, -1.0f, 0.0f,    0.0f, 0.0f,   // bottom left
+            -1.0f,  1.0f, 0.0f,    0.0f, 1.0f    // top left 
         };
 
         unsigned int quadIndices[] = {
-            0, 1, 2, // first triangle
-            3, 4, 5  // second triangle
+            0, 3, 1, // first triangle
+            1, 3, 2  // second triangle
         };
 
         BufferLayout quadLayout = {
-            {ShaderDataType::Float2,"a_Position"},
-            {ShaderDataType::Float2,"a_TexCoords"},
+            { ShaderDataType::Float3,"a_Position" },
+            { ShaderDataType::Float2,"a_TexCoords" },
         };
 
         s_Data.vertexArray = VertexArray::Create();
@@ -131,13 +140,14 @@ namespace Kaesar
             s_Data.shaders.Load("assets/shaders/light.glsl");
             s_Data.shaders.Load("assets/shaders/DeferredLighting.glsl");
             s_Data.shaders.Load("assets/shaders/GeometryPass.glsl");
+            s_Data.shaders.Load("assets/shaders/FXAA.glsl");
         }
         s_Data.basicShader = s_Data.shaders.Get("basic");
         s_Data.lightShader = s_Data.shaders.Get("light");
         s_Data.geoShader = s_Data.shaders.Get("GeometryPass");
         s_Data.deferredLightingShader = s_Data.shaders.Get("DeferredLighting");
-        s_Data.mouseShader = Shader::Create("assets/shaders/mouse.glsl");
-        s_Data.quadShader  = Shader::Create("assets/shaders/quad.glsl");
+        s_Data.fxaaShader = s_Data.shaders.Get("FXAA");
+
         s_Data.depthShader = Shader::Create("assets/shaders/depth.glsl");
 
         ///-------------------------------------------------Uniforms-------------------------------------------///
@@ -425,6 +435,15 @@ namespace Kaesar
 
         s_Data.lightingPass->UnbindTargetFrameBuffer();
 
+        s_Data.aaPass->BindTargetFrameBuffer();
+        s_Data.fxaaShader->Bind();
+        s_Data.fxaaShader->SetFloat("pc.width", (float)s_Data.aaPass->GetSpecification().TargetFrameBuffer->GetSpecification().Width);
+        s_Data.fxaaShader->SetFloat("pc.height", (float)s_Data.aaPass->GetSpecification().TargetFrameBuffer->GetSpecification().Height);
+        Texture2D::BindTexture(s_Data.lightingPass->GetFrameBufferTextureID(0), 0);
+        Renderer::Submit(s_Data.vertexArray, s_Data.fxaaShader);
+        s_Data.fxaaShader->Unbind();
+        s_Data.aaPass->UnbindTargetFrameBuffer();
+
         Renderer::EndScene();
     }
 
@@ -556,11 +575,12 @@ namespace Kaesar
     {
         s_Data.geoPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
         s_Data.lightingPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
+        s_Data.aaPass->GetSpecification().TargetFrameBuffer->Resize(width, height);
     }
 
     uint32_t SceneRenderer::GetTextureID(int index)
     { 
-        return s_Data.lightingPass->GetSpecification().TargetFrameBuffer->GetColorAttachmentRendererID(index); 
+        return s_Data.aaPass->GetSpecification().TargetFrameBuffer->GetColorAttachmentRendererID(index); 
     }
 
     FramebufferSpecification SceneRenderer::GetMainFrameSpec()

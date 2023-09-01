@@ -1,0 +1,75 @@
+Scene: pbr
+Environment path: D:\CPP\Kaesar\Kaesar-Editor\assets\HDRI\kloofendal_48d_partly_cloudy_puresky_4k.hdr
+Camera:
+  FOV: 45
+  Near: 0.100000001
+  Far: 100
+  Yaw: 0.896437168
+  Pitch: -0.110098429
+  Position: [-6.18320608, -0.87507242, 4.94269514]
+  FocalPoint: [0, 0, 0]
+  Distance: 7.96417189
+Entities:
+  - Entity: 0
+    TagComponent:
+      Tag: Directional Light
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    LightComponent:
+      Type: 0
+      Intensity: 10
+      Color: [1, 1, 1]
+      Direction: [-4, -6.28000021, 0]
+  - Entity: 1048578
+    TagComponent:
+      Tag: Entity1
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshComponent:
+      Path: \assets\models\Sphere\Sphere.fbx
+    MaterialComponent:
+      Shader: GeometryPass
+      Textures:
+        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\gold-scuffed\gold-scuffed_basecolor-boosted.png}
+        - {binding: 1, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\gold-scuffed\gold-scuffed_metallic.png}
+        - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\gold-scuffed\gold-scuffed_normal.png}
+        - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\gold-scuffed\gold-scuffed_roughness.png}
+        - {binding: 4, path: ""}
+  - Entity: 1048579
+    TagComponent:
+      Tag: Entity2
+    TransformComponent:
+      Translation: [2.5, 1.49011612e-08, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshComponent:
+      Path: \assets\models\Sphere\Sphere.fbx
+    MaterialComponent:
+      Shader: GeometryPass
+      Textures:
+        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_albedo.png}
+        - {binding: 1, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_metallic.png}
+        - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_normal-dx.png}
+        - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_roughness.png}
+        - {binding: 4, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\rusted-steel\rusted-steel_ao.png}
+  - Entity: 2097153
+    TagComponent:
+      Tag: Entity3
+    TransformComponent:
+      Translation: [-2.5, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshComponent:
+      Path: \assets\models\Sphere\Sphere.fbx
+    MaterialComponent:
+      Shader: GeometryPass
+      Textures:
+        - {binding: 0, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\Titanium-Scuffed\Titanium-Scuffed_basecolor.png}
+        - {binding: 1, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\Titanium-Scuffed\Titanium-Scuffed_metallic.png}
+        - {binding: 2, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\Titanium-Scuffed\Titanium-Scuffed_normal.png}
+        - {binding: 3, path: D:\CPP\Kaesar\Kaesar-Editor\assets\textures\Titanium-Scuffed\Titanium-Scuffed_roughness.png}
+        - {binding: 4, path: ""}

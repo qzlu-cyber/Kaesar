@@ -134,11 +134,13 @@ namespace Kaesar {
 
             // shader
             ShaderLibrary shaders;
-            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, lightShader, depthShader, geoShader, deferredLightingShader;
+            std::shared_ptr<Shader> basicShader, quadShader, mouseShader, 
+                                    lightShader, depthShader, geoShader, 
+                                    deferredLightingShader, fxaaShader;
 
             // FrameBuffers
             int textureRenderSlot = 2;
-            std::shared_ptr<RenderPass> geoPass, shadowPass, lightingPass;
+            std::shared_ptr<RenderPass> geoPass, shadowPass, lightingPass, aaPass;
 
             std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, 
                                            lightsUniformBuffer, lightsParamsUniformBuffer,
