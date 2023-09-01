@@ -22,6 +22,8 @@ namespace Kaesar {
 
 		void SetIntensity(float intensity);
 
+		std::string GetPath() const { return m_HDRSkyMap->GetPath(); }
+
 	private:
 		void SetupCube();
 		void SetupQuad();

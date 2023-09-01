@@ -45,6 +45,8 @@ namespace Kaesar {
 
 		std::string m_Name; // 场景名称
 
+		std::string m_EnvironmentPath; // 环境贴图路径
+
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;
 

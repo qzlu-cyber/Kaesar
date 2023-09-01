@@ -240,6 +240,9 @@ namespace Kaesar {
 
         out << YAML::Key << "Scene" << YAML::Value << name;
 
+        // environment
+        out << YAML::Key << "Environment path" << YAML::Value << m_Scene->m_EnvironmentPath;
+
         // Camera
         out << YAML::Key << "Camera" << YAML::Value << YAML::BeginMap;
         out << YAML::Key << "FOV" << YAML::Value << m_Scene->m_Camera->GetFOV();
@@ -277,25 +280,31 @@ namespace Kaesar {
         m_Scene->m_Name = sceneName;
         KR_CORE_TRACE("∂¡»°≥°æ∞ '{0}'", sceneName);
 
+        if (data["Environment path"])
+        {
+            auto hdriPath = data["Environment path"].as<std::string>();
+            m_Scene->m_EnvironmentPath = hdriPath;
+        }
+
+        auto camera = data["Camera"];
+        auto fov = camera["FOV"].as<float>();
+        auto nearClip = camera["Near"].as<float>();
+        auto farClip = camera["Far"].as<float>();
+        auto yaw = camera["Yaw"].as<float>();
+        auto pitch = camera["Pitch"].as<float>();
+        auto focalPoint = camera["FocalPoint"].as<glm::vec3>();
+        auto distance = camera["Distance"].as<float>();
+
+        m_Scene->m_Camera->SetFov(fov);
+        m_Scene->m_Camera->SetNearClip(nearClip);
+        m_Scene->m_Camera->SetFarClip(farClip);
+        m_Scene->m_Camera->SetYawPitch(yaw, pitch);
+        m_Scene->m_Camera->SetFocalPoint(focalPoint);
+        m_Scene->m_Camera->SetDistance(distance);
+
         auto entities = data["Entities"];
         if (entities)
         {
-            auto camera = data["Camera"];
-            auto fov = camera["FOV"].as<float>();
-            auto nearClip = camera["Near"].as<float>();
-            auto farClip = camera["Far"].as<float>();
-            auto yaw = camera["Yaw"].as<float>();
-            auto pitch = camera["Pitch"].as<float>();
-            auto focalPoint = camera["FocalPoint"].as<glm::vec3>();
-            auto distance = camera["Distance"].as<float>();
-
-            m_Scene->m_Camera->SetFov(fov);
-            m_Scene->m_Camera->SetNearClip(nearClip);
-            m_Scene->m_Camera->SetFarClip(farClip);
-            m_Scene->m_Camera->SetYawPitch(yaw, pitch);
-            m_Scene->m_Camera->SetFocalPoint(focalPoint);
-            m_Scene->m_Camera->SetDistance(distance);
-
             for (auto entity : entities)
             {
                 uint64_t uuid = entity["Entity"].as<uint64_t>();

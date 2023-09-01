@@ -104,7 +104,7 @@ namespace Kaesar {
     void Scene::OnUpdateEditor(Timestep ts)
     {
         SceneRenderer::BeginScene(*m_Camera);
-        SceneRenderer::RenderScene(*this);
+        SceneRenderer::RenderScene();
         SceneRenderer::EndScene();
     }
 

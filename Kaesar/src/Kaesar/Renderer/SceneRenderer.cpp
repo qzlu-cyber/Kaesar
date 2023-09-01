@@ -207,9 +207,9 @@ namespace Kaesar
         Renderer::BeginScene();
     }
 
-    void SceneRenderer::UpdateLights(Scene& scene)
+    void SceneRenderer::UpdateLights()
     {
-        auto& lightView = scene.m_Registry.view<TransformComponent, LightComponent>();
+        auto& lightView = s_Data.scene->m_Registry.view<TransformComponent, LightComponent>();
 
         //point light index
         int pIndex = 0;
@@ -274,11 +274,11 @@ namespace Kaesar
         s_Data.lightsParamsUniformBuffer->SetData(&s_Data.lightsParamsBuffer, sizeof(s_Data.lightsParamsBuffer), 0);
     }
 
-    void SceneRenderer::RenderScene(Scene& scene)
+    void SceneRenderer::RenderScene()
     {
-        UpdateLights(scene);
+        UpdateLights();
 
-        auto view = scene.m_Registry.view<TransformComponent, MeshComponent>();
+        auto view = s_Data.scene->m_Registry.view<TransformComponent, MeshComponent>();
 
         // 渲染深度贴图
         s_Data.shadowPass->BindTargetFrameBuffer();
@@ -316,9 +316,9 @@ namespace Kaesar
                 s_Data.transformBuffer.transform = transformComponent.GetTransform();
                 s_Data.transformUniformBuffer->SetData(&s_Data.transformBuffer, sizeof(TransformData), 0);
 
-                if (scene.m_Registry.has<MaterialComponent>(entity)) // 如果有材质组件
+                if (s_Data.scene->m_Registry.has<MaterialComponent>(entity)) // 如果有材质组件
                 {
-                    auto& materialComponent = scene.m_Registry.get<MaterialComponent>(entity);
+                    auto& materialComponent = s_Data.scene->m_Registry.get<MaterialComponent>(entity);
                     s_Data.geoShader->SetInt("transform.id", (uint32_t)entity);
                     s_Data.geoShader->SetMat4("transform.u_Transform", transformComponent.GetTransform());
                     SceneRenderer::RenderEntityColor(entity, transformComponent, meshComponent, materialComponent); // 使用它自身的材质组件渲染
@@ -342,6 +342,21 @@ namespace Kaesar
         }
         s_Data.geoShader->Unbind();
         s_Data.geoPass->UnbindTargetFrameBuffer();
+    }
+
+    void SceneRenderer::SetScene(const std::shared_ptr<Scene>& scene)
+    {
+        s_Data.scene = scene;
+
+        auto& path = scene->m_EnvironmentPath;
+        if (!path.empty())
+        {
+            s_Data.environment = std::make_shared<Environment>(Texture2D::CreateHDR(path, 1, false, true));
+        }
+        else
+        {
+            s_Data.environment = nullptr;
+        }
     }
 
     void SceneRenderer::RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material)
@@ -501,6 +516,7 @@ namespace Kaesar
             if (path)
             {
                 s_Data.environment = std::make_shared<Environment>(Texture2D::CreateHDR(*path, 1, false, true));
+                s_Data.scene->m_EnvironmentPath = *path;
             }
         }
 

@@ -29,6 +29,7 @@ namespace Kaesar {
 
         m_ActiveScene = std::make_shared<Scene>();
         m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+        SceneRenderer::SetScene(m_ActiveScene);
 
         m_ActiveScene->m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
@@ -364,6 +365,8 @@ namespace Kaesar {
         m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
         m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
 
+        SceneRenderer::SetScene(m_ActiveScene);
+
         Application::Get().GetWindow().SetWindowTitle("Kaesar Rendering Engine - new scene");
     }
 
@@ -378,6 +381,8 @@ namespace Kaesar {
 
             SceneSerializer serializer(m_ActiveScene);
             serializer.Deserializer(*filepath); // 解引用获取存储在 std::optional<std::string> 类型中的实际字符串值
+
+            SceneRenderer::SetScene(m_ActiveScene);
 
             Application::Get().GetWindow().SetWindowTitle("Kaesar Rendering Engine - " + m_ActiveScene->m_Name + " scene");
         }

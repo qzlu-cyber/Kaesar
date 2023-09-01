@@ -22,9 +22,10 @@ namespace Kaesar {
     {
     public:
         static void Initialize();
-        static void UpdateLights(Scene& scene);
+        static void UpdateLights();
         static void BeginScene(const PerspectiveCamera& camera);
-        static void RenderScene(Scene& scene);
+        static void RenderScene();
+        static void SetScene(const std::shared_ptr<Scene>& scene);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, MaterialComponent& material);
         static void RenderEntityColor(const entt::entity& entity, TransformComponent& transform, MeshComponent& mesh, const std::shared_ptr<Shader>& shader);
         static void EndScene();
@@ -96,6 +97,9 @@ namespace Kaesar {
 
         struct SceneData
         {
+            // scene
+            std::shared_ptr<Scene> scene;
+
             CameraData cameraBuffer;
             TransformData transformBuffer;
 
