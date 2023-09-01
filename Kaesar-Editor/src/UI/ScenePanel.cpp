@@ -56,10 +56,43 @@ namespace Kaesar {
         // 如果鼠标右键点击了当前的窗口，开启一个弹出式上下文菜单
         if (ImGui::BeginPopupContextWindow(0, 1, false))
         {
-            if (ImGui::Selectable(u8"新建物体")) 
+            if (ImGui::MenuItem(u8"新建物体"))
             {
-                m_Context->CreateEntity();
+                m_SelectionContext = m_Context->CreateEntity();
             }
+            if (ImGui::BeginMenu(u8"添加默认物体"))
+            {
+                if (ImGui::MenuItem(u8"立方体"))
+                {
+                    m_SelectionContext = *(m_Context->CreatePrimitive(PrimitiveType::Cube));
+                }
+                if (ImGui::MenuItem(u8"球体"))
+                {
+                    m_SelectionContext = *(m_Context->CreatePrimitive(PrimitiveType::Sphere));
+                }
+                if (ImGui::MenuItem(u8"平面"))
+                {
+                    m_SelectionContext = *(m_Context->CreatePrimitive(PrimitiveType::Plane));
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu(u8"添加光照"))
+            {
+                if (ImGui::MenuItem(u8"平行光"))
+                {
+                    m_SelectionContext = *(m_Context->CreateLight(LightType::Directional));
+                }
+                if (ImGui::MenuItem(u8"点光源"))
+                {
+                    m_SelectionContext = *(m_Context->CreateLight(LightType::Point));
+                }
+                if (ImGui::MenuItem(u8"聚光"))
+                {
+                    m_SelectionContext = *(m_Context->CreateLight(LightType::Spot));
+                }
+                ImGui::EndMenu();
+            }
+
             ImGui::EndPopup();
         }
 

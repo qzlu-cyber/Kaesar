@@ -11,6 +11,13 @@
 namespace Kaesar {
 	class Entity;
 
+	enum class PrimitiveType
+	{
+		Cube,
+		Plane,
+		Sphere
+	};
+
 	class Scene
 	{
 	public:
@@ -22,6 +29,9 @@ namespace Kaesar {
 		entt::entity FindEntity(uint32_t id);
 
 		void DestroyEntity(Entity entity);
+
+		std::shared_ptr<Entity> CreatePrimitive(PrimitiveType type);
+		std::shared_ptr<Entity> CreateLight(LightType type);
 
 		void OnUpdateRuntime(Timestep ts);
 		void OnUpdateEditor(Timestep ts);

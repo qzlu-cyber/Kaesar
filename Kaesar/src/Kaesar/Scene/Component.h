@@ -97,6 +97,12 @@ namespace Kaesar {
             light = std::make_shared<DirectionalLight>();
         };
 
+        LightComponent(LightType otherType, std::shared_ptr<Light>& otherLight)
+        {
+            type = otherType;
+            light = otherLight;
+        }
+
         LightComponent(const LightComponent& other) = default;
     };
 }

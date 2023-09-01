@@ -12,11 +12,6 @@ namespace Kaesar {
         SceneRenderer::Initialize();
 
         m_Camera = new PerspectiveCamera(45.0f, 1.778f, 0.1f, 100.0f);
-
-        auto entity = CreateEntity("Directional Light");
-        auto& lightComponent = entity.AddComponent<LightComponent>();
-        lightComponent.type = LightType::Directional;
-        lightComponent.light = std::make_shared<DirectionalLight>();
     }
 
     Scene::~Scene() 
@@ -94,6 +89,77 @@ namespace Kaesar {
                 }
             }
         }
+    }
+
+    std::shared_ptr<Entity> Scene::CreatePrimitive(PrimitiveType type)
+    {
+        auto entity = this->CreateEntity();
+
+        std::string path;
+
+        switch (type)
+        {
+            case PrimitiveType::Cube:
+            {
+                entity.GetComponent<TagComponent>().Tag = "Cube";
+                path = std::string("\\assets\\models\\cube\\cube.obj");
+                entity.AddComponent<MeshComponent>(path);
+                break;
+            }
+            case PrimitiveType::Plane:
+            {
+                entity.GetComponent<TagComponent>().Tag = "Plane";
+                path = std::string("\\assets\\models\\plane\\plane.obj");
+                entity.AddComponent<MeshComponent>(path);
+                break;
+            }
+            case PrimitiveType::Sphere:
+            {
+                entity.GetComponent<TagComponent>().Tag = "Sphere";
+                path = std::string("\\assets\\models\\sphere\\sphere.fbx");
+                entity.AddComponent<MeshComponent>(path);
+                break;
+            }
+            default:
+                break;
+        }
+
+        return std::make_shared<Entity>(entity);
+    }
+
+    std::shared_ptr<Entity> Scene::CreateLight(LightType type)
+    {
+        auto entity = this->CreateEntity();
+        std::string path;
+        std::shared_ptr<Light> light;
+        switch (type)
+        {
+            case LightType::Directional:
+            {
+                entity.GetComponent<TagComponent>().Tag = u8"定向光";
+                light = std::make_shared<DirectionalLight>(glm::vec3(1.0f));
+                entity.AddComponent<LightComponent>(type, light);
+                break;
+            }
+            case LightType::Point:
+            {
+                entity.GetComponent<TagComponent>().Tag = u8"点光源";
+                light = std::make_shared<PointLight>(glm::vec3(1.0f));
+                entity.AddComponent<LightComponent>(type, light);
+                break;
+            }
+            case LightType::Spot:
+            {
+                entity.GetComponent<TagComponent>().Tag = u8"聚光";
+                light = std::make_shared<SpotLight>(glm::vec3(1.0f));
+                entity.AddComponent<LightComponent>(type, light);
+                break;
+            }
+            default:
+                break;
+        }
+
+        return std::make_shared<Entity>(entity);
     }
 
     void Scene::OnUpdateRuntime(Timestep ts) 
