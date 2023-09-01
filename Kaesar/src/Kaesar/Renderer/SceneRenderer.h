@@ -9,6 +9,7 @@
 #include "Kaesar/Scene/Component.h"
 #include "Kaesar/Renderer/RenderPass.h"
 #include "Kaesar/Renderer/Environment.h"
+#include "Kaesar/Renderer/LightManager.h"
 
 #include <entt.hpp>
 #include <memory>
@@ -55,36 +56,6 @@ namespace Kaesar {
             glm::mat4 transform;
         };
 
-        struct DirectionalLightData
-        {
-            glm::vec4 direction; // 平行光照射方向
-            glm::vec4 color;
-        };
-
-        struct PointLightData
-        {
-            glm::vec4 position; // 点光源位置
-            glm::vec4 color;
-        };
-
-        struct SpotLightData
-        {
-            glm::vec4 position; // 聚光灯位置
-            glm::vec4 direction; // 聚光灯方向
-            glm::vec4 color;
-        };
-
-        struct LightsParams
-        {
-            float pointLinear;
-            float pointQuadratic;
-
-            float spotLinear;
-            float spotQuadratic;
-            float innerCutOff;
-            float outerCutOff;
-        };
-
         struct ShadowData
         {
             glm::mat4 lightViewProjection;
@@ -106,10 +77,7 @@ namespace Kaesar {
             float exposure; // 曝光度
             float gamma; // gamma 矫正
             float lightSize;
-            DirectionalLightData directionalLightBuffer;
-            PointLightData pointLightsBuffer[5];
-            SpotLightData spotLightsBuffer[5];
-            LightsParams lightsParamsBuffer[5];
+            std::shared_ptr<LightManager> lightManager;
 
             // shadow
             bool softShadow = true;
@@ -136,9 +104,7 @@ namespace Kaesar {
             int textureRenderSlot = 2;
             std::shared_ptr<RenderPass> geoPass, shadowPass, lightingPass, aaPass;
 
-            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, 
-                                           lightsUniformBuffer, lightsParamsUniformBuffer,
-                                           shadowUniformBuffer;
+            std::shared_ptr<UniformBuffer> cameraUniformBuffer, transformUniformBuffer, shadowUniformBuffer;
 
             glm::vec3 clearColor;
         };

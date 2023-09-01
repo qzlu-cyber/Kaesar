@@ -153,8 +153,7 @@ namespace Kaesar
         ///-------------------------------------------------Uniforms-------------------------------------------///
         s_Data.cameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0); // 将和相机有关的数据绑定在 0 号绑定点
         s_Data.transformUniformBuffer = UniformBuffer::Create(sizeof(TransformData), 1); // 将和变换有关的数据绑定在 1 号绑定点
-        s_Data.lightsUniformBuffer = UniformBuffer::Create(sizeof(s_Data.pointLightsBuffer) + sizeof(s_Data.spotLightsBuffer) + sizeof(s_Data.directionalLightBuffer), 2);
-        s_Data.lightsParamsUniformBuffer = UniformBuffer::Create(sizeof(s_Data.lightsParamsBuffer), 3);
+        s_Data.lightManager = std::make_shared<LightManager>(2);
         s_Data.shadowUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 4);
 
         s_Data.exposure = 0.5f;
@@ -188,31 +187,7 @@ namespace Kaesar
         s_Data.cameraBuffer.position = camera.GetPosition();
         s_Data.cameraUniformBuffer->SetData(&s_Data.cameraBuffer, sizeof(CameraData), 0);
 
-        s_Data.directionalLightBuffer.direction = glm::vec4(0.0f);
-        s_Data.directionalLightBuffer.color     = glm::vec4(0.0f);
-
-        for (auto& pointLight : s_Data.pointLightsBuffer)
-        {
-            pointLight.position = glm::vec4(0.0f);
-            pointLight.color    = glm::vec4(0.0f);
-        }
-
-        for (auto& spotLight : s_Data.spotLightsBuffer)
-        {
-            spotLight.position  = glm::vec4(0.0f);
-            spotLight.direction = glm::vec4(0.0f);
-            spotLight.color     = glm::vec4(0.0f);
-        }
-
-        for (auto& lightParams : s_Data.lightsParamsBuffer)
-        {
-            lightParams.pointLinear    = 0.09f;
-            lightParams.pointQuadratic = 0.032f;
-            lightParams.spotLinear     = 0.09f;
-            lightParams.spotQuadratic  = 0.032f;
-            lightParams.innerCutOff    = glm::cos(glm::radians(12.5f));
-            lightParams.outerCutOff    = glm::cos(glm::radians(15.0f));
-        }
+        s_Data.lightManager->IntitializeLights();
 
         Renderer::BeginScene();
     }
@@ -234,11 +209,11 @@ namespace Kaesar
             if (lightComponent.type == LightType::Directional)
             {
                 auto light = dynamic_cast<DirectionalLight*>(lightComponent.light.get());
-                s_Data.directionalLightBuffer.color = glm::vec4(light->GetColor(), 0.0f) * light->GetIntensity();
-                s_Data.directionalLightBuffer.direction = glm::vec4(light->GetDirection(), 0.0f);
+                
+                s_Data.lightManager->UpdateDirLight(light, transformComponent.Translation);
 
                 // shadow
-                s_Data.lightView = glm::lookAt(-(glm::normalize(glm::vec3(s_Data.directionalLightBuffer.direction)) * s_Data.lightFar / 4.0f), 
+                s_Data.lightView = glm::lookAt(-(glm::normalize(light->GetDirection()) * s_Data.lightFar / 4.0f), 
                                                glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 s_Data.shadowBuffer.lightViewProjection = s_Data.lightProjection * s_Data.lightView;
                 s_Data.shadowUniformBuffer->SetData(&s_Data.shadowBuffer, sizeof(glm::mat4));
@@ -249,11 +224,8 @@ namespace Kaesar
                 if (pIndex < 5)
                 {
                     auto light = dynamic_cast<PointLight*>(lightComponent.light.get());
-                    s_Data.pointLightsBuffer[pIndex].position = glm::vec4(transformComponent.Translation, 1.0f);
-                    s_Data.pointLightsBuffer[pIndex].color = glm::vec4(light->GetColor(), 1.0f) * light->GetIntensity();
-
-                    s_Data.lightsParamsBuffer[pIndex].pointLinear = light->GetLinear();
-                    s_Data.lightsParamsBuffer[pIndex].pointQuadratic = light->GetQuadratic();
+                    
+                    s_Data.lightManager->UpdatePointLights(light, transformComponent.Translation, pIndex);
 
                     pIndex++;
                     light = nullptr;
@@ -264,14 +236,8 @@ namespace Kaesar
                 if (sIndex < 5)
                 {
                     auto light = dynamic_cast<SpotLight*>(lightComponent.light.get());
-                    s_Data.spotLightsBuffer[sIndex].position = glm::vec4(transformComponent.Translation, 1.0f);
-                    s_Data.spotLightsBuffer[sIndex].direction = glm::vec4(transformComponent.Rotation, 0.0f);
-                    s_Data.spotLightsBuffer[sIndex].color = glm::vec4(light->GetColor(), 1.0f) * light->GetIntensity();
-
-                    s_Data.lightsParamsBuffer[sIndex].spotLinear = light->GetLinear();
-                    s_Data.lightsParamsBuffer[sIndex].spotQuadratic = light->GetQuadratic();
-                    s_Data.lightsParamsBuffer[sIndex].innerCutOff = glm::cos(glm::radians(light->GetInnerCutOff()));
-                    s_Data.lightsParamsBuffer[sIndex].outerCutOff = glm::cos(glm::radians(light->GetOuterCutOff()));
+                    
+                    s_Data.lightManager->UpdateSpotLights(light, transformComponent.Translation, sIndex);
                 
                     sIndex++;
                     light = nullptr;
@@ -279,10 +245,7 @@ namespace Kaesar
             }
         }
 
-        s_Data.lightsUniformBuffer->SetData(&s_Data.pointLightsBuffer, sizeof(s_Data.pointLightsBuffer), 0);
-        s_Data.lightsUniformBuffer->SetData(&s_Data.spotLightsBuffer, sizeof(s_Data.spotLightsBuffer), sizeof(s_Data.pointLightsBuffer));
-        s_Data.lightsUniformBuffer->SetData(&s_Data.directionalLightBuffer, sizeof(s_Data.directionalLightBuffer), sizeof(s_Data.pointLightsBuffer) + sizeof(s_Data.spotLightsBuffer));
-        s_Data.lightsParamsUniformBuffer->SetData(&s_Data.lightsParamsBuffer, sizeof(s_Data.lightsParamsBuffer), 0);
+        s_Data.lightManager->UpdateBuffer();
     }
 
     void SceneRenderer::RenderScene()
