@@ -85,8 +85,8 @@ namespace Kaesar
         // ¥¥Ω®“ı”∞÷°ª∫≥Â
         FramebufferSpecification shadowSpec;
         shadowSpec.Attachments = { FramebufferTextureFormat::DEPTH32 };
-        shadowSpec.Width = 1024;
-        shadowSpec.Height = 1024;
+        shadowSpec.Width = 2048;
+        shadowSpec.Height = 2048;
         shadowSpec.Samples = 1;
         shadowSpec.ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
         
