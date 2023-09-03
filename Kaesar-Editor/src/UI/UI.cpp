@@ -146,6 +146,15 @@ namespace Kaesar {
         return ss.str();
     }
 
+    void UI::Tooltip(const std::string& text)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 4, 6 });
+        ImGui::BeginTooltip();
+        ImGui::Text(text.c_str());
+        ImGui::EndTooltip();
+        ImGui::PopStyleVar();
+    }
+
     std::string UI::TBS(std::string& str)
     {
         typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> F;

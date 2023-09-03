@@ -30,9 +30,9 @@ namespace Kaesar {
     std::string OpenGLRendererAPI::GetRendererInfo()
     {
         std::string info;
-        info += u8"驱动: " + std::string((char*)glGetString(GL_VENDOR)) + "\n";
-        info += u8"渲染器: " + std::string((char*)glGetString(GL_RENDERER)) + "\n";
-        info += u8"版本: " + std::string((char*)glGetString(GL_VERSION));
+        info += u8"服务商: " + std::string((char*)glGetString(GL_VENDOR)) + "\n";
+        info += u8"显卡: " + std::string((char*)glGetString(GL_RENDERER)) + "\n";
+        info += u8"驱动版本: " + std::string((char*)glGetString(GL_VERSION));
         return info;
     }
 

@@ -44,6 +44,11 @@ namespace Kaesar {
         m_ActiveScene->m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
         m_ViewportSize = { 1920, 1080 };
+
+        m_GizmosIcon    = Texture2D::Create("assets/textures/icons/globe.png", 0, false);
+        m_TransformIcon = Texture2D::Create("assets/textures/icons/Transform.png", 0, false);
+        m_RotationIcon  = Texture2D::Create("assets/textures/icons/Rotation.png", 0, false);
+        m_ScaleIcon     = Texture2D::Create("assets/textures/icons/scale.png", 0, false);
     }
 
     void EditorLayer::OnDetach()
@@ -214,14 +219,59 @@ namespace Kaesar {
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
 
-        //Global or local gizmos button
-        //ImGui::PushID("gizmos Type\0");
-        //if (ImGui::ImageButton(ICON_FA_HAMMER, { 20, 20 }))
-        //{
-        //    m_GizmosChanged = true;
-        //    m_GizmoMode == 0 ? m_GizmoMode = 1 : m_GizmoMode = 0;
-        //}
-        //ImGui::PopID();
+        ImGui::Dummy({ 0, 3 });
+        ImGui::PushMultiItemsWidths(4, ImGui::CalcItemWidth() + 5);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0,0 });
+        ImGui::Indent(4);
+
+        // Global or local gizmos button
+        ImGui::PushID("gizmos Type\0");
+        if (ImGui::ImageButton(reinterpret_cast<void*>(m_GizmosIcon->GetRendererID()), { 35, 35 }))
+        {
+            m_GizmosChanged = true;
+            m_GizmoMode == 0 ? m_GizmoMode = 1 : m_GizmoMode = 0;
+        }
+        if (ImGui::IsItemHovered())
+        {
+            UI::Tooltip(u8"局部 - 全局 坐标系");
+        }
+
+        ImGui::PopItemWidth();
+        ImGui::Unindent();
+        ImGui::PopID();
+
+        // Gizmos Icons
+        ImGui::SameLine();
+        if (ImGui::ImageButton((ImTextureID)m_TransformIcon->GetRendererID(), { 35, 35 }, { 0, 1 }, { 1, 0 }))
+        {
+            m_GizmoType = 7;
+        }
+        if (ImGui::IsItemHovered())
+        {
+            UI::Tooltip(u8"移动");
+        }
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        if (ImGui::ImageButton((ImTextureID)m_RotationIcon->GetRendererID(), { 35, 35 }, { 0, 1 }, { 1, 0 }))
+        {
+            m_GizmoType = 120;
+        }
+        if (ImGui::IsItemHovered())
+        {
+            UI::Tooltip(u8"旋转");
+        }
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        if (ImGui::ImageButton((ImTextureID)m_ScaleIcon->GetRendererID(), { 35, 35 }, { 0, 1 }, { 1, 0 }))
+        {
+            m_GizmoType = 896;
+        }
+        if (ImGui::IsItemHovered())
+        {
+            UI::Tooltip(u8"缩放");
+        }
+        ImGui::PopItemWidth();
+        ImGui::PopStyleVar();
 
         auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
         auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
@@ -375,13 +425,10 @@ namespace Kaesar {
             }
             else
             {
-                if (!ImGuizmo::IsOver()) 
+                if (!m_GizmosChanged)
                 {
-                    if (!m_GizmosChanged)
-                    {
-                        m_ScenePanel->SetSelectedEntity({});
-                        m_GizmosChanged = true;
-                    }
+                    m_ScenePanel->SetSelectedEntity({});
+                    m_GizmosChanged = true;
                 }
             }
 

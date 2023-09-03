@@ -55,6 +55,7 @@ namespace Kaesar {
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         ImGui::StyleColorsClassic();
+        SetDarkThemeColors();
 
         // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
         ImGuiStyle& style = ImGui::GetStyle();
@@ -120,31 +121,37 @@ namespace Kaesar {
         colors[ImGuiCol_MenuBarBg] = ImVec4(0.18f, 0.21f, 0.24f, 1.00f);
 
         // Headers
-        colors[ImGuiCol_Header] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
-        colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
-        colors[ImGuiCol_HeaderActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+        colors[ImGuiCol_Header] = ImVec4(0.41f, 0.40f, 0.56f, 1.00f);
+        colors[ImGuiCol_HeaderHovered] = ImVec4(0.43f, 0.21f, 0.48f, 1.00f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(0.30f, 0.10f, 0.30f, 1.00f);
 
         // Buttons
-        colors[ImGuiCol_Button] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
-        colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
-        colors[ImGuiCol_ButtonActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+        colors[ImGuiCol_Button] = ImVec4(0.35f, 0.43f, 0.44f, 1.00f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.34f, 0.55f, 0.53f, 1.00f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(0.34f, 0.55f, 0.53f, 1.00f);
 
         // Frame BG
         colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
         colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
         colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 
-        //// Tabs
+        colors[ImGuiCol_SeparatorHovered] = ImVec4(0.43f, 0.21f, 0.48f, 1.00f);
+
+        // Tabs
         colors[ImGuiCol_Tab] = ImVec4(0.504f, 0.392f, 0.540f, 0.862f);
         colors[ImGuiCol_TabActive] = ImVec4(0.25f, 0.05f, 0.25f, 1.00f);
         colors[ImGuiCol_TabHovered] = ImVec4(0.30f, 0.10f, 0.30f, 1.00f);
         colors[ImGuiCol_TabUnfocused] = ImVec4(0.58f, 0.46f, 0.57f, 1.00f);
         colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.41f, 0.40f, 0.56f, 1.00f);
 
-        //// Title
+        colors[ImGuiCol_CheckMark] = ImVec4(0.34f, 0.55f, 0.53f, 1.00f);
+
+        // Title
         colors[ImGuiCol_TitleBg] = ImVec4(0.35f, 0.43f, 0.44f, 1.00f);
         colors[ImGuiCol_TitleBgActive] = ImVec4(0.34f, 0.55f, 0.53f, 1.00f);
-        //colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
+        colors[ImGuiCol_NavHighlight] = ImVec4(0.68f, 0.26f, 0.98f, 0.66f);
 
         colors[ImGuiCol_SliderGrab] = ImVec4{ 0.464f, 0.464f, 0.464f, 1.000f };
 

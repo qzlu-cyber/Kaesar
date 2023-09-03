@@ -116,7 +116,7 @@ namespace Kaesar {
         auto& tag = (*entity).GetComponent<TagComponent>();
 
         // 确定用于渲染表示实体的树节点的标志。检查实体当前是否被选中，以及节点是否应在单击箭头时展开
-        ImGuiTreeNodeFlags flags = ((m_SelectionContext == *entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags flags = ((m_SelectionContext == *entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding;
         flags |= ImGuiTreeNodeFlags_SpanAvailWidth; // 节点的宽度将扩展到当前行的最大宽度
         
         const char* name = "";
@@ -129,9 +129,11 @@ namespace Kaesar {
             name = ICON_FA_LIGHTBULB;
         }
 
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 2 });
         // 在界面中呈现一个树节点，使用指定的标志和标签文本。此函数调用的结果指示节点是打开还是关闭
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)*entity, flags, UI::DrawIconFont(tag.Tag.c_str(), name).c_str());
-        
+        ImGui::PopStyleVar();
+
         if (ImGui::IsItemClicked()) // 是否点击了当前的树节点（实体）
         {
             m_SelectionContext = *entity; // 选中当前的实体

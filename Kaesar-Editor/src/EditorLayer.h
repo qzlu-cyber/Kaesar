@@ -26,6 +26,8 @@ namespace Kaesar {
         bool OnKeyPressed(KeyPressedEvent& e);
         bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
+        void ShowIcons();
+
     private:
         std::shared_ptr<Scene> m_ActiveScene;
         std::shared_ptr<ScenePanel> m_ScenePanel;
@@ -43,5 +45,10 @@ namespace Kaesar {
 
         std::string m_Info;
         Entity m_SelectedEntity;
+
+        std::shared_ptr<Texture2D> m_GizmosIcon;
+        std::shared_ptr<Texture2D> m_TransformIcon;
+        std::shared_ptr<Texture2D> m_RotationIcon;
+        std::shared_ptr<Texture2D> m_ScaleIcon;
     };
 }

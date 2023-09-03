@@ -19,6 +19,8 @@ namespace Kaesar {
 	
         static std::string DrawIconFont(const char* name, const char* icon);
 
+        static void Tooltip(const std::string& text);
+
         /// <summary>
         /// 一个函数模板，允许在一个统一的方式下绘制不同类型的组件的用户界面
         /// </summary>

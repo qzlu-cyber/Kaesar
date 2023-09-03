@@ -55,7 +55,7 @@ layout(push_constant) uniform Push
 } pc;
 
 const float FXAA_REDUCE_MUL = 1.0 / 16.0;
-const float FXAA_REDUCE_MIN = 1.0/ 1024.0;
+const float FXAA_REDUCE_MIN = 1.0/ 2048.0;
 
 void main()
 {
@@ -91,7 +91,7 @@ void main()
                           (0.25 * FXAA_REDUCE_MUL), FXAA_REDUCE_MIN);
 
     float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
-    dir = min(vec2(32.0, 32.0), max(vec2(-32.0, -32.0), dir * rcpDirMin)) * inverseVP;
+    dir = min(vec2(64.0, 64.0), max(vec2(-64.0, -64.0), dir * rcpDirMin)) * inverseVP;
 
     vec3 rgbA = 0.5 * (
         texture(u_Texture, v_TexCoords.xy * inverseVP + dir * (1.0 / 3.0 - 0.5)).xyz +
