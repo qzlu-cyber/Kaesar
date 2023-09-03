@@ -9,7 +9,7 @@ namespace Kaesar {
     void CameraPanel::DrawCamera(Entity& entity)
     {
         static bool CameraRemove = false;
-        if (UI::DrawComponent<CameraComponent>(UI::DrawIconFont(" 相机", ICON_FA_CAMERA), entity, true, &CameraRemove))
+        if (UI::DrawComponent<CameraComponent>(UI::DrawIconFont(u8" 相机", ICON_FA_CAMERA), entity, true, &CameraRemove))
         {
             CameraComponent& cameraComponent = entity.GetComponent<CameraComponent>();
             SceneCamera& camera = cameraComponent.Camera;

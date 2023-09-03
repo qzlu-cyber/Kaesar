@@ -7,6 +7,7 @@
 #include "Kaesar/Core/Application.h"
 #include "Kaesar/Utils/PoissonGenerator.h"
 #include "Kaesar/Utils/PlatformUtils.h"
+#include "Kaesar/Utils/TransString.h"
 #include "Kaesar/ImGui/IconsFontAwesome5.h"
 
 #include <glad/glad.h>
@@ -416,7 +417,11 @@ namespace Kaesar
     void SceneRenderer::OnImGuiUpdate()
     {
         /// ====================== Scene Setting ========================
-        ImGui::Begin(u8"场景设置");
+        std::stringstream ss;
+        std::string title = u8" 场景设置";
+        title = TransString::TBS(title);
+        ss << ICON_FA_DHARMACHAKRA << title;
+        ImGui::Begin(ss.str().c_str());
 
         std::string label = "shader";
         static std::shared_ptr<Shader> selectedShader;

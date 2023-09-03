@@ -4,6 +4,7 @@
 
 #include "Kaesar/Renderer/Model.h"
 #include "Kaesar/Utils/PlatformUtils.h"
+#include "Kaesar/Utils/TransString.h"
 
 #include <cstring>
 #include <glm/gtc/type_ptr.hpp>
@@ -36,7 +37,7 @@ namespace Kaesar {
         ImGui::End();
 
         /// ====================== scene ========================
-        ImGui::Begin((UI::DrawIconFont(" 场景", ICON_FA_LIST_UL)).c_str());
+        ImGui::Begin((UI::DrawIconFont(u8" 场景", ICON_FA_LIST_UL)).c_str());
 
         for (auto& entity : m_Context->m_Entities)
         {
@@ -100,7 +101,7 @@ namespace Kaesar {
         ImGui::End();
 
         /// ===================== Properties =======================
-        ImGui::Begin((UI::DrawIconFont(" 组件", ICON_FA_SLIDERS_H).c_str()));
+        ImGui::Begin((UI::DrawIconFont(u8" 组件", ICON_FA_SLIDERS_H).c_str()));
 
         if (m_SelectionContext)
         {
@@ -129,9 +130,11 @@ namespace Kaesar {
             name = ICON_FA_LIGHTBULB;
         }
 
+        tag.Tag.erase(0, tag.Tag.find_first_not_of(" ")); // 去除物体名称前面的空格
+
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 2 });
         // 在界面中呈现一个树节点，使用指定的标志和标签文本。此函数调用的结果指示节点是打开还是关闭
-        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)*entity, flags, UI::DrawIconFont(tag.Tag.c_str(), name).c_str());
+        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)*entity, flags, UI::DrawIconFont((" " + tag.Tag).c_str(), name).c_str());
         ImGui::PopStyleVar();
 
         if (ImGui::IsItemClicked()) // 是否点击了当前的树节点（实体）
@@ -185,7 +188,7 @@ namespace Kaesar {
     void ScenePanel::DrawComponents(Entity& entity)
     {
         static bool TagRemove = false;
-        if (UI::DrawComponent<TagComponent>(UI::DrawIconFont(" 名称", ICON_FA_PEN), entity, false, &TagRemove))
+        if (UI::DrawComponent<TagComponent>(UI::DrawIconFont(u8" 名称", ICON_FA_PEN), entity, false, &TagRemove))
         {
             auto& tag = entity.GetComponent<TagComponent>().Tag;
 
@@ -205,7 +208,7 @@ namespace Kaesar {
         }
 
         static bool TransformRemove = false;
-        if (UI::DrawComponent<TransformComponent>(UI::DrawIconFont(" 变换", ICON_FA_PENCIL_RULER), entity, false, &TransformRemove))
+        if (UI::DrawComponent<TransformComponent>(UI::DrawIconFont(u8" 变换", ICON_FA_PENCIL_RULER), entity, false, &TransformRemove))
         {
             TransformComponent& transformComponent = entity.GetComponent<TransformComponent>();
             UI::DrawVec3Control(u8"位置", transformComponent.Translation);

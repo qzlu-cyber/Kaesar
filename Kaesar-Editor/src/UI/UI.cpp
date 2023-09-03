@@ -1,6 +1,8 @@
 #include "krpch.h"
 #include "UI.h"
 
+#include "Kaesar/Utils/TransString.h"
+
 namespace Kaesar {
     static bool scaleLock = true;
 
@@ -140,7 +142,7 @@ namespace Kaesar {
         std::stringstream ss;
         std::string title = name;
 
-        title = TBS(title);
+        title = TransString::TBS(title);
         ss << icon << title;
 
         return ss.str();
@@ -153,14 +155,5 @@ namespace Kaesar {
         ImGui::Text(text.c_str());
         ImGui::EndTooltip();
         ImGui::PopStyleVar();
-    }
-
-    std::string UI::TBS(std::string& str)
-    {
-        typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> F;
-
-        static std::wstring_convert<F>strC(new F("Chinese"));
-        static std::wstring_convert<std::codecvt_utf8<wchar_t>> strCnv;
-        return strCnv.to_bytes(strC.from_bytes(str));
     }
 }

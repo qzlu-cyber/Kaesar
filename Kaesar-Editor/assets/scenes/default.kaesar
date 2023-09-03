@@ -12,7 +12,7 @@ Camera:
 Entities:
   - Entity: 0
     TagComponent:
-      Tag: " DirectionalLight"
+      Tag: 平行光
     TransformComponent:
       Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
@@ -24,13 +24,13 @@ Entities:
       Direction: [-4, -6.28000021, 0]
   - Entity: 1
     TagComponent:
-      Tag: " Plane"
+      Tag: 平面
     TransformComponent:
       Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [10, 10, 10]
     MeshComponent:
-      Path: \assets\models\plane\plane.obj
+      Path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\plane\plane.obj
     MaterialComponent:
       Shader: GeometryPass
       Textures:
@@ -48,13 +48,13 @@ Entities:
         - {Use AOMap: 1, AO: 1}
   - Entity: 2
     TagComponent:
-      Tag: " Sphere"
+      Tag: 球体
     TransformComponent:
       Translation: [0, 1.65849519, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     MeshComponent:
-      Path: \assets\models\sphere\sphere.fbx
+      Path: D:\CPP\Kaesar\Kaesar-Editor\assets\models\sphere\sphere.fbx
     MaterialComponent:
       Shader: GeometryPass
       Textures:
@@ -65,8 +65,8 @@ Entities:
         - {binding: 4, path: ""}
       Constants:
         - {Tiling: 1}
-        - {Use Albedo: 1, Albedo: [0.978647709, 0.97168225, 0.97168225, 1]}
-        - {Use MetallicMap: 1, Metallic Factor: 1}
+        - {Use Albedo: 1, Albedo: [0.300000012, 0.300000012, 0.300000012, 1]}
+        - {Use MetallicMap: 1, Metallic Factor: 0}
         - {Use NormalMap: 1}
         - {Use RoughnessMap: 1, Roughness Factor: 1}
         - {Use AOMap: 1, AO: 1}

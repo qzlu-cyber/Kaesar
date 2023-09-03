@@ -8,19 +8,11 @@
 #include "Kaesar/Scene/SceneSerializer.h"
 #include "Kaesar/Utils/PlatformUtils.h"
 #include "Kaesar/Utils/Math.h"
+#include "Kaesar/Utils/TransString.h"
 
 #include <glad/glad.h>
 
 namespace Kaesar {
-    static std::string TBS(std::string& str)
-    {
-        typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> F;
-
-        static std::wstring_convert<F>strC(new F("Chinese"));
-        static std::wstring_convert<std::codecvt_utf8<wchar_t>> strCnv;
-        return strCnv.to_bytes(strC.from_bytes(str));
-    }
-
     EditorLayer::EditorLayer()
         : Layer("Editor Layer")
     {
@@ -203,14 +195,9 @@ namespace Kaesar {
         /// ====================== viewport ========================
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 
-        std::stringstream ss;
-        std::string viewport = " 视口";
-        viewport = TBS(viewport);
-        ss << ICON_FA_IMAGE << viewport;
-
-        ImGui::Begin(ss.str().c_str());
+        ImGui::Begin(UI::DrawIconFont(u8" 视口", ICON_FA_IMAGE).c_str());
         ImGuiWindow* window = ImGui::GetCurrentWindow();
-        const ImGuiID id = window->GetID("视口");
+        const ImGuiID id = window->GetID(u8"视口");
 
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
@@ -335,12 +322,7 @@ namespace Kaesar {
         static bool camerSettings = true;
         if (camerSettings) 
         {
-            std::stringstream ss;
-            std::string camera = " 相机";
-            camera = TBS(camera);
-            ss << ICON_FA_CAMERA << camera;
-
-            ImGui::Begin(ss.str().c_str(), &camerSettings);
+            ImGui::Begin(UI::DrawIconFont(u8" 相机", ICON_FA_CAMERA).c_str(), &camerSettings);
             //Fov
             float fov = m_ActiveScene->m_Camera->GetFOV();
             if (ImGui::SliderFloat(u8"视野", &fov, 10, 180)) {

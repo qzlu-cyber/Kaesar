@@ -4,7 +4,6 @@
 #include "Kaesar/ImGui/IconsFontAwesome5.h"
 
 #include <string>
-#include <codecvt>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -130,7 +129,5 @@ namespace Kaesar {
             }
             return false;
         }
-
-        static std::string TBS(std::string& str);
     };
 }

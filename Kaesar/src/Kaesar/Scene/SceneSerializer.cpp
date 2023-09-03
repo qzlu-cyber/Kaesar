@@ -4,6 +4,7 @@
 #include "Kaesar/Scene/Entity.h"
 #include "Kaesar/Scene/Component.h"
 #include "Kaesar/Scene/Scene.h"
+#include "Kaesar/Utils/TransString.h"
 
 #include <yaml-cpp/yaml.h>
 #include <glm/glm.hpp>
@@ -344,7 +345,9 @@ namespace Kaesar {
                 if (tagComponent)
                     name = tagComponent["Tag"].as<std::string>();
 
-                KR_CORE_TRACE("读取到实体 ID = {0}, 名称 = {1}", uuid, name);
+                std::string tag = TransString::UTF8ToString(name);
+
+                KR_CORE_TRACE("读取到实体 ID = {0}, 名称 = {1}", uuid, tag);
 
                 Entity deserializedEntity = m_Scene->CreateEntity(name);
 

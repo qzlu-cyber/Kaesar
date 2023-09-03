@@ -13,7 +13,7 @@ namespace Kaesar {
     void MaterialPanel::DrawMaterial(Entity& entity)
     {
         static bool MaterialRemove = false;
-        if (UI::DrawComponent<MaterialComponent>(UI::DrawIconFont(" ²ÄÖÊ", ICON_FA_PAINT_BRUSH), entity, true, &MaterialRemove))
+        if (UI::DrawComponent<MaterialComponent>(UI::DrawIconFont(u8" ²ÄÖÊ", ICON_FA_PAINT_BRUSH), entity, true, &MaterialRemove))
         {
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
 

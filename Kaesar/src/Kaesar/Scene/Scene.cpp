@@ -102,21 +102,21 @@ namespace Kaesar {
         {
             case PrimitiveType::Cube:
             {
-                entity.GetComponent<TagComponent>().Tag = " 立方体";
+                entity.GetComponent<TagComponent>().Tag = u8" 立方体";
                 path = std::string("\\assets\\models\\cube\\cube.obj");
                 entity.AddComponent<MeshComponent>(path);
                 break;
             }
             case PrimitiveType::Plane:
             {
-                entity.GetComponent<TagComponent>().Tag = " 平面";
+                entity.GetComponent<TagComponent>().Tag = u8" 平面";
                 path = std::string("\\assets\\models\\plane\\plane.obj");
                 entity.AddComponent<MeshComponent>(path);
                 break;
             }
             case PrimitiveType::Sphere:
             {
-                entity.GetComponent<TagComponent>().Tag = " 球体";
+                entity.GetComponent<TagComponent>().Tag = u8" 球体";
                 path = std::string("\\assets\\models\\sphere\\sphere.fbx");
                 entity.AddComponent<MeshComponent>(path);
                 break;
@@ -137,21 +137,21 @@ namespace Kaesar {
         {
             case LightType::Directional:
             {
-                entity.GetComponent<TagComponent>().Tag = " 平行光";
+                entity.GetComponent<TagComponent>().Tag = u8" 平行光";
                 light = std::make_shared<DirectionalLight>(glm::vec3(1.0f));
                 entity.AddComponent<LightComponent>(type, light);
                 break;
             }
             case LightType::Point:
             {
-                entity.GetComponent<TagComponent>().Tag = " 点光源";
+                entity.GetComponent<TagComponent>().Tag = u8" 点光源";
                 light = std::make_shared<PointLight>(glm::vec3(1.0f));
                 entity.AddComponent<LightComponent>(type, light);
                 break;
             }
             case LightType::Spot:
             {
-                entity.GetComponent<TagComponent>().Tag = " 聚光";
+                entity.GetComponent<TagComponent>().Tag = u8" 聚光";
                 light = std::make_shared<SpotLight>(glm::vec3(1.0f));
                 entity.AddComponent<LightComponent>(type, light);
                 break;
