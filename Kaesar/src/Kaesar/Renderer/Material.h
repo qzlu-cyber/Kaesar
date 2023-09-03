@@ -29,7 +29,7 @@ namespace Kaesar {
             int HasAOMap;
 
             CBuffer()
-                : id(-1), tiling(1), HasAOMap(0), HasNormalMap(0), HasRoughnessMap(0), HasAlbedoMap(0) {}
+                : id(-1), tiling(1), HasAOMap(1), HasNormalMap(1), HasRoughnessMap(1), HasMetallicMap(1), HasAlbedoMap(0) {}
         };
 
     public:
@@ -43,7 +43,7 @@ namespace Kaesar {
         std::unordered_map<uint32_t, std::shared_ptr<Texture2D>>& GetTextures() { return m_Textures; }
         void SetTextures(const std::unordered_map<uint32_t, std::shared_ptr<Texture2D>>& textures) { m_Textures = textures; }
 
-        std::shared_ptr<Shader> GetShader() { return m_Shader; }
+        std::shared_ptr<Shader> GetShader() const { return m_Shader; }
 
         std::vector<PushConstant>& GetPushConstants() { return m_PushConstants; }
         std::vector<Sampler>& GetSamplers() { return m_Samplers; }
@@ -56,6 +56,9 @@ namespace Kaesar {
         void Set(const std::string& name, float value);
         void Set(const std::string& name, const glm::vec3& value);
         void Set(const std::string& name, const glm::vec4& value);
+
+    private:
+        void SetSamplersUsed();
 
     private:
         std::shared_ptr<Shader> m_Shader;

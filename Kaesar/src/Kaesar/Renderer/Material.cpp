@@ -16,6 +16,8 @@ namespace Kaesar {
         m_PushConstants = m_Shader->GetPushConstants();
         m_Textures = material.m_Textures;
         m_Cbuffer = material.m_Cbuffer;
+
+        SetSamplersUsed();
     }
 
     std::shared_ptr<Material> Material::Create(std::shared_ptr<Shader>& shader)
@@ -147,6 +149,23 @@ namespace Kaesar {
         if (name == "pc.material.color")
         {
             m_Cbuffer.material.color = value;
+        }
+    }
+
+    void Material::SetSamplersUsed()
+    {
+        for (auto& sampler : m_Samplers)
+        {
+            if (sampler.binding == 0)
+                sampler.isUsed = m_Cbuffer.HasAlbedoMap;
+            if (sampler.binding == 1)
+                sampler.isUsed = m_Cbuffer.HasMetallicMap;
+            if (sampler.binding == 2)
+                sampler.isUsed = m_Cbuffer.HasNormalMap;
+            if (sampler.binding == 3)
+                sampler.isUsed = m_Cbuffer.HasRoughnessMap;
+            if (sampler.binding == 4)
+                sampler.isUsed = m_Cbuffer.HasAOMap;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Kaesar {
         bool OnKeyPressed(KeyPressedEvent& e);
         bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
-        void ShowIcons();
+        void OnLoadEditor();
 
     private:
         std::shared_ptr<Scene> m_ActiveScene;

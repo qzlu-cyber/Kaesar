@@ -162,7 +162,7 @@ namespace Kaesar
         s_Data.lightSize = 2.0f;
         s_Data.orthoSize = 10.0f;
         s_Data.lightNear = 20.0f;
-        s_Data.lightFar = 300.0f;
+        s_Data.lightFar = 200.0f;
 
         s_Data.intensity = 1.0f;
         

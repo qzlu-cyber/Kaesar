@@ -81,8 +81,8 @@ namespace Kaesar {
 
             // shadow
             bool softShadow = true;
-            float numPCF = 32;
-            float numBlocker = 32;
+            float numPCF = 16;
+            float numBlocker = 2;
             float orthoSize;
             float lightNear;
             float lightFar;

@@ -83,7 +83,8 @@ namespace Kaesar {
             if (*e == entity) 
             {
                 auto it = std::find(m_Entities.begin(), m_Entities.end(), e);
-                if (it != m_Entities.end()) {
+                if (it != m_Entities.end())
+                {
                     m_Entities.erase(it);
                     break;
                 }

@@ -37,11 +37,7 @@ namespace Kaesar {
     {
         auto& app = Application::Get();
 
-        m_ActiveScene = std::make_shared<Scene>();
-        m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
-        SceneRenderer::SetScene(m_ActiveScene);
-
-        m_ActiveScene->m_Camera->SetViewportSize((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+        OnLoadEditor();
 
         m_ViewportSize = { 1920, 1080 };
 
@@ -438,6 +434,20 @@ namespace Kaesar {
         }
 
         return false;
+    }
+
+    void EditorLayer::OnLoadEditor()
+    {
+        m_ActiveScene = std::make_shared<Scene>();
+        m_ActiveScene->OnViewportResize(m_ViewportSize.x, m_ViewportSize.y);
+        m_ScenePanel = std::make_shared<ScenePanel>(m_ActiveScene);
+
+        SceneSerializer serializer(m_ActiveScene);
+        serializer.Deserializer("assets/scenes/default.kaesar");
+
+        SceneRenderer::SetScene(m_ActiveScene);
+
+        Application::Get().GetWindow().SetWindowTitle("Kaesar Rendering Engine - " + m_ActiveScene->m_Name + " scene");
     }
 
     void EditorLayer::NewScene()

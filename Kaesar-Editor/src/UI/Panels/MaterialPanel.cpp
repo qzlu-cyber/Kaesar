@@ -77,6 +77,8 @@ namespace Kaesar {
                     {
                         materialComponent.material.Set("pc.material.color", color);
                     }
+
+                    materialComponent.material.Set("HasAlbedoMap", sampler.isUsed);
                 }
                 // Metallic
                 if (sampler.binding == 1)
@@ -87,6 +89,13 @@ namespace Kaesar {
                     {
                         materialComponent.material.Set("pc.material.MetallicFactor", metallic);
                     }
+
+                    materialComponent.material.Set("HasMetallicMap", sampler.isUsed);
+                }
+                // Normal
+                if (sampler.binding == 2)
+                {
+                    materialComponent.material.Set("HasNormalMap", sampler.isUsed);
                 }
                 // Roughness
                 if (sampler.binding == 3)
@@ -97,6 +106,8 @@ namespace Kaesar {
                     {
                         materialComponent.material.Set("pc.material.RoughnessFactor", roughness);
                     }
+
+                    materialComponent.material.Set("HasRoughnessMap", sampler.isUsed);
                 }
                 // AO
                 if (sampler.binding == 4)
@@ -107,6 +118,8 @@ namespace Kaesar {
                     {
                         materialComponent.material.Set("pc.material.AO", AO);
                     }
+
+                    materialComponent.material.Set("HasAOMap", sampler.isUsed);
                 }
 
                 ImGui::PopID();

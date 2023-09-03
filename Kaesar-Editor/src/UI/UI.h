@@ -130,8 +130,7 @@ namespace Kaesar {
             }
             return false;
         }
-	
-    private:
+
         static std::string TBS(std::string& str);
     };
 }
