@@ -129,7 +129,6 @@ void main()
 
             float mipLevel = pc.roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
 
-
             vec3 color = textureLod(environmentMap, L, mipLevel).rgb;
             float r = min(color.r, 20);
             float g = min(color.g, 20);
