@@ -28,7 +28,7 @@ layout(binding = 2) uniform sampler2D gAlbedoSpec;
 layout(binding = 6) uniform sampler2D gRoughMetalAO;
 
 // Shadow related samplers
-layout(binding = 3) uniform sampler2DShadow shadowMap;
+layout(binding = 3) uniform sampler2D shadowMap;
 layout(binding = 4) uniform sampler1D distribution0;
 layout(binding = 5) uniform sampler1D distribution1;
 
@@ -121,7 +121,39 @@ struct VS_OUT
 
 layout(location = 0) in vec2 v_TexCoords;
 
-//-----------------------------------------Shadow calculation functions-------------------------------//
+// Shadow map related variables
+#define LIGHT_WIDTH 110.0
+#define CAMERA_WIDTH 240.0
+
+const float PI = 3.14159265359;
+const float PI2 = 6.28318530718;
+vec2 poissonDisk[64]; // 存储采样结果
+
+float rand_2to1(vec2 uv)
+{ 
+    // 0 - 1
+	const float a = 12.9898, b = 78.233, c = 43758.5453;
+	float dt = dot(uv.xy, vec2(a, b)), sn = mod(dt, PI);
+	return fract(sin(sn) * c);
+}
+
+void poissonDiskSamples(const in vec2 randomSeed)
+{
+    float ANGLE_STEP = PI2 * float(10) / float(pc.numPCFSamples);
+    float INV_NUM_SAMPLES = 1.0 / float(pc.numPCFSamples);
+
+    float angle = rand_2to1(randomSeed) * PI2;
+    float radius = INV_NUM_SAMPLES;
+    float radiusStep = radius;
+
+    for( int i = 0; i < pc.numPCFSamples; i++)
+    {
+        poissonDisk[i] = vec2(cos(angle), sin(angle)) * pow(radius, 0.75);
+        radius += radiusStep;
+        angle += ANGLE_STEP;
+    }
+}
+
 // 通过在指定的分布中进行采样，生成一个在二维平面上的随机方向向量
 vec2 RandomDirection(sampler1D distribution, float u)
 {
@@ -140,82 +172,73 @@ float SearchWidth(float uvLightSize, float receiverDistance)
 	return uvLightSize * (receiverDistance - pc.near) / receiverDistance;
 }
 
-/// 计算平行光源下阴影映射中的遮挡距离
-/// params shadowCoords 表示从片段着色器中计算出的阴影坐标
-/// params shadowMap 阴影贴图的采样器，用于从贴图中获取深度信息
-/// params uvLightSize 表示光源的大小，通常在纹理坐标中定义
-/// params bias 表示阴影映射中的偏移量
-/// return 遮挡距离
-float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvLightSize, float bias)
+float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, sampler2D shadowMap, float uvLightSize, float bias)
 {
-	int blockers = 0; // 遮挡者的数量
-	float avgBlockerDistance = 0; // 遮挡者的深度值
-
-    // 计算搜索宽度，用于确定在阴影贴图中搜索遮挡者的范围
+    poissonDiskSamples(shadowCoords.xy);
+  	int blockers = 0;
+	float blockerDepth = 0.0;
 	float searchWidth = SearchWidth(uvLightSize, shadowCoords.z);
 
-    // 从阴影贴图中搜索遮挡者
-	for (int i = 0; i < pc.numBlockerSearchSamples; i++)
+    for (int i = 0; i < pc.numBlockerSearchSamples; i++)
 	{
-        // 计算用于采样的纹理坐标，使用了 RandomDirection 将随机方向与光源大小结合，以便在光源区域内随机采样
-		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution0, i / float(pc.numPCFSamples)) * uvLightSize, (shadowCoords.z - bias));
-		float z = texture(shadowMap, uvc); // 从阴影贴图中获取遮挡者的深度
-		
-        if (z < 0.5) // 如果遮挡者的深度小于当前片段的深度，则表示该片段被遮挡，但是如果和 (shadowCoords.z - bias) 比较，阴影走样很严重😅 和 0.5 比较结果要好得多😅 Why? 🤔
+        // vec2 uvOffset = RandomDirection(distribution0, i / float(pc.numBlockerSearchSamples)) * searchWidth;
+        vec2 uvOffset = poissonDisk[i] * searchWidth;
+		float shadowDepth = texture(shadowMap, shadowCoords.xy + uvOffset).r;
+		if (shadowCoords.z > (shadowDepth + bias))
 		{
 			blockers++;
-			avgBlockerDistance += z;
+			blockerDepth += shadowDepth;
 		}
 	}
 
-	if (blockers > 0)
-		return avgBlockerDistance / blockers;
-	else
-		return -1;
+    if (blockers > 0)
+        return blockerDepth / blockers;
+    
+    return -1.0;
 }
 
-/// 计算平行光源下阴影映射中的 PCF 阴影
-/// params shadowCoords 表示从片段着色器中计算出的阴影坐标
-/// params shadowMap 阴影贴图的采样器，用于从贴图中获取深度信息
-/// params uvRadius 表示光源的半径，通常在纹理坐标中定义
-/// params bias 表示阴影映射中的偏移量
-float PCF_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvRadius, float bias)
+float PCF_DirectionalLight(vec3 shadowCoords, sampler2D shadowMap, float uvRadius, float bias)
 {
-	float sum = 0; // 存储多个采样点的深度之和
+    poissonDiskSamples(shadowCoords.xy);
+    float blocker;
+    float radius = uvRadius;
 
-    // 在阴影贴图中进行多次采样，以计算平均深度
-	for (int i = 0; i < pc.numPCFSamples; i++)
-	{
-        // 在光源区域内随机采样
-		vec3 uvc = vec3(shadowCoords.xy + RandomDirection(distribution1, i / float(pc.numPCFSamples)) * uvRadius, (shadowCoords.z - bias));
-		float z = texture(shadowMap, uvc);
-		sum += z;
-	}
+    for (int i = 0; i < pc.numPCFSamples; i++)
+    {
+        vec2 uvOffset = poissonDisk[i] * (radius / 2048.0); // uv 采样偏移 radius / 2048.0 为滤波器 filterSize
+        float shadowDepth = texture(shadowMap, shadowCoords.xy + uvOffset).r; // 得到邻域 shadowmap 值
+        if (shadowCoords.z > (shadowDepth + bias))
+            blocker += 1.0;
+    }
 
-	return sum / pc.numPCFSamples;
+    return blocker / float(pc.numPCFSamples);
+	// float sum = 0;
+	// for (int i = 0; i < pc.numPCFSamples; i++)
+	// {
+	// 	    float shadowDepth = texture(shadowMap, shadowCoords.xy + RandomDirection(distribution1, i / float(pc.numPCFSamples)) * uvRadius).r;
+	// 	    if (shadowCoords.z - (shadowDepth + bias) > 0)
+    //         sum += 1.0;
+	// }
+	// return sum / pc.numPCFSamples;
 }
 
-/// 计算平行光源下阴影映射中的 PCSS 阴影
-/// params shadowCoords 表示从片段着色器中计算出的阴影坐标
-/// params shadowMap 阴影贴图的采样器，用于从贴图中获取深度信息
-/// params uvLightSize 表示光源的大小，通常在纹理坐标中定义
-/// params bias 表示阴影映射中的偏移量
-float PCSS_DirectionalLight(vec3 shadowCoords, sampler2DShadow shadowMap, float uvLightSize, float bias)
+float PCSS_DirectionalLight(vec3 shadowCoords, sampler2D shadowMap, float uvLightSize, float bias)
 {
-	// Blocker search
-	float blockerDistance = FindBlockerDistance_DirectionalLight(shadowCoords, shadowMap, uvLightSize, bias);
+    // Blocker Search
+    float avgBlockerDepth = FindBlockerDistance_DirectionalLight(shadowCoords, shadowMap, uvLightSize, bias);
 
-	if (blockerDistance == -1) // 没有遮挡者，不存在阴影
-		return 0;		
+    // FIXME: 判断没有被阻挡时阴影会完全消失掉🤔
+    // if (avgBlockerDepth == -1.0)
+    //     return 0.0;
 
-	// Penumbra estimation
-	float penumbraWidth = (shadowCoords.z - blockerDistance) / blockerDistance;
+    // Penumbra size
+    float penumbraWidth = (shadowCoords.z - avgBlockerDepth) * float(pc.size) / avgBlockerDepth;
 
-	// PCF
-	float uvRadius = penumbraWidth * uvLightSize * pc.near / shadowCoords.z; // 计算用于 PCF 采样的半径
-
-	return PCF_DirectionalLight(shadowCoords, shadowMap, uvRadius, bias);
+    // PCF
+    return PCF_DirectionalLight(shadowCoords, shadowMap, penumbraWidth, bias);
 }
+
+//-----------------------------------------Shadow calculation functions-------------------------------//
 
 float SoftShadowCalculation(vec4 fragPosLightSpace, float bias)
 {
@@ -228,13 +251,11 @@ float SoftShadowCalculation(vec4 fragPosLightSpace, float bias)
 
     // 取得当前片段在光源视角下的深度
     float currentDepth = projCoords.z;
-    
-    float shadow = 0;
 
     if(projCoords.z > 1.0) // 超出光源视锥，不考虑阴影
-        shadow = 0.0;
+        return 0.0;
 
-    shadow = PCSS_DirectionalLight(projCoords, shadowMap, pc.size, bias);
+    float shadow = PCSS_DirectionalLight(projCoords, shadowMap, pc.size, bias);
 
     return shadow;
 }
@@ -251,31 +272,26 @@ float HardShadowCalculation(vec4 fragPosLightSpace, float bias)
     // 取得当前片段在光源视角下的深度
     float currentDepth = projCoords.z;
 
+    if (projCoords.z > 1.0) // 超出光源视锥，不考虑阴影
+        return 0.0;
+
     float shadow = 0.0;
     // textureSize 返回一个给定采样器纹理的 0 级 mipmap 的 vec2 类型的宽和高
     // 用 1 除以它返回一个单独纹理像素的大小
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 
-    for (int x = -1; x <= 1; ++x)
-    {
-        for (int y = -1; y <= 1; ++y)
-        {
-            // 检查当前片段周围 9 个片段的深度值
-            vec3 uvc = vec3(projCoords.xy + vec2(x, y) * texelSize, (projCoords.z - bias));
-            float pcfDepth = texture(shadowMap, uvc);
-            shadow += (pcfDepth < (projCoords.z - bias)) ? 1 : 0;
-        }
-    }
+	for (int i = 0; i < pc.numPCFSamples; i++)
+	{
+		float z = texture(shadowMap, projCoords.xy + RandomDirection(distribution1, i / float(pc.numPCFSamples)) * texelSize * pc.numBlockerSearchSamples).r;
+		shadow += (z < (projCoords.z - bias)) ? 1 : 0;
+	}
 
-    // 取平均值
-    shadow /= 9.0;
+	shadow /= pc.numPCFSamples;
 
     return shadow;
 }
 
 //--------------------------------------------------PBR------------------------------------------------//
-
-const float PI = 3.14159265359;
 
 /// 法线分布函数 D (Trowbridge-Reitz GGX)
 /// params N 法线

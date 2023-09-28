@@ -86,8 +86,8 @@ namespace Kaesar
         // 创建阴影帧缓冲
         FramebufferSpecification shadowSpec;
         shadowSpec.Attachments = { FramebufferTextureFormat::DEPTH32 };
-        shadowSpec.Width = 2048;
-        shadowSpec.Height = 2048;
+        shadowSpec.Width = 4096;
+        shadowSpec.Height = 4096;
         shadowSpec.Samples = 1;
         shadowSpec.ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
         
@@ -159,23 +159,25 @@ namespace Kaesar
         s_Data.shadowUniformBuffer = UniformBuffer::Create(sizeof(glm::mat4), 4);
 
         s_Data.exposure = 0.5f;
-        s_Data.gamma = 2.2f;
-        s_Data.lightSize = 2.0f;
-        s_Data.orthoSize = 10.0f;
+        s_Data.gamma = 1.9f;
+        s_Data.lightSize = 1.0f;
+        s_Data.orthoSize = 20.0f;
         s_Data.lightNear = 20.0f;
         s_Data.lightFar = 200.0f;
 
         s_Data.intensity = 1.0f;
         
-        GeneratePoissonDisk(s_Data.distributionSampler0, 32);
-        GeneratePoissonDisk(s_Data.distributionSampler1, 32);
+        GeneratePoissonDisk(s_Data.distributionSampler0, 64);
+        GeneratePoissonDisk(s_Data.distributionSampler1, 64);
         s_Data.basicShader->Bind();
         Texture1D::BindTexture(s_Data.distributionSampler0->GetRendererID(), 4);
         Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
         s_Data.basicShader->Unbind();
 
         float dSize = s_Data.orthoSize;
-        s_Data.lightProjection = glm::perspective(45.0f, 1.0f, s_Data.lightNear, s_Data.lightFar);
+        //s_Data.lightProjection = glm::perspective(45.0f, 1.0f, s_Data.lightNear, s_Data.lightFar);
+        // 透视投影会对深度值产生非线性影响，使用正交投影，可以保证在裁剪过程中保留 z 值的线性性质
+        s_Data.lightProjection = glm::ortho(-dSize, dSize, -dSize, dSize, s_Data.lightNear, s_Data.lightFar);
     }
 
     void SceneRenderer::BeginScene(const PerspectiveCamera& camera)
@@ -360,7 +362,7 @@ namespace Kaesar
         Texture1D::BindTexture(s_Data.distributionSampler1->GetRendererID(), 5);
 
         //Push constant variables
-        s_Data.deferredLightingShader->SetFloat("pc.size", s_Data.lightSize * 0.0001f);
+        s_Data.deferredLightingShader->SetFloat("pc.size", s_Data.lightSize);
         s_Data.deferredLightingShader->SetInt("pc.numPCFSamples", s_Data.numPCF);
         s_Data.deferredLightingShader->SetInt("pc.numBlockerSearchSamples", s_Data.numBlocker);
         s_Data.deferredLightingShader->SetInt("pc.softShadow", (int)s_Data.softShadow);
@@ -454,8 +456,6 @@ namespace Kaesar
         ImGui::DragFloat(u8"曝   光", &s_Data.exposure, 0.001f, -2, 4);
 
         ImGui::DragFloat(u8"gamma值", &s_Data.gamma, 0.01f, 0, 4);
-
-        ImGui::DragFloat(u8"光源大小", &s_Data.lightSize, 0.0001, 0, 100);
 
         static bool showDepth = false;
         static bool showAlbedo = false;

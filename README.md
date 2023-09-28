@@ -61,7 +61,7 @@
 
 首先，使用以下命令克隆存储库：`git clone --recursive https://github.com/qzlu-cyber/Kaesar`。如果之前是非递归地克隆存储库的，则使用 `git submodule update --init` 命令来克隆必要的子模块。
 
-然后，运行 `scripts/setup.py` 脚本来下载并安装所有必要的依赖项，如 VulkanSDK，为什么需要 Vulkan 可以看看[这篇文章](https://blog.csdn.net/alexhu2010q/article/details/126233020)。这个地方不好配置，而且现在 Vulkan 官网已经没有 Debug 版本的下载链接了（所以也就无法通过 `scripts/setup.py`  来配置了），需要在配置好 Vulkan 的环境后单独在 Vulkan 根目录打开 `maintenancetool.exe` 通过添加组件下载，建议使用 `1.3.216.0` 版本的 VulkanSDK。完成之后双击项目根目录的 `GenerateProjects.bat` 会生成一个 Visual Studio 解决方案。之后，就可以在 Visual Studio 中编译和运行引擎。
+~~然后，运行 `scripts/setup.py` 脚本来下载并安装所有必要的依赖项，如 VulkanSDK，为什么需要 Vulkan 可以看看[这篇文章](https://blog.csdn.net/alexhu2010q/article/details/126233020)。~~ 这个地方不好配置，而且现在 Vulkan 官网已经没有 Debug 版本的下载链接了（所以也就无法通过 `scripts/setup.py`  来配置了），需要在配置好 Vulkan 的环境后单独在 Vulkan 根目录打开 `maintenancetool.exe` 通过添加组件下载，建议使用 `1.3.216.0` 版本的 VulkanSDK。完成之后双击项目根目录的 `GenerateProjects.bat` 会生成一个 Visual Studio 解决方案。之后，就可以在 Visual Studio 中编译和运行引擎。
 
 ### 第三方库
 
